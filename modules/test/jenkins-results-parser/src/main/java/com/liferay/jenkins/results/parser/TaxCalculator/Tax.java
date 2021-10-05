@@ -65,7 +65,7 @@ public class Tax {
 		Class<?> clazz = Tax.class;
 
 		URL resourceURL = clazz.getResource(
-			_resourceFolderURL + "/TaxCalculatorInputs/input3.txt");
+			_URL_RESOURCE_FOLDER + "/TaxCalculatorInputs/input3.txt");
 
 		URI resourceURI;
 
@@ -145,9 +145,10 @@ public class Tax {
 		System.out.println("Total: " + String.format("%.2f", total));
 	}
 
-	private static final Pattern _digitPattern = Pattern.compile("\\d+");
-	private static final String _resourceFolderURL =
+	private static final String _URL_RESOURCE_FOLDER =
 		"/com/liferay/jenkins/results/parser/dependencies";
+
+	private static final Pattern _digitPattern = Pattern.compile("\\d+");
 
 	private final ArrayList<Item> _items = new ArrayList<>();
 
