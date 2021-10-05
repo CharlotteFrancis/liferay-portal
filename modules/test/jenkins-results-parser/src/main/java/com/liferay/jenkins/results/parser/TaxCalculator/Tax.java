@@ -30,10 +30,21 @@ import java.util.regex.Pattern;
 public class Tax {
 
 	public static void main(String[] args) {
-		Tax testTax = new Tax();
+		Tax testTax = new Tax("input1.txt");
 
-		testTax.getInput();
 		testTax.print();
+
+		testTax = new Tax("input2.txt");
+
+		testTax.print();
+
+		testTax = new Tax("input3.txt");
+
+		testTax.print();
+	}
+
+	public Tax(String fileName) {
+		getInput(fileName);
 	}
 
 	public double calculateTax(Item item) {
@@ -56,11 +67,12 @@ public class Tax {
 		return tax;
 	}
 
-	public void getInput() {
+	public void getInput(String fileName) {
 		Class<?> clazz = Tax.class;
 
 		InputStream resourceInputStream = clazz.getResourceAsStream(
-			_URL_RESOURCE_FOLDER + "/TaxCalculatorInputs/input3.txt");
+			JenkinsResultsParserUtil.combine(
+				_URL_RESOURCE_FOLDER, "/TaxCalculatorInputs/", fileName));
 
 		String resourceFileContents;
 
