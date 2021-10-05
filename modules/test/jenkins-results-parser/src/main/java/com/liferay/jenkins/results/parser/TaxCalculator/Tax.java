@@ -84,12 +84,8 @@ public class Tax {
 			File file = new File(path);
 
 			try (Scanner scanner = new Scanner(file)) {
-				String input = "";
-
 				while (scanner.hasNextLine()) {
-					input = scanner.nextLine();
-
-					parseInput(input);
+					parseInput(scanner.nextLine());
 				}
 			}
 		}
