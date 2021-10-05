@@ -14,18 +14,12 @@
 
 package com.liferay.jenkins.results.parser.TaxCalculator;
 
-import java.io.File;
-import java.io.FileNotFoundException;
+import com.liferay.jenkins.results.parser.JenkinsResultsParserUtil;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.io.IOException;
+import java.io.InputStream;
 
 import java.util.ArrayList;
-import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -64,36 +58,24 @@ public class Tax {
 	public void getInput() {
 		Class<?> clazz = Tax.class;
 
-		URL resourceURL = clazz.getResource(
+		InputStream resourceInputStream = clazz.getResourceAsStream(
 			_URL_RESOURCE_FOLDER + "/TaxCalculatorInputs/input3.txt");
 
-		URI resourceURI;
+		String resourceFileContents;
 
 		try {
-			resourceURI = resourceURL.toURI();
+			resourceFileContents = JenkinsResultsParserUtil.readInputStream(
+				resourceInputStream);
 		}
-		catch (URISyntaxException uriSyntaxException) {
+		catch (IOException ioException) {
 			throw new RuntimeException(
-				"Invalid resource path " + resourceURL, uriSyntaxException);
+				"Unable to read resource file", ioException);
 		}
 
-		Path resourcePath = Paths.get(resourceURI);
+		for (String resourceFileLine :
+				resourceFileContents.split("\\s*\n\\s*")) {
 
-		File resourceFile = resourcePath.toFile();
-
-		String path = resourceFile.getPath();
-
-		File file = new File(path);
-
-		try (Scanner scanner = new Scanner(file)) {
-			while (scanner.hasNextLine()) {
-				parseInput(scanner.nextLine());
-			}
-		}
-		catch (FileNotFoundException fileNotFoundException) {
-			throw new RuntimeException(
-				"Unable to fine resource file " + resourceURL,
-				fileNotFoundException);
+			parseInput(resourceFileLine);
 		}
 	}
 
