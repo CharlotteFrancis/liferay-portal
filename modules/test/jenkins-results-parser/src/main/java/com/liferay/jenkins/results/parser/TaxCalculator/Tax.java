@@ -67,31 +67,38 @@ public class Tax {
 	}
 
 	public void getInput() {
+		Class<?> clazz = Tax.class;
+
+		URL resourceURL = clazz.getResource(
+			_resourceFolderURL + "/TaxCalculatorInputs/input3.txt");
+
+		URI resourceURI;
+
 		try {
-			Class<?> clazz = Tax.class;
+			resourceURI = resourceURL.toURI();
+		}
+		catch (URISyntaxException uriSyntaxException) {
+			throw new RuntimeException(
+				"Invalid resource path " + resourceURL, uriSyntaxException);
+		}
 
-			URL resourceURL = clazz.getResource(
-				_resourceFolderURL + "/TaxCalculatorInputs/input3.txt");
+		Path resourcePath = Paths.get(resourceURI);
 
-			URI resourceURI = resourceURL.toURI();
+		File resourceFile = resourcePath.toFile();
 
-			Path resourcePath = Paths.get(resourceURI);
+		String path = resourceFile.getPath();
 
-			File resourceFile = resourcePath.toFile();
+		File file = new File(path);
 
-			String path = resourceFile.getPath();
-
-			File file = new File(path);
-
-			try (Scanner scanner = new Scanner(file)) {
-				while (scanner.hasNextLine()) {
-					parseInput(scanner.nextLine());
-				}
+		try (Scanner scanner = new Scanner(file)) {
+			while (scanner.hasNextLine()) {
+				parseInput(scanner.nextLine());
 			}
 		}
-		catch (FileNotFoundException | URISyntaxException exception) {
-			System.err.println("Error, file not found.");
-			exception.printStackTrace();
+		catch (FileNotFoundException fileNotFoundException) {
+			throw new RuntimeException(
+				"Unable to fine resource file " + resourceURL,
+				fileNotFoundException);
 		}
 	}
 
