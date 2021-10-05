@@ -41,11 +41,6 @@ public class Tax {
 		testTax.print();
 	}
 
-	public Tax() {
-		_digitPattern = Pattern.compile("\\d+");
-		_resourceFolderURL = "/com/liferay/jenkins/results/parser/dependencies";
-	}
-
 	public double calculateTax(Item item) {
 		double tax = 0.0;
 
@@ -150,8 +145,10 @@ public class Tax {
 		System.out.println("Total: " + String.format("%.2f", total));
 	}
 
-	private final Pattern _digitPattern;
+	private static final Pattern _digitPattern = Pattern.compile("\\d+");
+	private static final String _resourceFolderURL =
+		"/com/liferay/jenkins/results/parser/dependencies";
+
 	private final ArrayList<Item> _items = new ArrayList<>();
-	private final String _resourceFolderURL;
 
 }
