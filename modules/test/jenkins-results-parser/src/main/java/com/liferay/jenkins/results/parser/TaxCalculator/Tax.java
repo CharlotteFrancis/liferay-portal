@@ -83,14 +83,14 @@ public class Tax {
 
 			File file = new File(path);
 
-			Scanner scanner = new Scanner(file);
+			try (Scanner scanner = new Scanner(file)) {
+				String input = "";
 
-			String input = "";
+				while (scanner.hasNextLine()) {
+					input = scanner.nextLine();
 
-			while (scanner.hasNextLine()) {
-				input = scanner.nextLine();
-
-				parseInput(input);
+					parseInput(input);
+				}
 			}
 		}
 		catch (FileNotFoundException | URISyntaxException exception) {
