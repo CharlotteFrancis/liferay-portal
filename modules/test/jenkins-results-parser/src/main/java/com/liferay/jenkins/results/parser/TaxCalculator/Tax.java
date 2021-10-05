@@ -103,8 +103,9 @@ public class Tax {
 			double itemCostWithTax = item.getPrice() + itemTax;
 
 			System.out.println(
-				item.getAmount() + " " + item.getName() + ": " +
-					String.format("%.2f", itemCostWithTax));
+				JenkinsResultsParserUtil.combine(
+					String.valueOf(item.getAmount()), " ", item.getName(), ": ",
+					String.format("%.2f", itemCostWithTax)));
 
 			totalTax += itemTax;
 
