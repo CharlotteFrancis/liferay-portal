@@ -80,29 +80,16 @@ public class Tax {
 	}
 
 	public void parseInput(String input) {
-		int atIndex = input.indexOf(" at ");
+		Matcher matcher = _inputPattern.matcher(input);
 
-		if ((atIndex == -1) || !Character.isDigit(input.charAt(0))) {
-			System.err.println("Invalid input.");
-
+		if (!matcher.matches()) {
 			return;
 		}
 
-		Matcher matcher = _digitPattern.matcher(input);
-
-		matcher.find();
-
-		String amountString = matcher.group();
-
-		int amountInt = Integer.valueOf(amountString);
-
-		String itemName = input.substring(amountString.length() + 1, atIndex);
-
-		String itemPrice = input.substring(atIndex + 4);
-
-		Double itemPriceDouble = Double.parseDouble(itemPrice);
-
-		_items.add(new Item(amountInt, itemName, itemPriceDouble));
+		_items.add(
+			new Item(
+				Integer.parseInt(matcher.group("count")), matcher.group("name"),
+				Double.parseDouble(matcher.group("rate"))));
 	}
 
 	public void print() {
@@ -130,7 +117,8 @@ public class Tax {
 	private static final String _URL_RESOURCE_FOLDER =
 		"/com/liferay/jenkins/results/parser/dependencies";
 
-	private static final Pattern _digitPattern = Pattern.compile("\\d+");
+	private static final Pattern _inputPattern = Pattern.compile(
+		"(?<count>\\d+)\\s+(?<name>.*)\\s+at\\s+(?<rate>[\\d\\.]+)");
 
 	private final ArrayList<Item> _items = new ArrayList<>();
 
