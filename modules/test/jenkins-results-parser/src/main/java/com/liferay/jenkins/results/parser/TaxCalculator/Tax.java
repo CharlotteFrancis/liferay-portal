@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -120,6 +121,6 @@ public class Tax {
 	private static final Pattern _inputPattern = Pattern.compile(
 		"(?<count>\\d+)\\s+(?<name>.*)\\s+at\\s+(?<rate>[\\d\\.]+)");
 
-	private final ArrayList<Item> _items = new ArrayList<>();
+	private final List<Item> _items = new ArrayList<>();
 
 }
