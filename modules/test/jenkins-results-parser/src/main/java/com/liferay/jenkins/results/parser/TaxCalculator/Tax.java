@@ -32,15 +32,15 @@ public class Tax {
 	public static void main(String[] args) {
 		Tax testTax = new Tax("input1.txt");
 
-		testTax.print();
+		System.out.println(testTax);
 
 		testTax = new Tax("input2.txt");
 
-		testTax.print();
+		System.out.println(testTax);
 
 		testTax = new Tax("input3.txt");
 
-		testTax.print();
+		System.out.println(testTax);
 	}
 
 	public Tax(String fileName) {
@@ -105,27 +105,38 @@ public class Tax {
 				Double.parseDouble(matcher.group("rate"))));
 	}
 
-	public void print() {
+	@Override
+	public String toString() {
 		double total = 0.0;
 		double totalTax = 0.0;
+
+		StringBuilder sb = new StringBuilder();
 
 		for (Item item : _items) {
 			double itemTax = calculateTax(item);
 
 			double itemCostWithTax = item.getPrice() + itemTax;
 
-			System.out.println(
-				JenkinsResultsParserUtil.combine(
-					String.valueOf(item.getAmount()), " ", item.getName(), ": ",
-					String.format("%.2f", itemCostWithTax)));
+			sb.append(String.valueOf(item.getAmount()));
+			sb.append(" ");
+			sb.append(item.getName());
+			sb.append(": ");
+			sb.append(String.format("%.2f", itemCostWithTax));
+			sb.append("\n");
 
 			totalTax += itemTax;
 
 			total += itemCostWithTax;
 		}
 
-		System.out.println("Sales Taxes: " + String.format("%.2f", totalTax));
-		System.out.println("Total: " + String.format("%.2f", total));
+		sb.append("Sales Taxes: ");
+		sb.append(String.format("%.2f", totalTax));
+		sb.append("\n");
+		sb.append("Total: ");
+		sb.append(String.format("%.2f", total));
+		sb.append("\n");
+
+		return sb.toString();
 	}
 
 	private static final String _URL_RESOURCE_FOLDER =
