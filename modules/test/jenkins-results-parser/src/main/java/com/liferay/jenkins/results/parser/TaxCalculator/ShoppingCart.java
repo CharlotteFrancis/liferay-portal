@@ -27,24 +27,28 @@ import java.util.regex.Pattern;
 /**
  * @author Charlotte Wong
  */
-public class Receipt {
+public class ShoppingCart {
 
 	public static void main(String[] args) {
-		Receipt testReceipt = new Receipt("input1.txt");
+		ShoppingCart shoppingCart = new ShoppingCart("input1.txt");
 
-		System.out.println(testReceipt);
+		System.out.println(shoppingCart.getReceipt());
 
-		testReceipt = new Receipt("input2.txt");
+		shoppingCart = new ShoppingCart("input2.txt");
 
-		System.out.println(testReceipt);
+		System.out.println(shoppingCart.getReceipt());
 
-		testReceipt = new Receipt("input3.txt");
+		shoppingCart = new ShoppingCart("input3.txt");
 
-		System.out.println(testReceipt);
+		System.out.println(shoppingCart.getReceipt());
 	}
 
-	public Receipt(String fileName) {
+	public ShoppingCart(String fileName) {
 		loadInputResourceFile(fileName);
+	}
+
+	public String getReceipt() {
+		return toString();
 	}
 
 	@Override
@@ -102,7 +106,7 @@ public class Receipt {
 	}
 
 	protected void loadInputResourceFile(String fileName) {
-		Class<?> clazz = Receipt.class;
+		Class<?> clazz = ShoppingCart.class;
 
 		String resourceFileContents;
 
