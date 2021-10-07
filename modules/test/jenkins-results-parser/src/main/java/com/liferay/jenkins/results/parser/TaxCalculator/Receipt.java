@@ -27,23 +27,23 @@ import java.util.regex.Pattern;
 /**
  * @author Charlotte Wong
  */
-public class Tax {
+public class Receipt {
 
 	public static void main(String[] args) {
-		Tax testTax = new Tax("input1.txt");
+		Receipt testReceipt = new Receipt("input1.txt");
 
-		System.out.println(testTax);
+		System.out.println(testReceipt);
 
-		testTax = new Tax("input2.txt");
+		testReceipt = new Receipt("input2.txt");
 
-		System.out.println(testTax);
+		System.out.println(testReceipt);
 
-		testTax = new Tax("input3.txt");
+		testReceipt = new Receipt("input3.txt");
 
-		System.out.println(testTax);
+		System.out.println(testReceipt);
 	}
 
-	public Tax(String fileName) {
+	public Receipt(String fileName) {
 		getInput(fileName);
 	}
 
@@ -68,7 +68,7 @@ public class Tax {
 	}
 
 	public void getInput(String fileName) {
-		Class<?> clazz = Tax.class;
+		Class<?> clazz = Receipt.class;
 
 		InputStream resourceInputStream = clazz.getResourceAsStream(
 			JenkinsResultsParserUtil.combine(
