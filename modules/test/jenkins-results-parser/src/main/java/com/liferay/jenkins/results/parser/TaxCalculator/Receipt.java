@@ -47,39 +47,6 @@ public class Receipt {
 		loadInputResourceFile(fileName);
 	}
 
-	public double calculateTax(Item item) {
-		double tax = 0.0;
-
-		if (!item.isExempt()) {
-			tax += item.getPrice() * .10;
-		}
-
-		if (item.isImported()) {
-			tax += item.getPrice() * .05;
-		}
-
-		tax *= 20;
-
-		tax = Double.valueOf(Math.round(tax));
-
-		tax /= 20;
-
-		return tax;
-	}
-
-	public void parseInput(String input) {
-		Matcher matcher = _inputPattern.matcher(input);
-
-		if (!matcher.matches()) {
-			return;
-		}
-
-		_items.add(
-			new Item(
-				Integer.parseInt(matcher.group("count")), matcher.group("name"),
-				Double.parseDouble(matcher.group("rate"))));
-	}
-
 	@Override
 	public String toString() {
 		double total = 0.0;
@@ -114,6 +81,26 @@ public class Receipt {
 		return sb.toString();
 	}
 
+	protected double calculateTax(Item item) {
+		double tax = 0.0;
+
+		if (!item.isExempt()) {
+			tax += item.getPrice() * .10;
+		}
+
+		if (item.isImported()) {
+			tax += item.getPrice() * .05;
+		}
+
+		tax *= 20;
+
+		tax = Double.valueOf(Math.round(tax));
+
+		tax /= 20;
+
+		return tax;
+	}
+
 	protected void loadInputResourceFile(String fileName) {
 		Class<?> clazz = Receipt.class;
 
@@ -136,6 +123,19 @@ public class Receipt {
 
 			parseInput(resourceFileLine);
 		}
+	}
+
+	protected void parseInput(String input) {
+		Matcher matcher = _inputPattern.matcher(input);
+
+		if (!matcher.matches()) {
+			return;
+		}
+
+		_items.add(
+			new Item(
+				Integer.parseInt(matcher.group("count")), matcher.group("name"),
+				Double.parseDouble(matcher.group("rate"))));
 	}
 
 	private static final String _URL_RESOURCE_FOLDER =
