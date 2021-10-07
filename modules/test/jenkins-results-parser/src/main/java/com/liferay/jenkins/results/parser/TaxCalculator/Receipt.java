@@ -70,13 +70,12 @@ public class Receipt {
 	public void getInput(String fileName) {
 		Class<?> clazz = Receipt.class;
 
-		InputStream resourceInputStream = clazz.getResourceAsStream(
-			JenkinsResultsParserUtil.combine(
-				_URL_RESOURCE_FOLDER, "/TaxCalculatorInputs/", fileName));
-
 		String resourceFileContents;
 
-		try {
+		try (InputStream resourceInputStream = clazz.getResourceAsStream(
+				JenkinsResultsParserUtil.combine(
+					_URL_RESOURCE_FOLDER, "/TaxCalculatorInputs/", fileName))) {
+
 			resourceFileContents = JenkinsResultsParserUtil.readInputStream(
 				resourceInputStream);
 		}
