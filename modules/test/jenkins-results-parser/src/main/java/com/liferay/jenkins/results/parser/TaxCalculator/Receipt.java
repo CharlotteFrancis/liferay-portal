@@ -44,7 +44,7 @@ public class Receipt {
 	}
 
 	public Receipt(String fileName) {
-		getInput(fileName);
+		loadInputResourceFile(fileName);
 	}
 
 	public double calculateTax(Item item) {
@@ -65,30 +65,6 @@ public class Receipt {
 		tax /= 20;
 
 		return tax;
-	}
-
-	public void getInput(String fileName) {
-		Class<?> clazz = Receipt.class;
-
-		String resourceFileContents;
-
-		try (InputStream resourceInputStream = clazz.getResourceAsStream(
-				JenkinsResultsParserUtil.combine(
-					_URL_RESOURCE_FOLDER, "/TaxCalculatorInputs/", fileName))) {
-
-			resourceFileContents = JenkinsResultsParserUtil.readInputStream(
-				resourceInputStream);
-		}
-		catch (IOException ioException) {
-			throw new RuntimeException(
-				"Unable to read resource file", ioException);
-		}
-
-		for (String resourceFileLine :
-				resourceFileContents.split("\\s*\n\\s*")) {
-
-			parseInput(resourceFileLine);
-		}
 	}
 
 	public void parseInput(String input) {
@@ -136,6 +112,30 @@ public class Receipt {
 		sb.append("\n");
 
 		return sb.toString();
+	}
+
+	protected void loadInputResourceFile(String fileName) {
+		Class<?> clazz = Receipt.class;
+
+		String resourceFileContents;
+
+		try (InputStream resourceInputStream = clazz.getResourceAsStream(
+				JenkinsResultsParserUtil.combine(
+					_URL_RESOURCE_FOLDER, "/TaxCalculatorInputs/", fileName))) {
+
+			resourceFileContents = JenkinsResultsParserUtil.readInputStream(
+				resourceInputStream);
+		}
+		catch (IOException ioException) {
+			throw new RuntimeException(
+				"Unable to read resource file", ioException);
+		}
+
+		for (String resourceFileLine :
+				resourceFileContents.split("\\s*\n\\s*")) {
+
+			parseInput(resourceFileLine);
+		}
 	}
 
 	private static final String _URL_RESOURCE_FOLDER =
