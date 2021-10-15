@@ -80,7 +80,7 @@ public class ShoppingCart {
 		sb.append("\n");
 		sb.append("Total: ");
 		sb.append(String.format("%.2f", total));
-		sb.append("\n");
+		//		sb.append("\n");
 
 		return sb.toString();
 	}
@@ -112,7 +112,7 @@ public class ShoppingCart {
 
 		try (InputStream resourceInputStream = clazz.getResourceAsStream(
 				JenkinsResultsParserUtil.combine(
-					_URL_RESOURCE_FOLDER, "/TaxCalculatorInputs/", fileName))) {
+					_URL_RESOURCE_FOLDER, fileName))) {
 
 			resourceFileContents = JenkinsResultsParserUtil.readInputStream(
 				resourceInputStream);
@@ -143,7 +143,9 @@ public class ShoppingCart {
 	}
 
 	private static final String _URL_RESOURCE_FOLDER =
-		"/com/liferay/jenkins/results/parser/dependencies";
+//		"/com/liferay/jenkins/results/parser/dependencies";
+
+	"/dependencies/SalesTaxTest/";
 
 	private static final Pattern _inputPattern = Pattern.compile(
 		"(?<count>\\d+)\\s+(?<name>.*)\\s+at\\s+(?<rate>[\\d\\.]+)");
