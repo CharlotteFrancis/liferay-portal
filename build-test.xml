@@ -4978,9 +4978,7 @@ org.apache.catalina.startup.ClassLoaderFactory.level=INFO]]>
 					<equals arg1="${database.version}" arg2="11.5.6" />
 				</and>
 				<then>
-					<echo>"@ @ @ INSIDE DB2 11.5.6 BLOCK @ @ @ current working directory: "</echo>
-					<exec executable="pwd"/>
-					<property name="docker.database.wait.condition">[[ "$(bash -c "su - db2inst1" '~/sqllib/bin/db2 db2start')" =~ "SQL1026N" ]]</property>
+					<property name="docker.database.wait.condition">[[ "$(/bin/su - db2inst1 -c '~/sqllib/bin/db2 db2start')" =~ "SQL1026N" ]]</property>
 				</then>
 				<elseif>
 					<equals arg1="${database.type}" arg2="db2" />
