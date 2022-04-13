@@ -200,6 +200,7 @@ public class RootCauseAnalysisToolTopLevelBuildRunner
 		_validateBuildParameterPortalBranchSHAs();
 		_validateBuildParameterPortalGitHubURL();
 		_validateBuildParameterPortalUpstreamBranchName();
+		_validateBuildParameterRetestPortalSHA();
 	}
 
 	private void _failInvalidPortalRepositoryName(
@@ -273,6 +274,18 @@ public class RootCauseAnalysisToolTopLevelBuildRunner
 		}
 
 		return _COMMITS_GROUP_SIZE_MAX_DEFAULT;
+	}
+
+	private Integer _getMaxRetestAmount() {
+		String maxRetestAmount = getJobPropertyValue("maximum.retest.amount");
+
+		if ((maxRetestAmount == null) ||
+			maxRetestAmount.isEmpty()) {
+
+			return -1;
+		}
+
+		return Integer.valueOf(maxRetestAmount);
 	}
 
 	private List<String> _getPortalBranchSHAs() {
@@ -636,6 +649,29 @@ public class RootCauseAnalysisToolTopLevelBuildRunner
 		}
 	}
 
+	private void _validateBuildParameterRetestAmount() {
+		String retestAmount = getBuildParameter(
+			_NAME_BUILD_PARAMETER_RETEST_AMOUNT);
+
+		if ((retestAmount == null) || retestAmount.isEmpty()) {
+			return;
+		}
+
+		int retestAmountInt = Integer.parseInt(retestAmount);
+
+		int maxRetestAmount = _getMaxRetestAmount();
+
+		if (retestAmountInt < 0 || retestAmountInt > maxRetestAmount) {
+			StringBuilder sb = new StringBuilder();
+
+			sb.append(_NAME_BUILD_PARAMETER_RETEST_AMOUNT);
+			sb.append(" must be between 0 and ");
+			sb.append(maxRetestAmount);
+			sb.append(" .");
+
+			failBuildRunner(sb.toString());
+		}
+	}
 	private void _validateBuildParameterRetestPortalSHA() {
 		String retestPortalSHA = getBuildParameter(
 			_NAME_BUILD_PARAMETER_RETEST_PORTAL_SHA);
