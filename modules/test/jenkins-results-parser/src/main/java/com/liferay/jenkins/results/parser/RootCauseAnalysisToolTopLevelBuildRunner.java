@@ -110,7 +110,7 @@ public class RootCauseAnalysisToolTopLevelBuildRunner
 
 		GitWorkingDirectory gitWorkingDirectory =
 			workspaceGitRepository.getGitWorkingDirectory();
-		///
+
 		List<String> retestPortalSHAs = _getRestestPortalSHAs();
 
 		List<String> commitSHAs = new ArrayList<>();
@@ -160,8 +160,8 @@ public class RootCauseAnalysisToolTopLevelBuildRunner
 
 			commitSHAs.addAll(portalBranchSHAs);
 			commitSHAs.addAll(portalCherryPickSHAs);
-
-		} else {
+		}
+		else {
 			for (String retestPortalSHA : retestPortalSHAs) {
 				if (gitWorkingDirectory.localSHAExists(retestPortalSHA)) {
 					continue;
@@ -200,6 +200,7 @@ public class RootCauseAnalysisToolTopLevelBuildRunner
 		_validateBuildParameterPortalBranchSHAs();
 		_validateBuildParameterPortalGitHubURL();
 		_validateBuildParameterPortalUpstreamBranchName();
+		_validateBuildParameterRetestAmount();
 		_validateBuildParameterRetestPortalSHA();
 	}
 
@@ -279,9 +280,7 @@ public class RootCauseAnalysisToolTopLevelBuildRunner
 	private Integer _getMaxRetestAmount() {
 		String maxRetestAmount = getJobPropertyValue("maximum.retest.amount");
 
-		if ((maxRetestAmount == null) ||
-			maxRetestAmount.isEmpty()) {
-
+		if ((maxRetestAmount == null) || maxRetestAmount.isEmpty()) {
 			return -1;
 		}
 
@@ -387,7 +386,7 @@ public class RootCauseAnalysisToolTopLevelBuildRunner
 			_NAME_BUILD_PARAMETER_RETEST_PORTAL_SHA);
 
 		String retestAmount = getBuildParameter(
-			_NAME_BUILD_PARAMETER_RETEST_AMOUNT));
+			_NAME_BUILD_PARAMETER_RETEST_AMOUNT);
 
 		if (JenkinsResultsParserUtil.isNullOrEmpty(restestPortalSHAString) &&
 			JenkinsResultsParserUtil.isNullOrEmpty(retestAmount)) {
@@ -396,7 +395,6 @@ public class RootCauseAnalysisToolTopLevelBuildRunner
 		}
 
 		for (int i = 0; i < Integer.parseInt(retestAmount); i++) {
-
 			restestPortalSHAList.add(restestPortalSHAString.trim());
 		}
 
@@ -661,7 +659,7 @@ public class RootCauseAnalysisToolTopLevelBuildRunner
 
 		int maxRetestAmount = _getMaxRetestAmount();
 
-		if (retestAmountInt < 0 || retestAmountInt > maxRetestAmount) {
+		if ((retestAmountInt < 0) || (retestAmountInt > maxRetestAmount)) {
 			StringBuilder sb = new StringBuilder();
 
 			sb.append(_NAME_BUILD_PARAMETER_RETEST_AMOUNT);
@@ -672,6 +670,7 @@ public class RootCauseAnalysisToolTopLevelBuildRunner
 			failBuildRunner(sb.toString());
 		}
 	}
+
 	private void _validateBuildParameterRetestPortalSHA() {
 		String retestPortalSHA = getBuildParameter(
 			_NAME_BUILD_PARAMETER_RETEST_PORTAL_SHA);
@@ -724,11 +723,11 @@ public class RootCauseAnalysisToolTopLevelBuildRunner
 		_NAME_BUILD_PARAMETER_PORTAL_UPSTREAM_BRANCH_NAME =
 			"PORTAL_UPSTREAM_BRANCH_NAME";
 
-	private static final String _NAME_BUILD_PARAMETER_RETEST_PORTAL_SHA=
-		"RETEST_PORTAL_SHA";
-
-	private static final String _NAME_BUILD_PARAMETER_RETEST_AMOUNT=
+	private static final String _NAME_BUILD_PARAMETER_RETEST_AMOUNT =
 		"RETEST_AMOUNT";
+
+	private static final String _NAME_BUILD_PARAMETER_RETEST_PORTAL_SHA =
+		"RETEST_PORTAL_SHA";
 
 	private static final Pattern _compareURLPattern = Pattern.compile(
 		JenkinsResultsParserUtil.combine(
