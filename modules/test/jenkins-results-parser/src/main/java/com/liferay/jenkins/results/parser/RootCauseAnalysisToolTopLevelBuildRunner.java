@@ -341,6 +341,29 @@ public class RootCauseAnalysisToolTopLevelBuildRunner
 		return getBuildParameter(_NAME_BUILD_PARAMETER_PORTAL_GITHUB_URL);
 	}
 
+	private List<String> _getRestestPortalSHAs() {
+		List<String> restestPortalSHAList = new ArrayList<>();
+
+		String restestPortalSHAString = getBuildParameter(
+			_NAME_BUILD_PARAMETER_RETEST_PORTAL_SHA);
+
+		String retestAmount = getBuildParameter(
+			_NAME_BUILD_PARAMETER_RETEST_AMOUNT));
+
+		if (JenkinsResultsParserUtil.isNullOrEmpty(restestPortalSHAString) &&
+			JenkinsResultsParserUtil.isNullOrEmpty(retestAmount)) {
+
+			return restestPortalSHAList;
+		}
+
+		for (int i = 0; i < Integer.parseInt(retestAmount); i++) {
+
+			restestPortalSHAList.add(restestPortalSHAString.trim());
+		}
+
+		return restestPortalSHAList;
+	}
+
 	private List<String> _getTestList() {
 		String portalBatchTestSelector = getBuildParameter(
 			_NAME_BUILD_PARAMETER_PORTAL_BATCH_TEST_SELECTOR);
@@ -584,6 +607,33 @@ public class RootCauseAnalysisToolTopLevelBuildRunner
 			sb.append("</ul>");
 
 			failBuildRunner(sb.toString());
+		}
+	}
+
+	private void _validateBuildParameterRetestPortalSHA() {
+		String retestPortalSHA = getBuildParameter(
+			_NAME_BUILD_PARAMETER_RETEST_PORTAL_SHA);
+
+		if ((retestPortalSHA == null) || retestPortalSHA.isEmpty()) {
+			return;
+		}
+
+		Matcher matcher = _compareURLPattern.matcher(retestPortalSHA);
+
+		if (matcher.find()) {
+			String portalUpstreamBranchName = getBuildParameter(
+				_NAME_BUILD_PARAMETER_PORTAL_UPSTREAM_BRANCH_NAME);
+			String repositoryName = matcher.group("repositoryName");
+
+			if ((repositoryName.equals("liferay-portal") &&
+				 !portalUpstreamBranchName.equals("master")) ||
+				(repositoryName.equals("liferay-portal-ee") &&
+				 portalUpstreamBranchName.equals("master"))) {
+
+				_failInvalidPortalRepositoryName(
+					NAME_BUILD_PARAMETER_RETEST_PORTAL_SHA,
+					portalUpstreamBranchName);
+			}
 		}
 	}
 
