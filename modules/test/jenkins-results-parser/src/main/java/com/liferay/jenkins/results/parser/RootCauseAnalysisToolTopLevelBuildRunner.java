@@ -388,6 +388,10 @@ public class RootCauseAnalysisToolTopLevelBuildRunner
 		String retestAmount = getBuildParameter(
 			_NAME_BUILD_PARAMETER_RETEST_AMOUNT);
 
+		System.out.println("@@@ Inside of _getRestestPortalSHAs()\n");
+		System.out.println("@@@ retest Portal SHA is " + restestPortalSHAString + "\n");
+		System.out.println("@@@ retest Portal amount is " + retestAmount + "\n");
+
 		if (JenkinsResultsParserUtil.isNullOrEmpty(restestPortalSHAString) &&
 			JenkinsResultsParserUtil.isNullOrEmpty(retestAmount)) {
 
