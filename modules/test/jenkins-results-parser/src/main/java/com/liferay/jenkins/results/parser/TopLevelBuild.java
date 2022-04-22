@@ -1438,6 +1438,9 @@ public abstract class TopLevelBuild extends BaseBuild {
 
 		String result = getResult();
 
+		System.out.println("@@@ inside getJobSummaryElement in TopLevelBuild.java\n");
+		System.out.println("@@@ result = " + result + "\n");
+
 		if ((result != null) && result.equals("SUCCESS")) {
 			successCount++;
 		}
