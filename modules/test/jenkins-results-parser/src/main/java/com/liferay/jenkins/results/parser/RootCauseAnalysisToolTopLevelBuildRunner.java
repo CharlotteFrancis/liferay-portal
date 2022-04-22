@@ -696,7 +696,7 @@ public class RootCauseAnalysisToolTopLevelBuildRunner
 				 portalUpstreamBranchName.equals("master"))) {
 
 				_failInvalidPortalRepositoryName(
-					NAME_BUILD_PARAMETER_RETEST_PORTAL_SHA,
+					_NAME_BUILD_PARAMETER_RETEST_PORTAL_SHA,
 					portalUpstreamBranchName);
 			}
 		}
