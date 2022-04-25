@@ -119,6 +119,7 @@ public class RootCauseAnalysisToolTopLevelBuildRunner
 			List<String> portalBranchSHAs = _getPortalBranchSHAs();
 
 			for (String portalBranchSHA : portalBranchSHAs) {
+
 				if (gitWorkingDirectory.localSHAExists(portalBranchSHA)) {
 					continue;
 				}
@@ -138,7 +139,7 @@ public class RootCauseAnalysisToolTopLevelBuildRunner
 			}
 
 			List<String> portalCherryPickSHAs = _getPortalCherryPickSHAs();
-
+			
 			for (String portalCherryPickSHA : portalCherryPickSHAs) {
 				if (gitWorkingDirectory.localSHAExists(portalCherryPickSHA)) {
 					continue;
@@ -163,6 +164,11 @@ public class RootCauseAnalysisToolTopLevelBuildRunner
 		}
 		else {
 			for (String retestPortalSHA : retestPortalSHAs) {
+
+				System.out.println("@@@ inside retestPortalSHA.isEmpty() if statement");
+
+				System.out.println("@@@ retestPortalSHA = " + retestPortalSHA);
+
 				if (gitWorkingDirectory.localSHAExists(retestPortalSHA)) {
 					continue;
 				}
@@ -389,8 +395,10 @@ public class RootCauseAnalysisToolTopLevelBuildRunner
 			_NAME_BUILD_PARAMETER_RETEST_AMOUNT);
 
 		System.out.println("@@@ Inside of _getRestestPortalSHAs()\n");
-		System.out.println("@@@ retest Portal SHA is " + restestPortalSHAString + "\n");
-		System.out.println("@@@ retest Portal amount is " + retestAmount + "\n");
+		System.out.println(
+			"@@@ retest Portal SHA is " + restestPortalSHAString + "\n");
+		System.out.println(
+			"@@@ retest Portal amount is " + retestAmount + "\n");
 
 		if (JenkinsResultsParserUtil.isNullOrEmpty(restestPortalSHAString) &&
 			JenkinsResultsParserUtil.isNullOrEmpty(retestAmount)) {
