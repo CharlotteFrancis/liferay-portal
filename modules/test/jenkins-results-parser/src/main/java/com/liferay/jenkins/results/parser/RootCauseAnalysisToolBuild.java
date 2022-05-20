@@ -240,22 +240,37 @@ public class RootCauseAnalysisToolBuild extends DefaultTopLevelBuild {
 			PortalBuildData firstBuild = (PortalBuildData)buildDataList.get(0);
 			PortalBuildData secondBuild = (PortalBuildData)buildDataList.get(1);
 
-			System.out.println("@@@ first SHA: " + firstBuild.getPortalBranchSHA());
-			System.out.println("@@@ second SHA: " + secondBuild.getPortalBranchSHA());
+			String firstBuildPortalBranchSHAPortalSHA = firstBuild.getPortalBranchSHA();
+			String secondBuildPortalBranchSHAPortalSHA = secondBuild.getPortalBranchSHA();
 
-			if (firstBuild.getPortalBranchSHA(
-				).equals(
-					secondBuild.getPortalBranchSHA()
-				)) {
+			System.out.println(
+				"@@@ first SHA: " + firstBuild.getPortalBranchSHA());
+			System.out.println(
+				"@@@ second SHA: " + secondBuild.getPortalBranchSHA());
+
+			if (firstBuildPortalBranchSHAPortalSHA.equals(secondBuildPortalBranchSHAPortalSHA)) {
+				LocalGitCommit localGitCommit = null;
+
+				for (int i = 0; i < historicalLocalGitCommits.size(); i++) {
+					localGitCommit = historicalLocalGitCommits.get(i);
+
+					String sha = localGitCommit.getSHA();
+
+					if (sha.equals(firstBuildPortalBranchSHAPortalSHA)) {
+						break;
+					}
+				}
 
 				System.out.println("@@@ Inside of retest logic");
+
 				for (BuildData buildData : buildDataList) {
 					portalBuildData = (PortalBuildData)buildData;
 
 					if (portalBuildData != null) {
 						gitCommitGroup = new GitCommitGroup(portalBuildData);
 
-						System.out.println("@@@ Inside of portalBuildData != null, added one commit group");
+						System.out.println(
+							"@@@ Inside of portalBuildData != null, added one commit group");
 
 						gitCommitGroups.add(gitCommitGroup);
 					}
@@ -264,6 +279,8 @@ public class RootCauseAnalysisToolBuild extends DefaultTopLevelBuild {
 
 						gitCommitGroups.add(gitCommitGroup);
 					}
+
+					gitCommitGroup.add(localGitCommit);
 				}
 
 				return gitCommitGroups;
