@@ -111,52 +111,84 @@ public class RootCauseAnalysisToolTopLevelBuildRunner
 		GitWorkingDirectory gitWorkingDirectory =
 			workspaceGitRepository.getGitWorkingDirectory();
 
-		List<String> portalBranchSHAs = _getPortalBranchSHAs();
-
-		for (String portalBranchSHA : portalBranchSHAs) {
-			if (gitWorkingDirectory.localSHAExists(portalBranchSHA)) {
-				continue;
-			}
-
-			String portalGitHubURL = _getPortalGitHubURL();
-
-			failBuildRunner(
-				JenkinsResultsParserUtil.combine(
-					_NAME_BUILD_PARAMETER_PORTAL_BRANCH_SHAS,
-					" has SHAs that are not be found within the latest ",
-					String.valueOf(
-						WorkspaceGitRepository.COMMITS_HISTORY_SIZE_MAX),
-					" commits of <a href=\"", portalGitHubURL, "\">",
-					portalGitHubURL, "</a>"));
-
-			return;
-		}
-
-		List<String> portalCherryPickSHAs = _getPortalCherryPickSHAs();
-
-		for (String portalCherryPickSHA : portalCherryPickSHAs) {
-			if (gitWorkingDirectory.localSHAExists(portalCherryPickSHA)) {
-				continue;
-			}
-
-			String portalGitHubURL = _getPortalGitHubURL();
-
-			failBuildRunner(
-				JenkinsResultsParserUtil.combine(
-					_NAME_BUILD_PARAMETER_PORTAL_CHERRY_PICK_SHAS,
-					" has SHAs that are not be found within the latest ",
-					String.valueOf(
-						WorkspaceGitRepository.COMMITS_HISTORY_SIZE_MAX),
-					" commits of <a href=\"", portalGitHubURL, "\">",
-					portalGitHubURL, "</a>"));
-
-			return;
-		}
+		List<String> retestPortalSHAs = _getRestestPortalSHAs();
 
 		List<String> commitSHAs = new ArrayList<>();
 
-		commitSHAs.addAll(portalBranchSHAs);
-		commitSHAs.addAll(portalCherryPickSHAs);
+		if (retestPortalSHAs.isEmpty()) {
+			List<String> portalBranchSHAs = _getPortalBranchSHAs();
+
+			for (String portalBranchSHA : portalBranchSHAs) {
+
+				if (gitWorkingDirectory.localSHAExists(portalBranchSHA)) {
+					continue;
+				}
+
+				String portalGitHubURL = _getPortalGitHubURL();
+
+				failBuildRunner(
+					JenkinsResultsParserUtil.combine(
+						_NAME_BUILD_PARAMETER_PORTAL_BRANCH_SHAS,
+						" has SHAs that are not be found within the latest ",
+						String.valueOf(
+							WorkspaceGitRepository.COMMITS_HISTORY_SIZE_MAX),
+						" commits of <a href=\"", portalGitHubURL, "\">",
+						portalGitHubURL, "</a>"));
+
+				return;
+			}
+
+			List<String> portalCherryPickSHAs = _getPortalCherryPickSHAs();
+			
+			for (String portalCherryPickSHA : portalCherryPickSHAs) {
+				if (gitWorkingDirectory.localSHAExists(portalCherryPickSHA)) {
+					continue;
+				}
+
+				String portalGitHubURL = _getPortalGitHubURL();
+
+				failBuildRunner(
+					JenkinsResultsParserUtil.combine(
+						_NAME_BUILD_PARAMETER_PORTAL_CHERRY_PICK_SHAS,
+						" has SHAs that are not be found within the latest ",
+						String.valueOf(
+							WorkspaceGitRepository.COMMITS_HISTORY_SIZE_MAX),
+						" commits of <a href=\"", portalGitHubURL, "\">",
+						portalGitHubURL, "</a>"));
+
+				return;
+			}
+
+			commitSHAs.addAll(portalBranchSHAs);
+			commitSHAs.addAll(portalCherryPickSHAs);
+		}
+		else {
+			for (String retestPortalSHA : retestPortalSHAs) {
+
+				System.out.println("@@@ inside retestPortalSHA.isEmpty() if statement");
+
+				System.out.println("@@@ retestPortalSHA = " + retestPortalSHA);
+
+				if (gitWorkingDirectory.localSHAExists(retestPortalSHA)) {
+					continue;
+				}
+
+				String portalGitHubURL = _getPortalGitHubURL();
+
+				failBuildRunner(
+					JenkinsResultsParserUtil.combine(
+						_NAME_BUILD_PARAMETER_RETEST_PORTAL_SHA,
+						" is a SHAs that can not be found within the latest ",
+						String.valueOf(
+							WorkspaceGitRepository.COMMITS_HISTORY_SIZE_MAX),
+						" commits of <a href=\"", portalGitHubURL, "\">",
+						portalGitHubURL, "</a>"));
+
+				return;
+			}
+
+			commitSHAs.addAll(retestPortalSHAs);
+		}
 
 		try {
 			workspaceGitRepository.storeCommitHistory(commitSHAs);
@@ -174,6 +206,8 @@ public class RootCauseAnalysisToolTopLevelBuildRunner
 		_validateBuildParameterPortalBranchSHAs();
 		_validateBuildParameterPortalGitHubURL();
 		_validateBuildParameterPortalUpstreamBranchName();
+		_validateBuildParameterRetestAmount();
+		_validateBuildParameterRetestPortalSHA();
 	}
 
 	private void _failInvalidPortalRepositoryName(
@@ -247,6 +281,16 @@ public class RootCauseAnalysisToolTopLevelBuildRunner
 		}
 
 		return _COMMITS_GROUP_SIZE_MAX_DEFAULT;
+	}
+
+	private Integer _getMaxRetestAmount() {
+		String maxRetestAmount = getJobPropertyValue("maximum.retest.amount");
+
+		if ((maxRetestAmount == null) || maxRetestAmount.isEmpty()) {
+			return -1;
+		}
+
+		return Integer.valueOf(maxRetestAmount);
 	}
 
 	private List<String> _getPortalBranchSHAs() {
@@ -339,6 +383,34 @@ public class RootCauseAnalysisToolTopLevelBuildRunner
 
 	private String _getPortalGitHubURL() {
 		return getBuildParameter(_NAME_BUILD_PARAMETER_PORTAL_GITHUB_URL);
+	}
+
+	private List<String> _getRestestPortalSHAs() {
+		List<String> restestPortalSHAList = new ArrayList<>();
+
+		String restestPortalSHAString = getBuildParameter(
+			_NAME_BUILD_PARAMETER_RETEST_PORTAL_SHA);
+
+		String retestAmount = getBuildParameter(
+			_NAME_BUILD_PARAMETER_RETEST_AMOUNT);
+
+		System.out.println("@@@ Inside of _getRestestPortalSHAs()\n");
+		System.out.println(
+			"@@@ retest Portal SHA is " + restestPortalSHAString + "\n");
+		System.out.println(
+			"@@@ retest Portal amount is " + retestAmount + "\n");
+
+		if (JenkinsResultsParserUtil.isNullOrEmpty(restestPortalSHAString) &&
+			JenkinsResultsParserUtil.isNullOrEmpty(retestAmount)) {
+
+			return restestPortalSHAList;
+		}
+
+		for (int i = 0; i < Integer.parseInt(retestAmount); i++) {
+			restestPortalSHAList.add(restestPortalSHAString.trim());
+		}
+
+		return restestPortalSHAList;
 	}
 
 	private List<String> _getTestList() {
@@ -587,6 +659,57 @@ public class RootCauseAnalysisToolTopLevelBuildRunner
 		}
 	}
 
+	private void _validateBuildParameterRetestAmount() {
+		String retestAmount = getBuildParameter(
+			_NAME_BUILD_PARAMETER_RETEST_AMOUNT);
+
+		if ((retestAmount == null) || retestAmount.isEmpty()) {
+			return;
+		}
+
+		int retestAmountInt = Integer.parseInt(retestAmount);
+
+		int maxRetestAmount = _getMaxRetestAmount();
+
+		if ((retestAmountInt < 0) || (retestAmountInt > maxRetestAmount)) {
+			StringBuilder sb = new StringBuilder();
+
+			sb.append(_NAME_BUILD_PARAMETER_RETEST_AMOUNT);
+			sb.append(" must be between 0 and ");
+			sb.append(maxRetestAmount);
+			sb.append(" .");
+
+			failBuildRunner(sb.toString());
+		}
+	}
+
+	private void _validateBuildParameterRetestPortalSHA() {
+		String retestPortalSHA = getBuildParameter(
+			_NAME_BUILD_PARAMETER_RETEST_PORTAL_SHA);
+
+		if ((retestPortalSHA == null) || retestPortalSHA.isEmpty()) {
+			return;
+		}
+
+		Matcher matcher = _compareURLPattern.matcher(retestPortalSHA);
+
+		if (matcher.find()) {
+			String portalUpstreamBranchName = getBuildParameter(
+				_NAME_BUILD_PARAMETER_PORTAL_UPSTREAM_BRANCH_NAME);
+			String repositoryName = matcher.group("repositoryName");
+
+			if ((repositoryName.equals("liferay-portal") &&
+				 !portalUpstreamBranchName.equals("master")) ||
+				(repositoryName.equals("liferay-portal-ee") &&
+				 portalUpstreamBranchName.equals("master"))) {
+
+				_failInvalidPortalRepositoryName(
+					_NAME_BUILD_PARAMETER_RETEST_PORTAL_SHA,
+					portalUpstreamBranchName);
+			}
+		}
+	}
+
 	private static final Integer _COMMITS_GROUP_SIZE_MAX_DEFAULT = 5;
 
 	private static final String _NAME_BUILD_PARAMETER_JENKINS_GITHUB_URL =
@@ -611,6 +734,12 @@ public class RootCauseAnalysisToolTopLevelBuildRunner
 	private static final String
 		_NAME_BUILD_PARAMETER_PORTAL_UPSTREAM_BRANCH_NAME =
 			"PORTAL_UPSTREAM_BRANCH_NAME";
+
+	private static final String _NAME_BUILD_PARAMETER_RETEST_AMOUNT =
+		"RETEST_AMOUNT";
+
+	private static final String _NAME_BUILD_PARAMETER_RETEST_PORTAL_SHA =
+		"RETEST_PORTAL_SHA";
 
 	private static final Pattern _compareURLPattern = Pattern.compile(
 		JenkinsResultsParserUtil.combine(
