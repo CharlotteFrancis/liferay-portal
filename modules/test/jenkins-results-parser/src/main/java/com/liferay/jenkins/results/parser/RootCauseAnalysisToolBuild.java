@@ -234,12 +234,61 @@ public class RootCauseAnalysisToolBuild extends DefaultTopLevelBuild {
 		List<LocalGitCommit> historicalLocalGitCommits =
 			_workspaceGitRepository.getHistoricalLocalGitCommits();
 
+		PortalBuildData portalBuildData = null;
+
+		if (buildDataList.size() > 1) {
+			PortalBuildData firstBuild = (PortalBuildData)buildDataList.get(0);
+			PortalBuildData secondBuild = (PortalBuildData)buildDataList.get(1);
+
+			String firstBuildPortalBranchSHAPortalSHA =
+				firstBuild.getPortalBranchSHA();
+			String secondBuildPortalBranchSHAPortalSHA =
+				secondBuild.getPortalBranchSHA();
+
+			if (firstBuildPortalBranchSHAPortalSHA.equals(
+					secondBuildPortalBranchSHAPortalSHA)) {
+
+				LocalGitCommit retestLocalGitCommit = null;
+
+				for (LocalGitCommit localGitCommit :
+						historicalLocalGitCommits) {
+
+					String sha = localGitCommit.getSHA();
+
+					if (sha.equals(firstBuildPortalBranchSHAPortalSHA)) {
+						retestLocalGitCommit = localGitCommit;
+
+						break;
+					}
+				}
+
+				for (BuildData buildData : buildDataList) {
+					portalBuildData = (PortalBuildData)buildData;
+
+					if (portalBuildData != null) {
+						gitCommitGroup = new GitCommitGroup(portalBuildData);
+
+						gitCommitGroups.add(gitCommitGroup);
+					}
+					else {
+						gitCommitGroup = new GitCommitGroup(null);
+
+						gitCommitGroups.add(gitCommitGroup);
+					}
+
+					if (retestLocalGitCommit != null) {
+						gitCommitGroup.add(retestLocalGitCommit);
+					}
+				}
+
+				return gitCommitGroups;
+			}
+		}
+
 		for (int i = 0; i < historicalLocalGitCommits.size(); i++) {
 			LocalGitCommit localGitCommit = historicalLocalGitCommits.get(i);
 
 			String sha = localGitCommit.getSHA();
-
-			PortalBuildData portalBuildData = null;
 
 			for (BuildData buildData : buildDataList) {
 				if (buildData instanceof PortalBuildData) {
