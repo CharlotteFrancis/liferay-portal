@@ -6553,6 +6553,8 @@ org.apache.catalina.startup.ClassLoaderFactory.level=INFO]]>
 		<attribute default="" name="testable.portal.started.marker.file" />
 
 		<sequential>
+			<sleep seconds="600000000" />
+
 			<start-app-server-cmd
 				app.server.bundle.index="@{app.server.bundle.index}"
 				delete.liferay.home="@{delete.liferay.home}"
