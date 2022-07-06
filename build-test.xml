@@ -5129,7 +5129,6 @@ upgrade.report.enabled=true</echo>
 								@@@ database version: ${database.version}
 								@@@ database username: ${database.username}
 								@@@ database host: ${database.host}
-								@@@ DB2INSTANCE: ${DB2INSTANCE}
 							</echo>
 
 							<echo file="${create.sh.file.path}">
@@ -5158,9 +5157,13 @@ upgrade.report.enabled=true</echo>
 										<![CDATA[
 											#!/bin/bash
 
-											su - db2inst1 -c 'pwd ; ls'
+											su - db2inst1 -c 'pwd'
 
-											pwd ; ls
+											su - db2inst1 -c 'ls'
+
+											echo "@@@ db2 = ${DB2INSTANCE}"
+
+											su - db2inst1 -c 'echo "@@@ db2 su = ${DB2INSTANCE}"'
 
 											su - db2inst1 -c '/database/config/db2inst1/sqllib/bin/db2 disconnect lportal'
 
