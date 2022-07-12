@@ -7971,10 +7971,8 @@ war.path=${app.server.portal.dir}/</echo>
 				@@ database.host: ${database.host}
 				@@ database.name: ${database.name}
 				@@ database.version: ${database.version}
-				@@ sleeping
+				@@ not sleeping
 			</echo>
-
-			<sleep minutes="35" />
 
 			<docker-execute container="${database.host}">
 				<![CDATA[
