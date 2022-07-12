@@ -6847,6 +6847,15 @@ org.apache.catalina.startup.ClassLoaderFactory.level=INFO]]>
 				${database.docker.run.options} \
 			</start-docker-container>
 
+			<echo>
+				@@ inside start-docker-database-cmd
+				@@ database.version: ${database.version}
+				@@ database.type: ${database.type}
+				@@ database.docker.run.options: ${database.docker.run.options}
+				@@ database.docker.image: ${database.docker.image}
+				@@ database.docker.database.options: ${database.docker.database.options}
+			</echo>
+
 			<if>
 				<and>
 					<equals arg1="${database.type}" arg2="db2" />
@@ -7956,6 +7965,16 @@ war.path=${app.server.portal.dir}/</echo>
 			<get-database-property property.name="database.host" />
 			<get-database-property property.name="database.name" />
 			<get-database-property property.name="database.version" />
+
+			<echo>
+				@@ inside wait-for-docker-database
+				@@ database.host: ${database.host}
+				@@ database.name: ${database.name}
+				@@ database.version: ${database.version}
+				@@ sleeping
+			</echo>
+
+			<sleep minutes="35" />
 
 			<docker-execute container="${database.host}">
 				<![CDATA[
