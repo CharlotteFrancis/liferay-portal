@@ -234,9 +234,19 @@ public class RootCauseAnalysisToolBuild extends DefaultTopLevelBuild {
 		List<LocalGitCommit> historicalLocalGitCommits =
 			_workspaceGitRepository.getHistoricalLocalGitCommits();
 
+		System.out.println(
+			"@@ portalBuildDataList.size() = " + portalBuildDataList.size());
+
 		if (portalBuildDataList.size() > 1) {
 			PortalBuildData firstPortalBuildData = portalBuildDataList.get(0);
 			PortalBuildData secondPortalBuildData = portalBuildDataList.get(1);
+
+			System.out.println(
+				"@@ 1st portal SHA = " +
+					firstPortalBuildData.getPortalBranchSHA());
+			System.out.println(
+				"@@ 2nd portal SHA = " +
+					secondPortalBuildData.getPortalBranchSHA());
 
 			String firstPortalBuildDataPortalBranchSHA =
 				firstPortalBuildData.getPortalBranchSHA();

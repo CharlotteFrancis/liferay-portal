@@ -92,6 +92,8 @@ public class RootCauseAnalysisToolTopLevelBuildRunner
 		for (String portalBranchSHA : _getPortalBranchSHAs()) {
 			int retestCount = _getRetestCount();
 
+			System.out.println("@@ retest count = " + retestCount);
+
 			for (int i = 0; i < retestCount; i++) {
 				BatchBuildData batchBuildData =
 					BuildDataFactory.newBatchBuildData(
@@ -380,6 +382,9 @@ public class RootCauseAnalysisToolTopLevelBuildRunner
 	private int _getRetestCount() {
 		String retestCount = getBuildParameter(
 			_NAME_BUILD_PARAMETER_RETEST_COUNT);
+
+		System.out.println("@@ inside _getRetestCount()");
+		System.out.println("@@ retestCount = " + retestCount);
 
 		if ((retestCount == null) || retestCount.isEmpty()) {
 			return 1;
