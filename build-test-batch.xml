@@ -2341,8 +2341,6 @@ log.sanitizer.enabled=false</echo>
 								<arg value="-Dtest.class.group.index=${axis.variable}" />
 							</gradle-execute>
 
-							<sleep hours="1" />
-
 							<antcall inheritAll="false" target="stop-app-server" />
 
 							<if>
