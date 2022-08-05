@@ -79,6 +79,17 @@ public class PoshiAxisBuild extends AxisBuild {
 		return testResults;
 	}
 
+	@Override
+	protected FailureMessageGenerator[] getFailureMessageGenerators() {
+		List<FailureMessageGenerator> failureMessageGenerators = new ArrayList<FailureMessageGenerator>();
+
+		failureMessageGenerators.addAll(Arrays.asList(_FAILURE_MESSAGE_GENERATORS));
+
+		failureMessageGenerators.addAll(Arrays.asList(super.getFailureMessageGenerators()));
+
+		return failureMessageGenerators.toArray(new FailureMessageGenerator[] {});
+	}
+
 	protected PoshiAxisBuild(String url) {
 		this(url, null);
 	}
@@ -117,4 +128,7 @@ public class PoshiAxisBuild extends AxisBuild {
 		return poshiTestNames;
 	}
 
+	private static final FailureMessageGenerator[] _FAILURE_MESSAGE_GENERATORS = {
+		new PoshiValidationFailureMessageGenerator();
+	};
 }
