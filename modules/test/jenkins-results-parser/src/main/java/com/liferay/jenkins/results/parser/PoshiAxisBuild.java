@@ -14,7 +14,11 @@
 
 package com.liferay.jenkins.results.parser;
 
+import com.liferay.jenkins.results.parser.failure.message.generator.FailureMessageGenerator;
+import com.liferay.jenkins.results.parser.failure.message.generator.PoshiValidationFailureMessageGenerator;
+
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
@@ -79,23 +83,26 @@ public class PoshiAxisBuild extends AxisBuild {
 		return testResults;
 	}
 
-	@Override
-	protected FailureMessageGenerator[] getFailureMessageGenerators() {
-		List<FailureMessageGenerator> failureMessageGenerators = new ArrayList<FailureMessageGenerator>();
-
-		failureMessageGenerators.addAll(Arrays.asList(_FAILURE_MESSAGE_GENERATORS));
-
-		failureMessageGenerators.addAll(Arrays.asList(super.getFailureMessageGenerators()));
-
-		return failureMessageGenerators.toArray(new FailureMessageGenerator[] {});
-	}
-
 	protected PoshiAxisBuild(String url) {
 		this(url, null);
 	}
 
 	protected PoshiAxisBuild(String url, BatchBuild parentBatchBuild) {
 		super(url, parentBatchBuild);
+	}
+
+	@Override
+	protected FailureMessageGenerator[] getFailureMessageGenerators() {
+		List<FailureMessageGenerator> failureMessageGenerators =
+			new ArrayList<>();
+
+		failureMessageGenerators.addAll(
+			Arrays.asList(_FAILURE_MESSAGE_GENERATORS));
+
+		failureMessageGenerators.addAll(
+			Arrays.asList(super.getFailureMessageGenerators()));
+
+		return failureMessageGenerators.toArray(new FailureMessageGenerator[0]);
 	}
 
 	private List<String> _getPoshiTestNames() {
@@ -128,7 +135,7 @@ public class PoshiAxisBuild extends AxisBuild {
 		return poshiTestNames;
 	}
 
-	private static final FailureMessageGenerator[] _FAILURE_MESSAGE_GENERATORS = {
-		new PoshiValidationFailureMessageGenerator();
-	};
+	private static final FailureMessageGenerator[] _FAILURE_MESSAGE_GENERATORS =
+		{new PoshiValidationFailureMessageGenerator()};
+
 }
