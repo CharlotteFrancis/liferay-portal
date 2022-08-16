@@ -18,7 +18,6 @@ import com.liferay.jenkins.results.parser.failure.message.generator.FailureMessa
 import com.liferay.jenkins.results.parser.failure.message.generator.PoshiValidationFailureMessageGenerator;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
@@ -96,11 +95,11 @@ public class PoshiAxisBuild extends AxisBuild {
 		List<FailureMessageGenerator> failureMessageGenerators =
 			new ArrayList<>();
 
-		failureMessageGenerators.addAll(
-			Arrays.asList(_FAILURE_MESSAGE_GENERATORS));
+		Collections.addAll(
+			failureMessageGenerators, _FAILURE_MESSAGE_GENERATORS);
 
-		failureMessageGenerators.addAll(
-			Arrays.asList(super.getFailureMessageGenerators()));
+		Collections.addAll(
+			failureMessageGenerators, super.getFailureMessageGenerators());
 
 		return failureMessageGenerators.toArray(new FailureMessageGenerator[0]);
 	}
