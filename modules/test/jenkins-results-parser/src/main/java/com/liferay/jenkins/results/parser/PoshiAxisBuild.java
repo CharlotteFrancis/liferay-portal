@@ -14,6 +14,9 @@
 
 package com.liferay.jenkins.results.parser;
 
+import com.liferay.jenkins.results.parser.failure.message.generator.FailureMessageGenerator;
+import com.liferay.jenkins.results.parser.failure.message.generator.PoshiValidationFailureMessageGenerator;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -87,6 +90,20 @@ public class PoshiAxisBuild extends AxisBuild {
 		super(url, parentBatchBuild);
 	}
 
+	@Override
+	protected FailureMessageGenerator[] getFailureMessageGenerators() {
+		List<FailureMessageGenerator> failureMessageGenerators =
+			new ArrayList<>();
+
+		Collections.addAll(
+			failureMessageGenerators, _FAILURE_MESSAGE_GENERATORS);
+
+		Collections.addAll(
+			failureMessageGenerators, super.getFailureMessageGenerators());
+
+		return failureMessageGenerators.toArray(new FailureMessageGenerator[0]);
+	}
+
 	private List<String> _getPoshiTestNames() {
 		List<String> poshiTestNames = new ArrayList<>();
 
@@ -116,5 +133,8 @@ public class PoshiAxisBuild extends AxisBuild {
 
 		return poshiTestNames;
 	}
+
+	private static final FailureMessageGenerator[] _FAILURE_MESSAGE_GENERATORS =
+		{new PoshiValidationFailureMessageGenerator()};
 
 }
