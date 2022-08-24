@@ -5303,7 +5303,7 @@ upgrade.report.enabled=true</echo>
 											su - db2inst1 -c '/database/config/db2inst1/sqllib/bin/db2 disconnect lportal'
 
 											su - db2inst1 -c '/database/config/db2inst1/sqllib/bin/db2 drop db lportal'
-
+/sqllib/bin
 											su - db2inst1 -c '/database/config/db2inst1/sqllib/bin/db2 -f/tmp/create.sql -st'
 										]]>
 									</echo>
@@ -6994,7 +6994,7 @@ org.apache.catalina.startup.ClassLoaderFactory.level=INFO]]>
 					<equals arg1="${database.version}" arg2="11.5.6" />
 				</and>
 				<then>
-					<property name="docker.database.wait.condition">[[ "$(/bin/su - db2inst1 -c '~/sqllib/bin/db2 db2start')" =~ "SQL1026N" ]]</property>
+					<property name="docker.database.wait.condition">[[ "$(/bin/su - db2inst1 -c '/database/config/db2inst1/sqllib/bin/db2 db2start')" =~ "SQL1026N" ]]</property>
 				</then>
 				<elseif>
 					<equals arg1="${database.type}" arg2="db2" />
@@ -12976,7 +12976,7 @@ database.partition.enabled=true</echo>
 							]]>
 						</echo>
 
-						<property name="docker.database.dest.path" value="/sqllib/bin/db2" />
+						<property name="docker.database.dest.path" value="/database/config/db2inst1/sqllib/bin/db2" />
 						<property name="import.database.src.path" value="${liferay.home}/." />
 					</then>
 					<elseif>
