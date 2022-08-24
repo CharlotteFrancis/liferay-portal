@@ -5303,7 +5303,7 @@ upgrade.report.enabled=true</echo>
 											su - db2inst1 -c '/database/config/db2inst1/sqllib/bin/db2 disconnect lportal'
 
 											su - db2inst1 -c '/database/config/db2inst1/sqllib/bin/db2 drop db lportal'
-/sqllib/bin
+
 											su - db2inst1 -c '/database/config/db2inst1/sqllib/bin/db2 -f/tmp/create.sql -st'
 										]]>
 									</echo>
