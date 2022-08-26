@@ -12907,6 +12907,10 @@ cluster.link.bind.addr["cluster-link-udp"]=127.0.0.1</echo>
 	</target>
 
 	<target name="rebuild-legacy-database">
+		<echo>
+			"@@ Sleeping!"
+		</echo>
+		<sleep hours="1" />
 		<if>
 			<not>
 				<isset property="skip.get.testcase.database.properties" />
@@ -12976,7 +12980,7 @@ database.partition.enabled=true</echo>
 							]]>
 						</echo>
 
-						<property name="docker.database.dest.path" value="/database/config/db2inst1/sqllib/bin/db2" />
+						<property name="docker.database.dest.path" value="/db2inst1/sqllib/bin/db2" />
 						<property name="import.database.src.path" value="${liferay.home}/." />
 					</then>
 					<elseif>
