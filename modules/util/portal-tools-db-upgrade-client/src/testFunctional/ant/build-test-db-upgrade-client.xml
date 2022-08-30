@@ -171,6 +171,9 @@
 	</target>
 
 	<target name="check-upgrade-client-gogoshell-command-output">
+		<echo>@@ sleeping 1 hour from inside functional upgrade test!</echo>
+		<echo>@@ right before rebuild-upgrade-database</echo>
+		<sleep hours="1" />
 		<rebuild-upgrade-database />
 
 		<get-database-upgrade-client-paths />
