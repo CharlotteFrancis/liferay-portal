@@ -12907,10 +12907,7 @@ cluster.link.bind.addr["cluster-link-udp"]=127.0.0.1</echo>
 	</target>
 
 	<target name="rebuild-legacy-database">
-		<echo>
-			"@@ Sleeping!"
-		</echo>
-		<sleep hours="1" />
+
 		<if>
 			<not>
 				<isset property="skip.get.testcase.database.properties" />
