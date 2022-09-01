@@ -171,9 +171,9 @@
 	</target>
 
 	<target name="check-upgrade-client-gogoshell-command-output">
-		<echo>@@ sleeping 1 hour from inside functional upgrade test!</echo>
-		<echo>@@ right before rebuild-upgrade-database</echo>
-		<sleep hours="1" />
+		<echo>
+			@@ inside check-upgrade-client-gogoshell-command-output
+		</echo>
 		<rebuild-upgrade-database />
 
 		<get-database-upgrade-client-paths />
@@ -199,6 +199,9 @@
 	</target>
 
 	<target name="check-upgrade-client-gogoshell-failed-upgrade">
+		<echo>
+			@@ inside check-upgrade-client-gogoshell-failed-upgrade
+		</echo>
 		<rebuild-upgrade-database />
 
 		<get-database-upgrade-client-paths />
@@ -251,13 +254,18 @@
 				<stop-one-java-process process.name="jar" />
 			</sequential>
 		</parallel>
-
+		<echo>
+			@@ inside check-upgrade-client-gogoshell-failed-upgrade at the end.
+		</echo>
 		<rebuild-upgrade-database />
 
 		<clean-database-upgrade-client />
 	</target>
 
 	<target name="check-upgrade-client-gogoshell-help-output">
+		<echo>
+			@@ inside check-upgrade-client-gogoshell-help-output
+		</echo>
 		<rebuild-upgrade-database />
 
 		<get-database-upgrade-client-paths />
@@ -423,6 +431,9 @@
 	</target>
 
 	<target name="check-upgrade-client-upgrade-core-only">
+		<echo>
+			@@ inside check-upgrade-client-upgrade-core-only
+		</echo>
 		<rebuild-upgrade-database />
 
 		<get-database-upgrade-client-paths />
