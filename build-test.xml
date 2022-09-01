@@ -12977,7 +12977,7 @@ database.partition.enabled=true</echo>
 							]]>
 						</echo>
 
-						<property name="docker.database.dest.path" value="/db2inst1/sqllib/bin/db2" />
+						<property name="docker.database.dest.path" value="/sqllib/bin/db2" />
 						<property name="import.database.src.path" value="${liferay.home}/." />
 					</then>
 					<elseif>
