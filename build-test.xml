@@ -6994,7 +6994,7 @@ org.apache.catalina.startup.ClassLoaderFactory.level=INFO]]>
 					<equals arg1="${database.version}" arg2="11.5.6" />
 				</and>
 				<then>
-					<property name="docker.database.wait.condition">[[ "$(/bin/su - db2inst1 -c ~/sqllib/bin/db2 db2start')" =~ "SQL1026N" ]]</property>
+					<property name="docker.database.wait.condition">[[ "$(/bin/su - db2inst1 -c '~/sqllib/bin/db2 db2start')" =~ "SQL1026N" ]]</property>
 				</then>
 				<elseif>
 					<equals arg1="${database.type}" arg2="db2" />
@@ -12904,10 +12904,7 @@ cluster.link.bind.addr["cluster-link-udp"]=127.0.0.1</echo>
 				<delete file="create.sql" />
 			</finally>
 		</trycatch>
-	</target>		<echo>
-			"@@ Sleeping!"
-		</echo>
-		<sleep hours="1" />
+	</target>
 
 	<target name="rebuild-legacy-database">
 
