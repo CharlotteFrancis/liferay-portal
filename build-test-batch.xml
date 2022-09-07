@@ -1649,7 +1649,7 @@ app.server.type=@{app.server.type}]]></echo>
 				<matches pattern="^[\w\.]+#[\w]+$" string="${test.class}" />
 			</condition>
 
-			<retry retrycount="${functional.batch.retry.count}">
+			<retry retrycount="${functional.batch.retry.count}" retrydelay="1200000">
 				<run-batch-test tomcat.gc.log="@{tomcat.gc.log}" tsant.gc.log="@{tsant.gc.log}">
 					<test-action>
 						<database-test-run-test database.type="@{database.type}" database.version="@{database.version}" rebuild.database="false">
