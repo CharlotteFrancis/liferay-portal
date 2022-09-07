@@ -12959,9 +12959,9 @@ database.partition.enabled=true</echo>
 							<![CDATA[
 								#!/bin/bash
 
-								echo "su - db2inst1 -c '/database/config/db2inst1/sqllib/bin/db2 restore database lportal user ${database.username} using ${database.password} from /opt/ibm/db2 replace existing'"
+								echo "su - db2inst1 -c '/database/config/db2inst1/sqllib/bin/db2 "restore database lportal user ${database.username} using ${database.password} from /opt/ibm/db2 ON /database/config/db2inst1 into testauto redirect without prompting"'"
 
-								output=$(su - db2inst1 -c '/database/config/db2inst1/sqllib/bin/db2 restore database lportal user ${database.username} using ${database.password} from /opt/ibm/db2 replace existing')
+								output=$(su - db2inst1 -c '/database/config/db2inst1/sqllib/bin/db2 "restore database lportal user ${database.username} using ${database.password} from /opt/ibm/db2 ON /database/config/db2inst1 into testauto redirect without prompting"'')
 
 								exit_code=$?
 
