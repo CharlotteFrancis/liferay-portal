@@ -134,6 +134,7 @@ public class PullRequest {
 		return true;
 	}
 
+	// test
 	public void close() {
 		if (Objects.equals(getState(), "open")) {
 			JSONObject postContentJSONObject = new JSONObject();
