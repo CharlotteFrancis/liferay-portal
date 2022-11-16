@@ -15,6 +15,7 @@
 package com.liferay.jenkins.results.parser;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -64,8 +65,10 @@ public class UpdateTicketUtil {
             if (matcher.find()) {
                 String group = matcher.group(0);
 
-                if (!_ticketList.contains(group)) {
-                    _ticketList.add(group);
+                for (String project: _allowedProjects) {
+                    if(!_ticketList.contains(group) && group.contains(project)) {
+                        _ticketList.add(group);
+                    }
                 }
             }
         }
@@ -93,6 +96,8 @@ public class UpdateTicketUtil {
 
         _pullRequest.addComment(_comment);
     }
+
+    private static List<String> _allowedProjects = new ArrayList<>(Arrays.asList("LPS"));
 
     private static String _comment;
 
