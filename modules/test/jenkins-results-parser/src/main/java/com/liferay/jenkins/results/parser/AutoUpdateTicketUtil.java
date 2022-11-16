@@ -24,28 +24,34 @@ import java.util.regex.Pattern;
  */
 
 public class AutoUpdateTicketUtil {
+    public static String generateComment(){
+        StringBuilder sb = new StringBuilder();
 
-    public static void updateTicket(String pullRequestURL) {
-        _pullRequest = new PullRequest(pullRequestURL);
+        sb.append("The following tickets were automatically submitted for review: \n");
 
-        _commitList = _pullRequest.getGitHubRemoteCommits();
+        for (String ticket:_ticketList) {
+            sb.append(ticket);
 
-        _ticketList = new ArrayList<>();
+            sb.append(": https://issues.liferay.com/browse/");
 
-        parseCommits();
+            sb.append(ticket);
 
-        if (_ticketList.isEmpty()) {
-            throw new IllegalStateException("Unable to find any valid tickets within pull request.");
+            sb.append("\n");
         }
 
-        String comment = generateComment();
+        sb.append("\n");
 
-        _pullRequest.addComment(comment);
+        sb.append("Pull request: ");
 
-        for (String ticket: _ticketList) {
-            JiraTicket jiraTicket = new JiraTicket(ticket);
-            jiraTicket.submitForReview(comment);
-        }
+        _ownerUsername = _pullRequest.getOwnerUsername();
+
+        _gitHubRemoteGitRepositoryName = _pullRequest.getGitHubRemoteGitRepositoryName();
+
+        _number = _pullRequest.getNumber();
+
+        sb.append(_pullRequest.getURL(_ownerUsername, _gitHubRemoteGitRepositoryName, _number));
+
+        return sb.toString();
     }
 
     public static void parseCommits(){
@@ -65,29 +71,48 @@ public class AutoUpdateTicketUtil {
         }
     }
 
-    public static String generateComment(){
-        StringBuilder sb = new StringBuilder();
+    public static void updateTicket(String pullRequestURL) {
+        _pullRequest = new PullRequest(pullRequestURL);
 
-        sb.append("The following tickets were automatically submitted for review: \n");
+        _commitList = _pullRequest.getGitHubRemoteCommits();
 
-        for (String ticket:_ticketList) {
-            sb.append("https://issues.liferay.com/browse/");
-            sb.append(ticket);
-            sb.append("\n");
+        _ticketList = new ArrayList<>();
+
+        parseCommits();
+
+        if (_ticketList.isEmpty()) {
+            throw new IllegalStateException("Unable to find any valid tickets within pull request.");
         }
-        sb.append("Pull request: ");
-        sb.append(_pullRequest.getURL());
 
-        return sb.toString();
+        _comment = generateComment();
+
+        _pullRequest.addComment(_comment);
+
+        for (String ticket: _ticketList) {
+            JiraTicket jiraTicket = new JiraTicket(ticket);
+            jiraTicket.submitForReview(_comment);
+        }
     }
 
-    private static PullRequest _pullRequest;
+    private static String _comment;
+
     private static List<GitHubRemoteGitCommit> _commitList;
-    private static List<String> _ticketList;
+
+    private static String _gitHubRemoteGitRepositoryName;
+
     private static String _message;
 
-    private static String comment;
+    private static String _number;
+
+    private static String _ownerUsername;
 
     private static final Pattern _pattern = Pattern.compile(
             "^([A-Z]+[-][\\d]+)");
+
+    private static PullRequest _pullRequest;
+
+    private static List<String> _ticketList;
+
+
+
 }
