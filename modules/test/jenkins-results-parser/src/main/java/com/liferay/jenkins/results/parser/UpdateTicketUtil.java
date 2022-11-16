@@ -23,7 +23,7 @@ import java.util.regex.Pattern;
  * @author Charlotte Wong
  */
 
-public class AutoUpdateTicketUtil {
+public class UpdateTicketUtil {
     public static String generateComment(){
         StringBuilder sb = new StringBuilder();
 
@@ -86,12 +86,12 @@ public class AutoUpdateTicketUtil {
 
         _comment = generateComment();
 
-        _pullRequest.addComment(_comment);
-
         for (String ticket: _ticketList) {
             JiraTicket jiraTicket = new JiraTicket(ticket);
             jiraTicket.submitForReview(_comment);
         }
+
+        _pullRequest.addComment(_comment);
     }
 
     private static String _comment;
