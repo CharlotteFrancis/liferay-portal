@@ -17,33 +17,53 @@ package com.liferay.jenkins.results.parser;
 import com.atlassian.jira.rest.client.api.IssueRestClient;
 import com.atlassian.jira.rest.client.api.JiraRestClient;
 import com.atlassian.jira.rest.client.api.JiraRestClientFactory;
-import com.atlassian.jira.rest.client.api.domain.*;
+import com.atlassian.jira.rest.client.api.domain.Comment;
+import com.atlassian.jira.rest.client.api.domain.Issue;
+import com.atlassian.jira.rest.client.api.domain.Transition;
 import com.atlassian.jira.rest.client.api.domain.input.TransitionInput;
 import com.atlassian.jira.rest.client.internal.async.AsynchronousJiraRestClientFactory;
 
 import io.atlassian.util.concurrent.Promise;
 
+import java.io.IOException;
 import java.net.URI;
+import java.util.Properties;
 
 /**
  * @author Charlotte Wong
  */
 
 public class JiraTicket {
+    public String getTicketURL() {
+        return "https://issues.liferay.com/browse/" + _ticket;
+    }
 
     protected JiraTicket(String ticket) {
+        _getProperties();
+
         _jiraRestClientFactory = new AsynchronousJiraRestClientFactory();
 
         _jiraRestClient =
                 _jiraRestClientFactory.createWithBasicHttpAuthentication(
-                        _uri, Auth.JIRA_USERNAME,
-                        Auth.JIRA_PASSWORD);
+                        _uri, _jiraAdminUsername,
+                        _jiraAdminPassword);
 
         _issueRestClient = _jiraRestClient.getIssueClient();
 
         _ticket = ticket;
 
         _issue = _getIssue();
+    }
+
+    public void submitForReview(String comment) {
+
+        TransitionInput transitionInput = new TransitionInput(71, Comment.valueOf(comment));
+
+        try{
+            _issueRestClient.transition(_issue, transitionInput).get();
+        } catch (Exception e) {
+            System.out.println("jira rest client process workflow action error. cause: " + e.getMessage());
+        }
     }
 
     private Issue _getIssue() {
@@ -53,33 +73,43 @@ public class JiraTicket {
         return promise.claim();
     }
 
-    public Iterable getTransitions() {
+    private static void _getProperties() {
+
+        try {
+            _jenkinsBuildProperties =
+                    JenkinsResultsParserUtil.getBuildProperties();
+        }
+        catch (IOException ioException) {
+            throw new RuntimeException(
+                    "Unable to get build properties", ioException);
+        }
+
+        _jiraAdminPassword = _jenkinsBuildProperties.getProperty("ci.jira.admin.password");
+        _jiraAdminUsername = _jenkinsBuildProperties.getProperty("ci.jira.admin.username");
+    }
+
+    private Iterable _getTransitions() {
 
         Promise<Iterable<Transition>> promise = _issueRestClient.getTransitions(_issue);
 
         return promise.claim();
     }
 
-    public void submitForReview(String comment) {
+    private Issue _issue;
 
-        TransitionInput transitionInput = new TransitionInput(71, Comment.valueOf(comment));
+    private IssueRestClient _issueRestClient;
 
-        Promise<Void> promise = _issueRestClient.transition(_issue, transitionInput);
-    }
+    private static Properties _jenkinsBuildProperties;
 
-    public String getTicketURL() {
-        return "https://issues.liferay.com/browse/" + _ticket;
-    }
+    private static String _jiraAdminPassword;
 
-    private static final URI _uri =  URI.create("https://issues.liferay.com");
+    private static String _jiraAdminUsername;
 
     private JiraRestClient _jiraRestClient;
 
     private JiraRestClientFactory _jiraRestClientFactory;
 
-    private IssueRestClient _issueRestClient;
-
     private String _ticket;
 
-    private Issue _issue;
+    private static final URI _uri =  URI.create("https://issues.liferay.com");
 }
