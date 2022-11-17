@@ -14,6 +14,7 @@
 
 package com.liferay.jenkins.results.parser;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -25,10 +26,12 @@ import java.util.regex.Pattern;
  */
 
 public class UpdateTicketUtil {
-    public static String generateComment(){
+    public static String generateComment() {
         StringBuilder sb = new StringBuilder();
 
-        sb.append("The following tickets were automatically submitted for review: \n");
+        sb.append("The following tickets were automatically submitted for review:");
+
+        sb.append("\n");
 
         for (String ticket:_ticketList) {
             sb.append(ticket);
@@ -55,10 +58,12 @@ public class UpdateTicketUtil {
         return sb.toString();
     }
 
-    public static void parseCommits(){
+    public static void parseCommits() {
         for (int i = 0; i < _commitList.size(); i++) {
 
-            _message = _commitList.get(i).getMessage();
+            GitHubRemoteGitCommit gitHubRemoteGitCommit = _commitList.get(i);
+
+            _message = gitHubRemoteGitCommit.getMessage();
 
             Matcher matcher = _pattern.matcher(_message);
 
@@ -66,7 +71,7 @@ public class UpdateTicketUtil {
                 String group = matcher.group(0);
 
                 for (String project: _allowedProjects) {
-                    if(!_ticketList.contains(group) && group.contains(project)) {
+                    if (!_ticketList.contains(group) && group.contains(project)) {
                         _ticketList.add(group);
                     }
                 }
@@ -74,7 +79,8 @@ public class UpdateTicketUtil {
         }
     }
 
-    public static void updateTicket(String pullRequestURL) {
+    public static void updateTicket(String pullRequestURL)
+            throws IOException {
         _pullRequest = new PullRequest(pullRequestURL);
 
         _commitList = _pullRequest.getGitHubRemoteCommits();
@@ -84,13 +90,14 @@ public class UpdateTicketUtil {
         parseCommits();
 
         if (_ticketList.isEmpty()) {
-            throw new IllegalStateException("Unable to find any valid tickets within pull request.");
+            throw new IllegalStateException("Unable to find any valid tickets within pull request");
         }
 
         _comment = generateComment();
 
         for (String ticket: _ticketList) {
             JiraTicket jiraTicket = new JiraTicket(ticket);
+
             jiraTicket.submitForReview(_comment);
         }
 

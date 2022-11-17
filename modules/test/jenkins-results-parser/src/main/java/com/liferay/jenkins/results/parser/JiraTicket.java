@@ -19,7 +19,6 @@ import com.atlassian.jira.rest.client.api.JiraRestClient;
 import com.atlassian.jira.rest.client.api.JiraRestClientFactory;
 import com.atlassian.jira.rest.client.api.domain.Comment;
 import com.atlassian.jira.rest.client.api.domain.Issue;
-import com.atlassian.jira.rest.client.api.domain.Transition;
 import com.atlassian.jira.rest.client.api.domain.input.TransitionInput;
 import com.atlassian.jira.rest.client.internal.async.AsynchronousJiraRestClientFactory;
 
@@ -38,14 +37,15 @@ public class JiraTicket {
         return "https://issues.liferay.com/browse/" + _ticket;
     }
 
-    protected JiraTicket(String ticket) {
+    protected JiraTicket(String ticket)
+            throws IOException {
         _getProperties();
 
         _jiraRestClientFactory = new AsynchronousJiraRestClientFactory();
 
         _jiraRestClient =
                 _jiraRestClientFactory.createWithBasicHttpAuthentication(
-                        _uri, _jiraAdminUsername,
+                        _URI, _jiraAdminUsername,
                         _jiraAdminPassword);
 
         _issueRestClient = _jiraRestClient.getIssueClient();
@@ -59,10 +59,13 @@ public class JiraTicket {
 
         TransitionInput transitionInput = new TransitionInput(71, Comment.valueOf(comment));
 
-        try{
-            _issueRestClient.transition(_issue, transitionInput).get();
-        } catch (Exception e) {
-            System.out.println("jira rest client process workflow action error. cause: " + e.getMessage());
+        try {
+            Promise<Void> transition = _issueRestClient.transition(_issue, transitionInput);
+
+            transition.get();
+
+        } catch (Exception exception) {
+            System.out.println("jira rest client process workflow action error. cause: " + exception.getMessage());
         }
     }
 
@@ -88,13 +91,6 @@ public class JiraTicket {
         _jiraAdminUsername = _jenkinsBuildProperties.getProperty("ci.jira.admin.username");
     }
 
-    private Iterable _getTransitions() {
-
-        Promise<Iterable<Transition>> promise = _issueRestClient.getTransitions(_issue);
-
-        return promise.claim();
-    }
-
     private Issue _issue;
 
     private IssueRestClient _issueRestClient;
@@ -111,5 +107,5 @@ public class JiraTicket {
 
     private String _ticket;
 
-    private static final URI _uri =  URI.create("https://issues.liferay.com");
+    private static final URI _URI = URI.create("https://issues.liferay.com");
 }
