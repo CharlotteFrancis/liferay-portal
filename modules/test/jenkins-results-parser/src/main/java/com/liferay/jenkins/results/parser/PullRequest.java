@@ -1032,7 +1032,8 @@ public class PullRequest {
 
 			Issue issue = gitHubRemoteGitCommit.getJIRAIssue();
 
-			if (!_jiraIssues.contains(issue) && (issue != null)) {
+
+			if (issue != null) {
 				_jiraIssues.add(issue);
 			}
 		}

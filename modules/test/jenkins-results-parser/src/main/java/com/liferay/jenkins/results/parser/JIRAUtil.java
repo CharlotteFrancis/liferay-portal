@@ -17,6 +17,8 @@ package com.liferay.jenkins.results.parser;
 import com.atlassian.jira.rest.client.api.IssueRestClient;
 import com.atlassian.jira.rest.client.api.JiraRestClient;
 import com.atlassian.jira.rest.client.api.JiraRestClientFactory;
+import com.atlassian.jira.rest.client.api.RestClientException;
+
 import com.atlassian.jira.rest.client.api.domain.Comment;
 import com.atlassian.jira.rest.client.api.domain.Issue;
 import com.atlassian.jira.rest.client.api.domain.Transition;
@@ -29,221 +31,181 @@ import java.io.IOException;
 
 import java.net.URI;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
+
+import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
+
 
 /**
  * @author Charlotte Wong
  */
 public class JIRAUtil {
 
-	// this class should be statelsss
-
-	// move generate comment into job --
-
-	// get issues should be able to be called from PullRequest object
-
-	// cache issues with timestamp maybe -- low prio
-
-	// add JIRAIssue class(?) might make adding timestamp easier -- lowest prio
-
-	//  delete from cache on update -- low prio
-
-	// forced refresh of cache -- low prio
-
-	// issue number should be issueId
-
-	// allowed projects should be a property
-
-	public static Issue getIssue(String issueId) {
-		if (_issueCache == null) {
-			_issueCache = new ArrayList<>();
-		}
-
-		if (_timestampCache == null) {
-			_timestampCache = new ArrayList<>();
-		}
-
-		Date date = new Date();
-
-		long currentTime = date.getTime();
-
-		for (int i = 0; i < _issueCache.size(); i++) {
-			Issue issue = _issueCache.get(i);
-
-			String id = issue.getKey();
-
-			if (id.equals(issueId)) {
-				long timestamp = _timestampCache.get(i);
-
-				if ((currentTime - timestamp) > 300000) {
-					return issue;
-				}
-
-				break;
-			}
-		}
+	public static void executeTransition(
+		String comment, Issue issue, Transition transition) {
 
 		if (_issueRestClient == null) {
-			_initRestClient();
-		}
-
-		Promise<Issue> promise = _issueRestClient.getIssue(issueId);
-
-		Issue issue = promise.claim();
-
-		_issueCache.add(issue);
-
-		_timestampCache.add(currentTime);
-
-		return issue;
-	}
-
-	public static void transition(
-		String comment, Issue issue, int transitionId) {
-
-		if (_issueRestClient == null) {
-			_initRestClient();
+			return;
 		}
 
 		TransitionInput transitionInput = new TransitionInput(
-			transitionId, Comment.valueOf(comment));
+			transition.getId(), Comment.valueOf(comment));
 
 		try {
-			Promise<Void> transition = _issueRestClient.transition(
+			Promise<Void> promise = _issueRestClient.transition(
 				issue, transitionInput);
 
-			transition.get();
+			promise.get();
 
-			for (int i = 0; i < _issueCache.size(); i++) {
-				Issue cachedIssue = _issueCache.get(i);
-
-				if (cachedIssue == issue) {
-					_issueCache.remove(i);
-					_timestampCache.remove(i);
-
-					break;
-				}
-			}
+			_uncacheIssue(issue.getKey());
 		}
-		catch (Exception exception) {
-			System.out.println(
-				"Unable to execute transition " + exception.getMessage());
+		catch (ExecutionException | InterruptedException | RestClientException
+					exception) {
+
+			System.err.println(
+				"Unable to execute transition " + transition.getName());
+
+			exception.printStackTrace();
 		}
 	}
 
-	public static void transition(
-		String comment, Issue issue, String transitionName) {
-
+	public static Issue getIssue(String issueKey) {
 		if (_issueRestClient == null) {
-			_initRestClient();
+			return null;
 		}
 
-		int transitionId = _getTransitions(issue, transitionName);
+		if (_issueMap.containsKey(issueKey)) {
+			CachedIssue cachedIssue = _issueMap.get(issueKey);
 
-		if (transitionId == -1) {
-			System.out.println(
-				"Unable to find transition with name: " + transitionName);
+			if (!cachedIssue.isExpired()) {
+				return cachedIssue.issue;
+			}
+
+			_uncacheIssue(issueKey);
 		}
-
-		TransitionInput transitionInput = new TransitionInput(
-			transitionId, Comment.valueOf(comment));
 
 		try {
-			Promise<Void> transition = _issueRestClient.transition(
-				issue, transitionInput);
+			Promise<Issue> promise = _issueRestClient.getIssue(issueKey);
 
-			transition.get();
+			Issue issue = promise.claim();
 
-			for (int i = 0; i < _issueCache.size(); i++) {
-				Issue cachedIssue = _issueCache.get(i);
+			_issueMap.put(issueKey, new CachedIssue(issue));
 
-				if (cachedIssue == issue) {
-					_issueCache.remove(i);
-					_timestampCache.remove(i);
-
-					break;
-				}
-			}
+			return issue;
 		}
 		catch (Exception exception) {
-			System.out.println(
-				"Unable to execute transition " + exception.getMessage());
+			System.err.println("Unable to get issue " + issueKey);
+
+			exception.printStackTrace();
+
+			return null;
 		}
 	}
 
-	private static void _getProperties() {
+	public static Transition getTransition(Issue issue, String transitionName) {
+		Map<String, Transition> transitionMap = getTransitions(issue);
+
+		if (transitionMap == null) {
+			return null;
+		}
+
+		return transitionMap.get(transitionName);
+	}
+
+	public static Map<String, Transition> getTransitions(Issue issue) {
+		if (!_issueTransitionMap.containsKey(issue.getKey())) {
+			_initTransitions(issue);
+		}
+
+		return _issueTransitionMap.get(issue.getKey());
+	}
+
+	private static IssueRestClient _initIssueRestClient() {
 		try {
-			_jenkinsBuildProperties =
-				JenkinsResultsParserUtil.getBuildProperties();
-		}
-		catch (IOException ioException) {
-			throw new RuntimeException(
-				"Unable to get build properties", ioException);
-		}
+			Properties buildProperties = null;
 
-		_jiraAdminPassword = _jenkinsBuildProperties.getProperty(
-			"ci.jira.admin.password");
-		_jiraAdminUsername = _jenkinsBuildProperties.getProperty(
-			"ci.jira.admin.username");
-	}
-
-	private static int _getTransitions(Issue issue, String transitionName) {
-		if (_issueRestClient == null) {
-			_initRestClient();
-		}
-
-		if (_transitions == null) {
-			Promise<Iterable<Transition>> promise =
-				_issueRestClient.getTransitions(issue);
-
-			_transitions = promise.claim();
-		}
-
-		System.out.println(_transitions);
-
-		int transitionId = -1;
-
-		for (Iterator<Transition> iterator = _transitions.iterator();
-			 iterator.hasNext();) {
-
-			Transition transition = iterator.next();
-
-			String name = transition.getName();
-
-			if (name.equals(transitionName)) {
-				transitionId = transition.getId();
+			try {
+				buildProperties = JenkinsResultsParserUtil.getBuildProperties();
 			}
+			catch (IOException ioException) {
+				throw new RuntimeException(
+					"Unable to get build properties", ioException);
+			}
+
+			JiraRestClientFactory jiraRestClientFactory =
+				new AsynchronousJiraRestClientFactory();
+
+			JiraRestClient jiraRestClient =
+				jiraRestClientFactory.createWithBasicHttpAuthentication(
+					URI.create(buildProperties.getProperty("jira.url")),
+					buildProperties.getProperty("jira.username"),
+					buildProperties.getProperty("jira.password"));
+
+			return jiraRestClient.getIssueClient();
+		}
+		catch (Exception exception) {
+			System.err.println("Unable to create JIRA rest client object.");
+
+			exception.printStackTrace();
+
+			return null;
+		}
+	}
+
+	private static void _initTransitions(Issue issue) {
+		if (_issueRestClient == null) {
+			return;
 		}
 
-		return transitionId;
+		Promise<Iterable<Transition>> promise = _issueRestClient.getTransitions(
+			issue);
+
+		Iterable<Transition> iterableTransitions = promise.claim();
+
+		Map<String, Transition> transitionMap = new ConcurrentHashMap<>();
+
+		for (Transition transition : iterableTransitions) {
+			transitionMap.put(transition.getName(), transition);
+		}
+
+		_issueTransitionMap.put(issue.getKey(), transitionMap);
 	}
 
-	private static void _initRestClient() {
-		_getProperties();
-
-		_jiraRestClientFactory = new AsynchronousJiraRestClientFactory();
-
-		_jiraRestClient =
-			_jiraRestClientFactory.createWithBasicHttpAuthentication(
-				_URI, _jiraAdminUsername, _jiraAdminPassword);
-
-		_issueRestClient = _jiraRestClient.getIssueClient();
+	private static void _uncacheIssue(String issueKey) {
+		_issueMap.remove(issueKey);
+		_issueTransitionMap.remove(issueKey);
 	}
 
-	private static final URI _URI = URI.create("https://issues.liferay.com");
+	private static final Map<String, CachedIssue> _issueMap =
+		new ConcurrentHashMap<>();
+	private static final IssueRestClient _issueRestClient =
+		_initIssueRestClient();
+	private static final Map<String, Map<String, Transition>>
+		_issueTransitionMap = new ConcurrentHashMap<>();
 
-	private static List<Issue> _issueCache;
-	private static IssueRestClient _issueRestClient;
-	private static Properties _jenkinsBuildProperties;
-	private static String _jiraAdminPassword;
-	private static String _jiraAdminUsername;
-	private static JiraRestClient _jiraRestClient;
-	private static JiraRestClientFactory _jiraRestClientFactory;
-	private static List<Long> _timestampCache;
-	private static Iterable<Transition> _transitions;
+	private static class CachedIssue {
+
+		public CachedIssue(Issue issue) {
+			this.issue = issue;
+
+			timestamp = System.currentTimeMillis();
+		}
+
+		public boolean isExpired() {
+			if ((System.currentTimeMillis() - timestamp) > _MAX_ISSUE_AGE) {
+				return true;
+			}
+
+			return false;
+		}
+
+		public final Issue issue;
+		public final Long timestamp;
+
+		private static final long _MAX_ISSUE_AGE = 1000 * 60 * 5;
+
+	}
 
 }
