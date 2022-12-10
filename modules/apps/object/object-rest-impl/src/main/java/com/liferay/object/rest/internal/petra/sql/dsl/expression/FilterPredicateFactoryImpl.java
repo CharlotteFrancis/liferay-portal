@@ -15,6 +15,7 @@
 package com.liferay.object.rest.internal.petra.sql.dsl.expression;
 
 import com.liferay.object.field.business.type.ObjectFieldBusinessTypeRegistry;
+import com.liferay.object.related.models.ObjectRelatedModelsPredicateProviderRegistry;
 import com.liferay.object.rest.internal.odata.entity.v1_0.ObjectEntryEntityModel;
 import com.liferay.object.rest.internal.odata.filter.expression.PredicateExpressionVisitorImpl;
 import com.liferay.object.rest.petra.sql.dsl.expression.FilterPredicateFactory;
@@ -40,15 +41,14 @@ import org.osgi.service.component.annotations.Reference;
 public class FilterPredicateFactoryImpl implements FilterPredicateFactory {
 
 	@Override
-	public Predicate create(String filterString, long objectDefinitionId) {
+	public Predicate create(
+		EntityModel entityModel, String filterString, long objectDefinitionId) {
+
 		if (Validator.isNull(filterString)) {
 			return null;
 		}
 
 		try {
-			EntityModel entityModel = new ObjectEntryEntityModel(
-				_objectFieldLocalService.getObjectFields(objectDefinitionId));
-
 			FilterParser filterParser = _filterParserProvider.provide(
 				entityModel);
 
@@ -59,14 +59,22 @@ public class FilterPredicateFactoryImpl implements FilterPredicateFactory {
 			return (Predicate)expression.accept(
 				new PredicateExpressionVisitorImpl(
 					entityModel, objectDefinitionId,
-					_objectFieldBusinessTypeRegistry,
-					_objectFieldLocalService));
+					_objectFieldBusinessTypeRegistry, _objectFieldLocalService,
+					_objectRelatedModelsPredicateProviderRegistry));
 		}
 		catch (Exception exception) {
 			_log.error(exception);
 		}
 
 		return null;
+	}
+
+	@Override
+	public Predicate create(String filterString, long objectDefinitionId) {
+		EntityModel entityModel = new ObjectEntryEntityModel(
+			_objectFieldLocalService.getObjectFields(objectDefinitionId));
+
+		return create(entityModel, filterString, objectDefinitionId);
 	}
 
 	private static final Log _log = LogFactoryUtil.getLog(
@@ -80,5 +88,9 @@ public class FilterPredicateFactoryImpl implements FilterPredicateFactory {
 
 	@Reference
 	private ObjectFieldLocalService _objectFieldLocalService;
+
+	@Reference
+	private ObjectRelatedModelsPredicateProviderRegistry
+		_objectRelatedModelsPredicateProviderRegistry;
 
 }

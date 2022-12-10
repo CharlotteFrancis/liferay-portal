@@ -72,6 +72,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.ws.rs.NotFoundException;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.ext.ExceptionMapper;
@@ -147,14 +148,20 @@ public class ObjectDefinitionDeployerImpl implements ObjectDefinitionDeployer {
 	public ObjectDefinition getObjectDefinition(
 		long companyId, String restContextPath) {
 
+		ObjectDefinition objectDefinition = null;
+
 		Map<Long, ObjectDefinition> objectDefinitions =
 			_objectDefinitionsMap.get(restContextPath);
 
 		if (objectDefinitions != null) {
-			return objectDefinitions.get(companyId);
+			objectDefinition = objectDefinitions.get(companyId);
 		}
 
-		return null;
+		if (objectDefinition == null) {
+			throw new NotFoundException();
+		}
+
+		return objectDefinition;
 	}
 
 	@Override

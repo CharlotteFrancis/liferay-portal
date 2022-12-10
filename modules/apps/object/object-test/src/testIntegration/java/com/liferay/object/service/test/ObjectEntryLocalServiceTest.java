@@ -100,7 +100,6 @@ import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.TempFileEntryUtil;
-import com.liferay.portal.kernel.util.UnicodePropertiesBuilder;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.kernel.workflow.WorkflowTask;
 import com.liferay.portal.kernel.workflow.WorkflowTaskManager;
@@ -109,7 +108,6 @@ import com.liferay.portal.test.log.LogEntry;
 import com.liferay.portal.test.log.LoggerTestUtil;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
-import com.liferay.portal.util.PropsUtil;
 
 import java.io.Serializable;
 
@@ -118,6 +116,7 @@ import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.Timestamp;
 
 import java.util.Arrays;
 import java.util.Calendar;
@@ -161,11 +160,6 @@ public class ObjectEntryLocalServiceTest {
 
 	@Before
 	public void setUp() throws Exception {
-		PropsUtil.addProperties(
-			UnicodePropertiesBuilder.setProperty(
-				"feature.flag.LPS-158776", "true"
-			).build());
-
 		_irrelevantObjectDefinition =
 			ObjectDefinitionTestUtil.addObjectDefinition(
 				_objectDefinitionLocalService,
@@ -343,11 +337,6 @@ public class ObjectEntryLocalServiceTest {
 		// unreferenced
 
 		_objectDefinitionLocalService.deleteObjectDefinition(_objectDefinition);
-
-		PropsUtil.addProperties(
-			UnicodePropertiesBuilder.setProperty(
-				"feature.flag.LPS-158776", "false"
-			).build());
 	}
 
 	@Test
@@ -1660,6 +1649,27 @@ public class ObjectEntryLocalServiceTest {
 				"listTypeEntryKeyRequired", "listTypeEntryKey1"
 			).build());
 
+		Map<String, Serializable> systemValues =
+			_objectEntryLocalService.getSystemValues(objectEntry);
+
+		_assertTimestamp(
+			objectEntry.getCreateDate(),
+			(Timestamp)systemValues.get("createDate"));
+		Assert.assertEquals(
+			objectEntry.getExternalReferenceCode(),
+			systemValues.get("externalReferenceCode"));
+		_assertTimestamp(
+			objectEntry.getModifiedDate(),
+			(Timestamp)systemValues.get("modifiedDate"));
+		Assert.assertEquals(
+			objectEntry.getObjectEntryId(), systemValues.get("objectEntryId"));
+		Assert.assertEquals(
+			objectEntry.getStatus(), systemValues.get("status"));
+		Assert.assertEquals(
+			objectEntry.getUserName(), systemValues.get("userName"));
+
+		Assert.assertEquals(systemValues.toString(), 6, systemValues.size());
+
 		Map<String, Serializable> values = _objectEntryLocalService.getValues(
 			objectEntry.getObjectEntryId());
 
@@ -2630,6 +2640,20 @@ public class ObjectEntryLocalServiceTest {
 				0, _objectDefinition.getObjectDefinitionId(), keywords, 0, 20);
 
 		Assert.assertEquals(count, baseModelSearchResult.getLength());
+	}
+
+	private void _assertTimestamp(Date date, Timestamp timestamp) {
+		Calendar calendar = Calendar.getInstance();
+
+		calendar.setTime(date);
+
+		calendar.set(Calendar.HOUR_OF_DAY, 0);
+		calendar.set(Calendar.MINUTE, 0);
+		calendar.set(Calendar.SECOND, 0);
+		calendar.set(Calendar.MILLISECOND, 0);
+
+		Assert.assertEquals(
+			new Timestamp(calendar.getTimeInMillis()), timestamp);
 	}
 
 	private void _assertValuesListWithAccountEntryRestricted(

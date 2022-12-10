@@ -21,8 +21,10 @@ import com.liferay.asset.kernel.model.AssetEntry;
 import com.liferay.asset.kernel.service.AssetEntryLocalService;
 import com.liferay.data.engine.rest.dto.v2_0.DataDefinition;
 import com.liferay.data.engine.rest.resource.v2_0.DataDefinitionResource;
+import com.liferay.data.engine.rest.test.util.DataDefinitionTestUtil;
 import com.liferay.document.library.kernel.model.DLFolderConstants;
 import com.liferay.document.library.kernel.service.DLAppLocalService;
+import com.liferay.dynamic.data.mapping.form.field.type.constants.DDMFormFieldTypeConstants;
 import com.liferay.dynamic.data.mapping.model.DDMForm;
 import com.liferay.dynamic.data.mapping.model.DDMFormField;
 import com.liferay.dynamic.data.mapping.model.DDMStructure;
@@ -59,6 +61,7 @@ import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.json.JSONObject;
+import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.model.LayoutConstants;
@@ -108,17 +111,21 @@ import com.liferay.portal.kernel.util.LoggingTimer;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.StringUtil;
+import com.liferay.portal.kernel.util.TempFileEntryUtil;
 import com.liferay.portal.kernel.util.TimeZoneUtil;
 import com.liferay.portal.kernel.util.Tuple;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 
+import java.io.InputStream;
+
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
@@ -347,6 +354,118 @@ public class JournalArticleLocalServiceTest {
 	}
 
 	@Test
+	public void testCopyArticleWithImages() throws Exception {
+		DataDefinition dataDefinition =
+			DataDefinitionTestUtil.addDataDefinition(
+				"journal", _dataDefinitionResourceFactory, _group.getGroupId(),
+				_readFileToString("ddm_form_with_images.json"),
+				TestPropsValues.getUser());
+
+		JournalArticle oldArticle = JournalTestUtil.addArticleWithXMLContent(
+			_group.getGroupId(),
+			JournalFolderConstants.DEFAULT_PARENT_FOLDER_ID,
+			JournalArticleConstants.CLASS_NAME_ID_DEFAULT,
+			StringUtil.replace(
+				_readFileToString("journal_content_with_images.xml"),
+				new String[] {"[$IMAGE_JSON_1$]", "[$IMAGE_JSON_2$]"},
+				new String[] {
+					_toJSON(_addTempFileEntry("test_01.jpg")),
+					_toJSON(_addTempFileEntry("test_02.jpg"))
+				}),
+			dataDefinition.getDataDefinitionKey(), null, LocaleUtil.US);
+
+		JournalArticle newArticle = _journalArticleLocalService.copyArticle(
+			oldArticle.getUserId(), oldArticle.getGroupId(),
+			oldArticle.getArticleId(), null, true, oldArticle.getVersion());
+
+		Assert.assertEquals(
+			oldArticle.getImagesFileEntriesCount(),
+			newArticle.getImagesFileEntriesCount());
+
+		_validateDDMFormValuesImages(newArticle);
+	}
+
+	@Test
+	public void testCopyArticleWithImagesAndNestedFields() throws Exception {
+		DataDefinition dataDefinition =
+			DataDefinitionTestUtil.addDataDefinition(
+				"journal", _dataDefinitionResourceFactory, _group.getGroupId(),
+				_readFileToString(
+					"ddm_form_with_images_and_nested_fields.json"),
+				TestPropsValues.getUser());
+
+		JournalArticle oldArticle = JournalTestUtil.addArticleWithXMLContent(
+			_group.getGroupId(),
+			JournalFolderConstants.DEFAULT_PARENT_FOLDER_ID,
+			JournalArticleConstants.CLASS_NAME_ID_DEFAULT,
+			StringUtil.replace(
+				_readFileToString(
+					"journal_content_with_images_and_nested_fields.xml"),
+				new String[] {"[$IMAGE_JSON_1$]", "[$IMAGE_JSON_2$]"},
+				new String[] {
+					_toJSON(_addTempFileEntry("test_01.jpg")),
+					_toJSON(_addTempFileEntry("test_02.jpg"))
+				}),
+			dataDefinition.getDataDefinitionKey(), null, LocaleUtil.US);
+
+		JournalArticle newArticle = _journalArticleLocalService.copyArticle(
+			oldArticle.getUserId(), oldArticle.getGroupId(),
+			oldArticle.getArticleId(), null, true, oldArticle.getVersion());
+
+		Assert.assertEquals(
+			oldArticle.getImagesFileEntriesCount(),
+			newArticle.getImagesFileEntriesCount());
+
+		_validateDDMFormValuesImages(newArticle);
+	}
+
+	@Test
+	public void testCopyArticleWithImagesAndRepeatableFields()
+		throws Exception {
+
+		DataDefinition dataDefinition =
+			DataDefinitionTestUtil.addDataDefinition(
+				"journal", _dataDefinitionResourceFactory, _group.getGroupId(),
+				_readFileToString(
+					"ddm_form_with_images_and_repeatable_fields.json"),
+				TestPropsValues.getUser());
+
+		JournalArticle oldArticle = JournalTestUtil.addArticleWithXMLContent(
+			_group.getGroupId(),
+			JournalFolderConstants.DEFAULT_PARENT_FOLDER_ID,
+			JournalArticleConstants.CLASS_NAME_ID_DEFAULT,
+			StringUtil.replace(
+				_readFileToString(
+					"journal_content_with_images_and_repeatable_fields.xml"),
+				new String[] {
+					"[$IMAGE_JSON_1$]", "[$IMAGE_JSON_2$]", "[$IMAGE_JSON_3$]",
+					"[$IMAGE_JSON_4$]", "[$IMAGE_JSON_5$]", "[$IMAGE_JSON_6$]",
+					"[$IMAGE_JSON_7$]", "[$IMAGE_JSON_8$]"
+				},
+				new String[] {
+					_toJSON(_addTempFileEntry("test_01.jpg")),
+					_toJSON(_addTempFileEntry("test_02.jpg")),
+					_toJSON(_addTempFileEntry("test_03.jpg")),
+					_toJSON(_addTempFileEntry("test_04.jpg")),
+					_toJSON(_addTempFileEntry("test_05.jpg")),
+					_toJSON(_addTempFileEntry("test_06.jpg")),
+					_toJSON(_addTempFileEntry("test_07.jpg")),
+					_toJSON(_addTempFileEntry("test_08.jpg"))
+				}),
+			dataDefinition.getDataDefinitionKey(), null, LocaleUtil.US);
+
+		JournalArticle newArticle = _journalArticleLocalService.copyArticle(
+			oldArticle.getUserId(), oldArticle.getGroupId(),
+			oldArticle.getArticleId(), null, true, oldArticle.getVersion());
+
+		Assert.assertEquals(
+			oldArticle.getImagesFileEntriesCount(),
+			newArticle.getImagesFileEntriesCount());
+
+		_validateDDMFormValuesImages(newArticle);
+	}
+
+	@Test
 	public void testDeleteDDMStructurePredefinedValues() throws Exception {
 		Tuple tuple = _createJournalArticleWithPredefinedValues("Test Article");
 
@@ -534,28 +653,11 @@ public class JournalArticleLocalServiceTest {
 
 	@Test
 	public void testGetArticleDisplayWithComplexData() throws Exception {
-		DataDefinition dataDefinition = DataDefinition.toDTO(
-			_readFileToString("dependencies/complex_data_definition.json"));
-
-		dataDefinition.setName(
-			HashMapBuilder.<String, Object>put(
-				String.valueOf(LocaleUtil.SPAIN), "TMX_Main_Menu"
-			).build());
-
-		DataDefinitionResource.Builder dataDefinitionResourcedBuilder =
-			_dataDefinitionResourceFactory.create();
-
-		DataDefinitionResource dataDefinitionResource =
-			dataDefinitionResourcedBuilder.user(
-				TestPropsValues.getUser()
-			).build();
-
-		dataDefinition =
-			dataDefinitionResource.postSiteDataDefinitionByContentType(
-				_group.getGroupId(), "journal", dataDefinition);
-
-		String xml = _readFileToString(
-			"dependencies/complex_journal_content.xml");
+		DataDefinition dataDefinition =
+			DataDefinitionTestUtil.addDataDefinition(
+				"journal", _dataDefinitionResourceFactory, _group.getGroupId(),
+				_readFileToString("complex_data_definition.json"),
+				TestPropsValues.getUser());
 
 		FileEntry fileEntry = _dlAppLocalService.addFileEntry(
 			null, TestPropsValues.getUserId(), _group.getGroupId(),
@@ -564,16 +666,14 @@ public class JournalArticleLocalServiceTest {
 			FileUtil.getBytes(getClass(), "dependencies/image.jpg"), null, null,
 			ServiceContextTestUtil.getServiceContext(_group.getGroupId()));
 
-		JSONObject jsonObject = _jsonFactory.createJSONObject(
-			_jsonFactory.looseSerialize(fileEntry));
-
 		JournalArticle journalArticle =
 			JournalTestUtil.addArticleWithXMLContent(
 				_group.getGroupId(),
 				JournalFolderConstants.DEFAULT_PARENT_FOLDER_ID,
 				JournalArticleConstants.CLASS_NAME_ID_DEFAULT,
 				StringUtil.replace(
-					xml, "[$DOCUMENT_JSON$]", jsonObject.toString()),
+					_readFileToString("complex_journal_content.xml"),
+					"[$DOCUMENT_JSON$]", _toJSON(fileEntry)),
 				dataDefinition.getDataDefinitionKey(), null, LocaleUtil.SPAIN);
 
 		DDMStructure ddmStructure = DDMStructureLocalServiceUtil.fetchStructure(
@@ -681,30 +781,10 @@ public class JournalArticleLocalServiceTest {
 
 	@Test
 	public void testRemoveArticleLocale() throws Exception {
-		DataDefinition dataDefinition = DataDefinition.toDTO(
-			_readFileToString("dependencies/ddm_form.json"));
-
-		dataDefinition.setName(
-			HashMapBuilder.<String, Object>put(
-				String.valueOf(LocaleUtil.SPAIN), "data-definition-es"
-			).put(
-				String.valueOf(LocaleUtil.US), "data-definition"
-			).build());
-
-		DataDefinitionResource.Builder dataDefinitionResourcedBuilder =
-			_dataDefinitionResourceFactory.create();
-
-		DataDefinitionResource dataDefinitionResource =
-			dataDefinitionResourcedBuilder.user(
-				TestPropsValues.getUser()
-			).build();
-
-		dataDefinition =
-			dataDefinitionResource.postSiteDataDefinitionByContentType(
-				_group.getGroupId(), "journal", dataDefinition);
-
-		String xml = _readFileToString(
-			"dependencies/journal_content_with_different_locales.xml");
+		DataDefinition dataDefinition =
+			DataDefinitionTestUtil.addDataDefinition(
+				"journal", _dataDefinitionResourceFactory, _group.getGroupId(),
+				_readFileToString("ddm_form.json"), TestPropsValues.getUser());
 
 		FileEntry fileEntry = _dlAppLocalService.addFileEntry(
 			null, TestPropsValues.getUserId(), _group.getGroupId(),
@@ -712,9 +792,6 @@ public class JournalArticleLocalServiceTest {
 			StringUtil.randomString(), ContentTypes.IMAGE_JPEG,
 			FileUtil.getBytes(getClass(), "dependencies/image.jpg"), null, null,
 			ServiceContextTestUtil.getServiceContext(_group.getGroupId()));
-
-		JSONObject jsonObject = _jsonFactory.createJSONObject(
-			_jsonFactory.looseSerialize(fileEntry));
 
 		JournalArticle journalArticle =
 			JournalArticleLocalServiceUtil.addArticle(
@@ -737,7 +814,9 @@ public class JournalArticleLocalServiceTest {
 					LocaleUtil.US, "friendly-url"
 				).build(),
 				StringUtil.replace(
-					xml, "[$DOCUMENT_JSON$]", jsonObject.toString()),
+					_readFileToString(
+						"journal_content_with_different_locales.xml"),
+					"[$DOCUMENT_JSON$]", _toJSON(fileEntry)),
 				dataDefinition.getDataDefinitionKey(), null, null, 1, 1, 1965,
 				0, 0, 0, 0, 0, 0, 0, true, 0, 0, 0, 0, 0, true, true, false,
 				null, null, null, null,
@@ -770,31 +849,11 @@ public class JournalArticleLocalServiceTest {
 
 	@Test
 	public void testRemoveArticleLocaleWithNestedFields() throws Exception {
-		DataDefinition dataDefinition = DataDefinition.toDTO(
-			_readFileToString("dependencies/ddm_form_nested_fields.json"));
-
-		dataDefinition.setName(
-			HashMapBuilder.<String, Object>put(
-				String.valueOf(LocaleUtil.SPAIN), "data-definition-es"
-			).put(
-				String.valueOf(LocaleUtil.US), "data-definition"
-			).build());
-
-		DataDefinitionResource.Builder dataDefinitionResourcedBuilder =
-			_dataDefinitionResourceFactory.create();
-
-		DataDefinitionResource dataDefinitionResource =
-			dataDefinitionResourcedBuilder.user(
-				TestPropsValues.getUser()
-			).build();
-
-		dataDefinition =
-			dataDefinitionResource.postSiteDataDefinitionByContentType(
-				_group.getGroupId(), "journal", dataDefinition);
-
-		String xml = _readFileToString(
-			"dependencies" +
-				"/journal_content_nested_fields_with_different_locales.xml");
+		DataDefinition dataDefinition =
+			DataDefinitionTestUtil.addDataDefinition(
+				"journal", _dataDefinitionResourceFactory, _group.getGroupId(),
+				_readFileToString("ddm_form_nested_fields.json"),
+				TestPropsValues.getUser());
 
 		FileEntry fileEntry = _dlAppLocalService.addFileEntry(
 			null, TestPropsValues.getUserId(), _group.getGroupId(),
@@ -802,9 +861,6 @@ public class JournalArticleLocalServiceTest {
 			StringUtil.randomString(), ContentTypes.IMAGE_JPEG,
 			FileUtil.getBytes(getClass(), "dependencies/image.jpg"), null, null,
 			ServiceContextTestUtil.getServiceContext(_group.getGroupId()));
-
-		JSONObject jsonObject = _jsonFactory.createJSONObject(
-			_jsonFactory.looseSerialize(fileEntry));
 
 		JournalArticle journalArticle =
 			JournalArticleLocalServiceUtil.addArticle(
@@ -827,7 +883,10 @@ public class JournalArticleLocalServiceTest {
 					LocaleUtil.US, "friendly-url"
 				).build(),
 				StringUtil.replace(
-					xml, "[$DOCUMENT_JSON$]", jsonObject.toString()),
+					_readFileToString(
+						"journal_content_nested_fields_with_different_" +
+							"locales.xml"),
+					"[$DOCUMENT_JSON$]", _toJSON(fileEntry)),
 				dataDefinition.getDataDefinitionKey(), null, null, 1, 1, 1965,
 				0, 0, 0, 0, 0, 0, 0, true, 0, 0, 0, 0, 0, true, true, false,
 				null, null, null, null,
@@ -987,6 +1046,21 @@ public class JournalArticleLocalServiceTest {
 			"Predefined Value", field.getValue(unavailableLocale));
 	}
 
+	private FileEntry _addTempFileEntry(String fileName) throws Exception {
+		Class<?> clazz = getClass();
+
+		ClassLoader classLoader = clazz.getClassLoader();
+
+		InputStream inputStream = classLoader.getResourceAsStream(
+			"/com/liferay/journal/service/test/dependencies/images/" +
+				fileName);
+
+		return TempFileEntryUtil.addTempFileEntry(
+			_group.getGroupId(), TestPropsValues.getUserId(),
+			JournalArticle.class.getName(), fileName, inputStream,
+			ContentTypes.IMAGE_JPEG);
+	}
+
 	private void _assertArticleFriendlyURLMap(Group group) throws Exception {
 		JournalArticle journalArticle = JournalTestUtil.addArticle(
 			group.getGroupId(), JournalFolderConstants.DEFAULT_PARENT_FOLDER_ID,
@@ -1143,8 +1217,29 @@ public class JournalArticleLocalServiceTest {
 		return themeDisplay;
 	}
 
-	private String _readFileToString(String s) throws Exception {
-		return new String(FileUtil.getBytes(getClass(), s));
+	private String _readFileToString(String fileName) throws Exception {
+		return new String(
+			FileUtil.getBytes(getClass(), "dependencies/" + fileName));
+	}
+
+	private String _toJSON(FileEntry fileEntry) {
+		return JSONUtil.put(
+			"alt", StringPool.BLANK
+		).put(
+			"description", StringPool.BLANK
+		).put(
+			"fileEntryId", fileEntry.getFileEntryId()
+		).put(
+			"groupId", fileEntry.getGroupId()
+		).put(
+			"name", fileEntry.getFileName()
+		).put(
+			"title", fileEntry.getTitle()
+		).put(
+			"type", "journal"
+		).put(
+			"uuid", fileEntry.getUuid()
+		).toString();
 	}
 
 	private JournalArticle _updateJournalArticle(
@@ -1204,6 +1299,41 @@ public class JournalArticleLocalServiceTest {
 
 				_validateDDMFormFieldValues(
 					ddmFormFieldValue.getNestedDDMFormFieldValues());
+			}
+		}
+	}
+
+	private void _validateDDMFormValuesImages(JournalArticle journalArticle)
+		throws Exception {
+
+		DDMFormValues ddmFormValues = journalArticle.getDDMFormValues();
+
+		Map<String, List<DDMFormFieldValue>> ddmFormFieldValuesMap =
+			ddmFormValues.getDDMFormFieldValuesMap(true);
+
+		for (Map.Entry<String, List<DDMFormFieldValue>> entry :
+				ddmFormFieldValuesMap.entrySet()) {
+
+			List<DDMFormFieldValue> ddmFormFieldValues = entry.getValue();
+
+			for (DDMFormFieldValue ddmFormFieldValue : ddmFormFieldValues) {
+				if (!Objects.equals(
+						DDMFormFieldTypeConstants.IMAGE,
+						ddmFormFieldValue.getType())) {
+
+					continue;
+				}
+
+				Value value = ddmFormFieldValue.getValue();
+
+				for (Locale locale : value.getAvailableLocales()) {
+					JSONObject jsonObject = _jsonFactory.createJSONObject(
+						value.getString(locale));
+
+					Assert.assertEquals(
+						journalArticle.getResourcePrimKey(),
+						jsonObject.getLong("resourcePrimKey"));
+				}
 			}
 		}
 	}

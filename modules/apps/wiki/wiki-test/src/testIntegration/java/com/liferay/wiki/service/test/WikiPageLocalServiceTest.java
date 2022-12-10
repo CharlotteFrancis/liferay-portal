@@ -27,6 +27,8 @@ import com.liferay.asset.kernel.service.AssetLinkLocalServiceUtil;
 import com.liferay.asset.kernel.service.AssetTagLocalServiceUtil;
 import com.liferay.asset.kernel.service.AssetVocabularyLocalServiceUtil;
 import com.liferay.asset.test.util.AssetTestUtil;
+import com.liferay.document.library.kernel.model.DLFileEntry;
+import com.liferay.document.library.kernel.service.DLFileEntryLocalServiceUtil;
 import com.liferay.expando.kernel.model.ExpandoBridge;
 import com.liferay.expando.kernel.model.ExpandoColumn;
 import com.liferay.expando.kernel.model.ExpandoColumnConstants;
@@ -422,6 +424,23 @@ public class WikiPageLocalServiceTest {
 		Assert.assertEquals(copyFileEntry.getSize(), fileEntry.getSize());
 	}
 
+	@Test
+	public void testCopyPageWithDraftAttachments() throws Exception {
+		WikiPage approvedPage = _createPageWithDraftAttachments();
+
+		WikiPage copyPage = WikiTestUtil.copyPage(
+			approvedPage, true,
+			ServiceContextTestUtil.getServiceContext(
+				approvedPage.getGroupId()));
+
+		List<FileEntry> copyAttachmentsFileEntries =
+			copyPage.getAttachmentsFileEntries();
+
+		Assert.assertEquals(
+			copyAttachmentsFileEntries.toString(), 1,
+			copyAttachmentsFileEntries.size());
+	}
+
 	@Test(expected = NoSuchPageResourceException.class)
 	public void testDeletePage() throws Exception {
 		WikiPage page = WikiTestUtil.addPage(
@@ -616,6 +635,28 @@ public class WikiPageLocalServiceTest {
 	}
 
 	@Test
+	public void testGetAttachmentsFileEntriesWithDraftPage() throws Exception {
+		WikiPage approvedPage = _createPageWithDraftAttachments();
+
+		WikiPage draftPage = WikiPageLocalServiceUtil.getLatestPage(
+			approvedPage.getResourcePrimKey(), WorkflowConstants.STATUS_ANY,
+			false);
+
+		List<FileEntry> attachmentsFileEntries =
+			approvedPage.getAttachmentsFileEntries();
+
+		Assert.assertEquals(
+			attachmentsFileEntries.toString(), 1,
+			attachmentsFileEntries.size());
+
+		attachmentsFileEntries = draftPage.getAttachmentsFileEntries();
+
+		Assert.assertEquals(
+			attachmentsFileEntries.toString(), 2,
+			attachmentsFileEntries.size());
+	}
+
+	@Test
 	public void testGetPage() throws Exception {
 		WikiPage page = WikiTestUtil.addPage(
 			_group.getGroupId(), _node.getNodeId(), true);
@@ -693,6 +734,28 @@ public class WikiPageLocalServiceTest {
 
 		Assert.assertEquals(updatedPage2, recentPages.get(0));
 		Assert.assertEquals(page1, recentPages.get(1));
+	}
+
+	@Test
+	public void testMovePageToTrashWithDraftAttachments() throws Exception {
+		WikiPage approvedPage = _createPageWithDraftAttachments();
+
+		WikiPage draftPage = WikiPageLocalServiceUtil.getLatestPage(
+			approvedPage.getResourcePrimKey(), WorkflowConstants.STATUS_ANY,
+			false);
+
+		List<FileEntry> attachmentsFileEntries =
+			draftPage.getAttachmentsFileEntries();
+
+		WikiPageLocalServiceUtil.movePageToTrash(
+			approvedPage.getUserId(), approvedPage);
+
+		FileEntry draftFileEntry = attachmentsFileEntries.get(1);
+
+		DLFileEntry dlFileEntry = DLFileEntryLocalServiceUtil.getFileEntry(
+			draftFileEntry.getFileEntryId());
+
+		Assert.assertTrue(dlFileEntry.isInTrash());
 	}
 
 	@Test
@@ -1320,6 +1383,35 @@ public class WikiPageLocalServiceTest {
 		Arrays.sort(actualArray);
 
 		Assert.assertArrayEquals(expectedArray, actualArray);
+	}
+
+	private WikiPage _createPageWithDraftAttachments() throws Exception {
+		WikiPage approvedPage = WikiTestUtil.addPage(
+			_group.getGroupId(), _node.getNodeId(), true);
+
+		WikiTestUtil.addWikiAttachment(
+			approvedPage.getUserId(), approvedPage.getNodeId(),
+			approvedPage.getTitle(), getClass());
+
+		ServiceContext serviceContext =
+			ServiceContextTestUtil.getServiceContext(approvedPage.getGroupId());
+
+		// Update the page so the modifiedDate comes after attachment
+		// modifiedDate to resemble the /wiki/edit_page action
+
+		approvedPage = WikiTestUtil.updatePage(
+			approvedPage, approvedPage.getUserId(), approvedPage.getTitle(),
+			approvedPage.getContent(), true, serviceContext);
+
+		WikiTestUtil.addWikiAttachment(
+			approvedPage.getUserId(), approvedPage.getNodeId(),
+			approvedPage.getTitle(), getClass());
+
+		WikiTestUtil.updatePage(
+			approvedPage, approvedPage.getUserId(), approvedPage.getTitle(),
+			approvedPage.getContent(), false, serviceContext);
+
+		return approvedPage;
 	}
 
 	private static final Log _log = LogFactoryUtil.getLog(

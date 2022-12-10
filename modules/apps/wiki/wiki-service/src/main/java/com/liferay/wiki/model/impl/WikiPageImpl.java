@@ -25,6 +25,7 @@ import com.liferay.portal.kernel.portletfilerepository.PortletFileRepositoryUtil
 import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.repository.model.Folder;
 import com.liferay.portal.kernel.service.ServiceContext;
+import com.liferay.portal.kernel.util.DateUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
@@ -114,15 +115,7 @@ public class WikiPageImpl extends WikiPageBaseImpl {
 			int start, int end, OrderByComparator<FileEntry> orderByComparator)
 		throws PortalException {
 
-		long attachmentsFolderId = getAttachmentsFolderId();
-
-		if (attachmentsFolderId == DLFolderConstants.DEFAULT_PARENT_FOLDER_ID) {
-			return Collections.emptyList();
-		}
-
-		return PortletFileRepositoryUtil.getPortletFileEntries(
-			getGroupId(), attachmentsFolderId,
-			WorkflowConstants.STATUS_APPROVED, start, end, orderByComparator);
+		return getAttachmentsFileEntries(null, start, end, orderByComparator);
 	}
 
 	@Override
@@ -137,9 +130,33 @@ public class WikiPageImpl extends WikiPageBaseImpl {
 			return Collections.emptyList();
 		}
 
-		return PortletFileRepositoryUtil.getPortletFileEntries(
-			getGroupId(), attachmentsFolderId, mimeTypes,
-			WorkflowConstants.STATUS_APPROVED, start, end, orderByComparator);
+		WikiPage latestWikiPage = WikiPageLocalServiceUtil.getLatestPage(
+			getResourcePrimKey(), WorkflowConstants.STATUS_ANY, false);
+
+		if (latestWikiPage.getPageId() == getPageId()) {
+			return PortletFileRepositoryUtil.getPortletFileEntries(
+				getGroupId(), attachmentsFolderId, mimeTypes,
+				WorkflowConstants.STATUS_APPROVED, start, end,
+				orderByComparator);
+		}
+
+		List<FileEntry> fileEntries = new ArrayList<>();
+
+		for (FileEntry fileEntry :
+				PortletFileRepositoryUtil.getPortletFileEntries(
+					getGroupId(), attachmentsFolderId, mimeTypes,
+					WorkflowConstants.STATUS_APPROVED, start, end,
+					orderByComparator)) {
+
+			int value = DateUtil.compareTo(
+				fileEntry.getModifiedDate(), getStatusDate());
+
+			if (value <= 0) {
+				fileEntries.add(fileEntry);
+			}
+		}
+
+		return fileEntries;
 	}
 
 	@Override

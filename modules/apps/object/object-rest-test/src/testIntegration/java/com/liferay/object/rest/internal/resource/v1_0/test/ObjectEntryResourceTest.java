@@ -36,9 +36,11 @@ import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.kernel.util.Http;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringUtil;
+import com.liferay.portal.kernel.util.UnicodePropertiesBuilder;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PermissionCheckerMethodTestRule;
+import com.liferay.portal.util.PropsUtil;
 
 import java.util.Collections;
 
@@ -88,18 +90,16 @@ public class ObjectEntryResourceTest {
 	}
 
 	@Test
-	public void testGetNestedFieldDetailsInOneToManyRelationship()
+	public void testGetNestedFieldDetailsInOneToManyRelationship1()
 		throws Exception {
 
-		ObjectRelationship objectRelationship =
-			ObjectRelationshipTestUtil.addObjectRelationship(
-				_objectDefinition1, _objectDefinition2,
-				TestPropsValues.getUserId(),
-				ObjectRelationshipConstants.TYPE_ONE_TO_MANY);
+		_objectRelationship = ObjectRelationshipTestUtil.addObjectRelationship(
+			_objectDefinition1, _objectDefinition2, TestPropsValues.getUserId(),
+			ObjectRelationshipConstants.TYPE_ONE_TO_MANY);
 
 		_objectRelationshipLocalService.addObjectRelationshipMappingTableValues(
 			TestPropsValues.getUserId(),
-			objectRelationship.getObjectRelationshipId(),
+			_objectRelationship.getObjectRelationshipId(),
 			_objectEntry1.getPrimaryKey(), _objectEntry2.getPrimaryKey(),
 			ServiceContextTestUtil.getServiceContext());
 
@@ -107,7 +107,7 @@ public class ObjectEntryResourceTest {
 			null,
 			StringBundler.concat(
 				_objectDefinition2.getRESTContextPath(), "?nestedFields=r_",
-				objectRelationship.getName(), "_",
+				_objectRelationship.getName(), "_",
 				_objectDefinition1.getPKObjectFieldName()),
 			Http.Method.GET);
 
@@ -123,32 +123,109 @@ public class ObjectEntryResourceTest {
 
 		JSONObject relatedObjectJSONObject = itemJSONObject.getJSONObject(
 			StringBundler.concat(
-				"r_", objectRelationship.getName(), "_",
+				"r_", _objectRelationship.getName(), "_",
 				StringUtil.replaceLast(
 					_objectDefinition1.getPKObjectFieldName(), "Id", "")));
 
 		Assert.assertEquals(
 			_OBJECT_FIELD_VALUE_1,
 			relatedObjectJSONObject.getString(_OBJECT_FIELD_NAME_1));
+	}
 
-		_objectRelationshipLocalService.
-			deleteObjectRelationshipMappingTableValues(
-				objectRelationship.getObjectRelationshipId(),
-				_objectEntry1.getPrimaryKey(), _objectEntry2.getPrimaryKey());
+	@Test
+	public void testGetNestedFieldDetailsInOneToManyRelationships2()
+		throws Exception {
 
-		_objectRelationshipLocalService.deleteObjectRelationship(
-			objectRelationship);
+		PropsUtil.addProperties(
+			UnicodePropertiesBuilder.setProperty(
+				"feature.flag.LPS-161364", "true"
+			).build());
+
+		_objectRelationship = ObjectRelationshipTestUtil.addObjectRelationship(
+			_objectDefinition1, _objectDefinition2, TestPropsValues.getUserId(),
+			ObjectRelationshipConstants.TYPE_ONE_TO_MANY);
+
+		_objectRelationshipLocalService.addObjectRelationshipMappingTableValues(
+			TestPropsValues.getUserId(),
+			_objectRelationship.getObjectRelationshipId(),
+			_objectEntry1.getPrimaryKey(), _objectEntry2.getPrimaryKey(),
+			ServiceContextTestUtil.getServiceContext());
+
+		JSONObject jsonObject = HTTPTestUtil.invoke(
+			null,
+			StringBundler.concat(
+				_objectDefinition2.getRESTContextPath(), "?nestedFields=",
+				_objectRelationship.getName()),
+			Http.Method.GET);
+
+		JSONArray itemsJSONArray = jsonObject.getJSONArray("items");
+
+		Assert.assertEquals(1, itemsJSONArray.length());
+
+		JSONObject itemJSONObject = itemsJSONArray.getJSONObject(0);
+
+		Assert.assertEquals(
+			_OBJECT_FIELD_VALUE_2,
+			itemJSONObject.getString(_OBJECT_FIELD_NAME_2));
+
+		JSONObject relatedObjectJSONObject = itemJSONObject.getJSONObject(
+			_objectRelationship.getName());
+
+		Assert.assertEquals(
+			_OBJECT_FIELD_VALUE_1,
+			relatedObjectJSONObject.getString(_OBJECT_FIELD_NAME_1));
+
+		PropsUtil.addProperties(
+			UnicodePropertiesBuilder.setProperty(
+				"feature.flag.LPS-161364", "false"
+			).build());
+	}
+
+	@Test
+	public void testGetRelationshipERCFieldInOneToManyRelationship()
+		throws Exception {
+
+		PropsUtil.addProperties(
+			UnicodePropertiesBuilder.setProperty(
+				"feature.flag.LPS-161364", "true"
+			).build());
+
+		_objectRelationship = ObjectRelationshipTestUtil.addObjectRelationship(
+			_objectDefinition1, _objectDefinition2, TestPropsValues.getUserId(),
+			ObjectRelationshipConstants.TYPE_ONE_TO_MANY);
+
+		_objectRelationshipLocalService.addObjectRelationshipMappingTableValues(
+			TestPropsValues.getUserId(),
+			_objectRelationship.getObjectRelationshipId(),
+			_objectEntry1.getPrimaryKey(), _objectEntry2.getPrimaryKey(),
+			ServiceContextTestUtil.getServiceContext());
+
+		JSONObject jsonObject = HTTPTestUtil.invoke(
+			null, _objectDefinition2.getRESTContextPath(), Http.Method.GET);
+
+		JSONArray itemsJSONArray = jsonObject.getJSONArray("items");
+
+		Assert.assertEquals(1, itemsJSONArray.length());
+
+		JSONObject itemJSONObject = itemsJSONArray.getJSONObject(0);
+
+		Assert.assertEquals(
+			itemJSONObject.getString(_objectRelationship.getName() + "ERC"),
+			_objectEntry1.getExternalReferenceCode());
+
+		PropsUtil.addProperties(
+			UnicodePropertiesBuilder.setProperty(
+				"feature.flag.LPS-161364", "false"
+			).build());
 	}
 
 	@Test
 	public void testPutByExternalReferenceCodeManyToManyRelationship()
 		throws Exception {
 
-		ObjectRelationship objectRelationship =
-			ObjectRelationshipTestUtil.addObjectRelationship(
-				_objectDefinition1, _objectDefinition2,
-				TestPropsValues.getUserId(),
-				ObjectRelationshipConstants.TYPE_MANY_TO_MANY);
+		_objectRelationship = ObjectRelationshipTestUtil.addObjectRelationship(
+			_objectDefinition1, _objectDefinition2, TestPropsValues.getUserId(),
+			ObjectRelationshipConstants.TYPE_MANY_TO_MANY);
 
 		JSONObject jsonObject = HTTPTestUtil.invoke(
 			null,
@@ -156,7 +233,7 @@ public class ObjectEntryResourceTest {
 				_objectDefinition1.getRESTContextPath(),
 				"/by-external-reference-code/",
 				_objectEntry1.getExternalReferenceCode(), StringPool.SLASH,
-				objectRelationship.getName(), StringPool.SLASH,
+				_objectRelationship.getName(), StringPool.SLASH,
 				_objectEntry2.getExternalReferenceCode()),
 			Http.Method.PUT);
 
@@ -172,7 +249,7 @@ public class ObjectEntryResourceTest {
 				_objectDefinition2.getRESTContextPath(),
 				"/by-external-reference-code/",
 				_objectEntry2.getExternalReferenceCode(), StringPool.SLASH,
-				objectRelationship.getName(), StringPool.SLASH,
+				_objectRelationship.getName(), StringPool.SLASH,
 				_objectEntry1.getExternalReferenceCode()),
 			Http.Method.PUT);
 
@@ -188,16 +265,13 @@ public class ObjectEntryResourceTest {
 				_objectDefinition2.getRESTContextPath(),
 				"/by-external-reference-code/",
 				_objectEntry2.getExternalReferenceCode(), StringPool.SLASH,
-				objectRelationship.getName(), StringPool.SLASH,
+				_objectRelationship.getName(), StringPool.SLASH,
 				RandomTestUtil.randomString()),
 			Http.Method.PUT);
 
 		Assert.assertThat(
 			jsonObject.getString("title"),
 			CoreMatchers.containsString("No ObjectEntry exists with the key"));
-
-		_objectRelationshipLocalService.deleteObjectRelationship(
-			objectRelationship);
 	}
 
 	private static final String _OBJECT_FIELD_NAME_1 =
@@ -220,6 +294,9 @@ public class ObjectEntryResourceTest {
 
 	private ObjectEntry _objectEntry1;
 	private ObjectEntry _objectEntry2;
+
+	@DeleteAfterTestRun
+	private ObjectRelationship _objectRelationship;
 
 	@Inject
 	private ObjectRelationshipLocalService _objectRelationshipLocalService;

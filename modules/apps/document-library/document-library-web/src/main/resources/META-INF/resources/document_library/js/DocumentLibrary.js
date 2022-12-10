@@ -86,7 +86,7 @@ export default function DocumentLibrary({
 				`<form action="${editEntryUrl}" class="hide" method="POST"><input name="${namespace}cmd" value="move"/>
 					<input name="${namespace}newFolderId" value="${newFolderId}"/>
 					<input name="${namespace}${parameterName}" value="${parameterValue}"/>
-					<input name="${namespace}redirect" value="${encodeURIComponent(redirectUrl)}"/>
+					<input name="${namespace}redirect" value="${redirectUrl}"/>
 				</form>`
 			)
 		);

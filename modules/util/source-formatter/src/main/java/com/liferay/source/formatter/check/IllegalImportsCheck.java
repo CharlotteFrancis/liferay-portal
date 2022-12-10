@@ -14,7 +14,11 @@
 
 package com.liferay.source.formatter.check;
 
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
+import com.liferay.portal.tools.GitUtil;
+import com.liferay.source.formatter.SourceFormatterArgs;
+import com.liferay.source.formatter.processor.SourceProcessor;
 
 /**
  * @author Hugo Huijser
@@ -28,7 +32,8 @@ public class IllegalImportsCheck extends BaseFileCheck {
 
 	@Override
 	protected String doProcess(
-		String fileName, String absolutePath, String content) {
+			String fileName, String absolutePath, String content)
+		throws Exception {
 
 		content = StringUtil.replace(
 			content,
@@ -202,8 +207,47 @@ public class IllegalImportsCheck extends BaseFileCheck {
 					"org.slf4j.Logger");
 		}
 
+		// LPS-170503
+
+		SourceProcessor sourceProcessor = getSourceProcessor();
+
+		SourceFormatterArgs sourceFormatterArgs =
+			sourceProcessor.getSourceFormatterArgs();
+
+		if (sourceFormatterArgs.isFormatCurrentBranch()) {
+			String currentBranchFileDiff = GitUtil.getCurrentBranchFileDiff(
+				sourceFormatterArgs.getBaseDirName(),
+				sourceFormatterArgs.getGitWorkingBranchName(), absolutePath);
+
+			for (String line : StringUtil.split(currentBranchFileDiff, "\n")) {
+				if (!line.startsWith(StringPool.PLUS)) {
+					continue;
+				}
+
+				if (isAttributeValue(_AVOID_OPTIONAL_KEY, absolutePath) &&
+					line.contains("java.util.Optional")) {
+
+					addMessage(
+						fileName,
+						"Do not use java.util.Optional, see LPS-170503");
+				}
+
+				if (isAttributeValue(_AVOID_STREAM_KEY, absolutePath) &&
+					line.contains("java.util.stream.Stream")) {
+
+					addMessage(
+						fileName,
+						"Do not use java.util.stream.Stream, see LPS-170503");
+				}
+			}
+		}
+
 		return content;
 	}
+
+	private static final String _AVOID_OPTIONAL_KEY = "avoidOptional";
+
+	private static final String _AVOID_STREAM_KEY = "avoidStream";
 
 	private static final String _ENFORCE_COOKIES_MANAGER_UTIL_KEY =
 		"enforceCookiesManagerUtil";

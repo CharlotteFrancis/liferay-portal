@@ -3698,6 +3698,27 @@ definition {
 		}
 	}
 
+	@description = "This is a test for LPS-166046. The site designer could see the icon of collection provider is bolt."
+	@priority = "3"
+	test ViewCollectionProviderIcon {
+		task ("Given a site designer has default collection providers") {
+			AssetListsAdmin.openAssetListsAdmin(siteURLKey = "test-site-name");
+		}
+
+		task ("When the site designer navigates to the Collections admin") {
+			Navigator.gotoNavTab(navTab = "Collection Providers");
+		}
+
+		task ("Then the site designer sees the collection provider icon") {
+			for (var collectionProviderName : list "Most Viewed Assets,Highest Rated Assets,Recent Content") {
+				AssertVisible(
+					key_listEntry = "${collectionProviderName}",
+					key_text = "bolt",
+					locator1 = "LexiconList#ANY_ICON");
+			}
+		}
+	}
+
 	@description = "LPS-86283: Validate if, is possible to preview the content of a dynamic content set variation in a modal window	"
 	@priority = "4"
 	test ViewContentOfAVariant {
@@ -3826,6 +3847,96 @@ definition {
 			AssertVisible(
 				key_text = "view",
 				locator1 = "MenuItem#ANY_ICON");
+		}
+	}
+
+	@description = "This is a test for LPS-166046. The site designer could see the tooltip when hover on the icon of collection."
+	@priority = "3"
+	test ViewTooltipWhenHoverOnCollectionIcon {
+		task ("Given a site designer has collections") {
+			JSONAssetlist.addDynamicAssetListEntryWithItemType(
+				groupName = "Test Site Name",
+				itemType = "All Types",
+				title = "Dynamic Collection");
+
+			JSONAssetlist.addManualAssetListEntryWithItemType(
+				groupName = "Test Site Name",
+				itemType = "All Types",
+				title = "Manual Collection");
+		}
+
+		task ("When the site designer hovers on the dynamic collection icon under table style") {
+			AssetListsAdmin.openAssetListsAdmin(siteURLKey = "test-site-name");
+
+			MouseOver(
+				key_tableEntry = "Dynamic Collection",
+				key_text = "bolt",
+				locator1 = "LexiconTable#TABLE_ENTRY_ICON");
+		}
+
+		task ("Then the site designer sees the tooltip") {
+			AssertAttributeValue(
+				attribute1 = "title",
+				key_tableEntry = "Dynamic Collection",
+				key_text = "bolt",
+				locator1 = "LexiconTable#TABLE_ENTRY_ICON_TOOLTIP",
+				value1 = "Dynamic Collection");
+		}
+
+		task ("When the site designer hovers on the manual collection icon under table style") {
+			AssetListsAdmin.openAssetListsAdmin(siteURLKey = "test-site-name");
+
+			MouseOver(
+				key_tableEntry = "Manual Collection",
+				key_text = "list",
+				locator1 = "LexiconTable#TABLE_ENTRY_ICON");
+		}
+
+		task ("Then the site designer sees the tooltip") {
+			AssertAttributeValue(
+				attribute1 = "title",
+				key_tableEntry = "Manual Collection",
+				key_text = "list",
+				locator1 = "LexiconTable#TABLE_ENTRY_ICON_TOOLTIP",
+				value1 = "Manual Collection");
+		}
+
+		task ("When the site designer hovers on the dynamic collection icon under list style") {
+			AssetListsAdmin.openAssetListsAdmin(siteURLKey = "test-site-name");
+
+			LexiconEntry.changeDisplayStyle(displayStyle = "list");
+
+			MouseOver(
+				key_listEntry = "Dynamic Collection",
+				key_text = "bolt",
+				locator1 = "LexiconList#ANY_ICON");
+		}
+
+		task ("Then the site designer sees the tooltip") {
+			AssertAttributeValue(
+				attribute1 = "title",
+				key_listEntry = "Dynamic Collection",
+				key_text = "bolt",
+				locator1 = "LexiconList#LIST_ENTRY_ICON_TOOLTIP",
+				value1 = "Dynamic Collection");
+		}
+
+		task ("When the site designer hovers on the dynamic collection icon under list style") {
+			AssetListsAdmin.openAssetListsAdmin(siteURLKey = "test-site-name");
+
+			MouseOver(
+				key_listEntry = "Manual Collection",
+				key_text = "list",
+				locator1 = "LexiconList#ANY_ICON");
+		}
+
+		task ("Then the site designer sees the tooltip") {
+			AssertAttributeValue(
+				attribute1 = "title",
+				key_listEntry = "Manual Collection",
+				key_text = "list",
+				locator1 = "LexiconList#LIST_ENTRY_ICON_TOOLTIP",
+				value1 = "Manual Collection");
 		}
 	}
 
@@ -4024,6 +4135,223 @@ definition {
 				locator1 = "AssetLists#ASSET_LIST_USAGES",
 				usageAmount = "1",
 				usageType = "All");
+		}
+	}
+
+	@description = "This is a test for LPS-166046. The site designer could see the variations indicator of collection in the Collections admin."
+	@priority = "5"
+	test ViewVariationsIndicatorInCollectionsAdmin {
+		task ("Given a site designer has collections") {
+			JSONAssetlist.addDynamicAssetListEntryWithItemType(
+				groupName = "Test Site Name",
+				itemType = "All Types",
+				title = "Dynamic Collection");
+
+			JSONAssetlist.addManualAssetListEntryWithItemType(
+				groupName = "Test Site Name",
+				itemType = "All Types",
+				title = "Manual Collection");
+		}
+
+		task ("When the site designer changes the display style to cards in the Collections admin") {
+			AssetListsAdmin.openAssetListsAdmin(siteURLKey = "test-site-name");
+
+			LexiconEntry.changeDisplayStyle(displayStyle = "cards");
+		}
+
+		task ("Then the site designer see the No Variations label shown in collections") {
+			for (var collectionName : list "Dynamic Collection,Manual Collection") {
+				LexiconCard.viewCardLabel(
+					card = "${collectionName}",
+					cardLabel = "No Variations");
+			}
+		}
+
+		task ("When the site designer changes the display style to list") {
+			LexiconEntry.changeDisplayStyle(displayStyle = "list");
+		}
+
+		task ("Then the site designer see the No Variations label shown in collections") {
+			for (var collectionName : list "Dynamic Collection,Manual Collection") {
+				LexiconList.viewListEntryLabel(
+					listEntry = "${collectionName}",
+					listEntryLabel = "No Variations");
+			}
+		}
+
+		task ("When the site designer adds personalized variations to collections") {
+			JSONSegmentsentry.addSegment(
+				fieldName = "Email Address",
+				groupName = "Test Site Name",
+				operator = "contains",
+				segmentName = "By Email Address",
+				text = "liferay.com");
+
+			JSONSegmentsentry.addSegment(
+				fieldName = "Job Title",
+				groupName = "Test Site Name",
+				operator = "equals",
+				segmentName = "By Job Title",
+				text = "Manager");
+
+			AssetListsAdmin.openAssetListsAdmin(siteURLKey = "test-site-name");
+
+			AssetListsAdmin.editAssetList(assetListTitle = "Dynamic Collection");
+
+			AssetListsAdmin.addPersonalizedVariation(segmentName = "By Email Address");
+
+			AssetListsAdmin.configureItemTypeInDynamicCollection(itemType = "All Types");
+
+			AssetListsAdmin.openAssetListsAdmin(siteURLKey = "test-site-name");
+
+			AssetListsAdmin.editAssetList(assetListTitle = "Manual Collection");
+
+			AssetListsAdmin.addPersonalizedVariation(segmentName = "By Email Address");
+
+			AssetListsAdmin.addPersonalizedVariation(segmentName = "By Job Title");
+		}
+
+		task ("Then the site designer sees the variations indicator updated") {
+			AssetListsAdmin.openAssetListsAdmin(siteURLKey = "test-site-name");
+
+			LexiconList.viewListEntryLabel(
+				listEntry = "Dynamic Collection",
+				listEntryLabel = "2 Variations");
+
+			LexiconList.viewListEntryLabel(
+				listEntry = "Manual Collection",
+				listEntryLabel = "3 Variations");
+
+			LexiconEntry.changeDisplayStyle(displayStyle = "cards");
+
+			LexiconCard.viewCardLabel(
+				card = "Dynamic Collection",
+				cardLabel = "2 Variations");
+
+			LexiconCard.viewCardLabel(
+				card = "Manual Collection",
+				cardLabel = "3 Variations");
+		}
+	}
+
+	@description = "This is a test for LPS-166046. The site designer could see the variations indicator of collection on the Select modal."
+	@priority = "5"
+	test ViewVariationsIndicatorOnSelectModal {
+		task ("Given a site designer has collections") {
+			JSONAssetlist.addDynamicAssetListEntryWithItemType(
+				groupName = "Test Site Name",
+				itemType = "All Types",
+				title = "Dynamic Collection");
+
+			JSONAssetlist.addManualAssetListEntryWithItemType(
+				groupName = "Test Site Name",
+				itemType = "All Types",
+				title = "Manual Collection");
+		}
+
+		task ("When the site designer opens the Select modal of Collection Display") {
+			JSONLayout.addPublicLayout(
+				groupName = "Test Site Name",
+				layoutName = "Test Page Name",
+				type = "content");
+
+			ContentPagesNavigator.openEditContentPage(
+				pageName = "Test Page Name",
+				siteName = "Test Site Name");
+
+			PageEditor.addFragment(
+				collectionName = "Content Display",
+				fragmentName = "Collection Display");
+
+			PageEditor.gotoConfiguration(fragmentName = "Collection Display");
+
+			Click(
+				key_fieldLabel = "Collection",
+				key_text = "plus",
+				locator1 = "Icon#ANY_ITEM_SELECTOR");
+
+			SelectFrame(locator1 = "IFrame#MODAL_BODY");
+		}
+
+		task ("Then the site designer see the No Variations label shown on collections") {
+			for (var collectionName : list "Dynamic Collection,Manual Collection") {
+				LexiconCard.viewCardLabel(
+					card = "${collectionName}",
+					cardLabel = "No Variations");
+			}
+
+			LexiconEntry.changeDisplayStyle(displayStyle = "list");
+
+			for (var collectionName : list "Dynamic Collection,Manual Collection") {
+				LexiconList.viewListEntryLabel(
+					listEntry = "${collectionName}",
+					listEntryLabel = "No Variations");
+			}
+		}
+
+		task ("When the site designer adds personalized variations to collections") {
+			JSONSegmentsentry.addSegment(
+				fieldName = "Email Address",
+				groupName = "Test Site Name",
+				operator = "contains",
+				segmentName = "By Email Address",
+				text = "liferay.com");
+
+			JSONSegmentsentry.addSegment(
+				fieldName = "Job Title",
+				groupName = "Test Site Name",
+				operator = "equals",
+				segmentName = "By Job Title",
+				text = "Manager");
+
+			AssetListsAdmin.openAssetListsAdmin(siteURLKey = "test-site-name");
+
+			AssetListsAdmin.editAssetList(assetListTitle = "Dynamic Collection");
+
+			AssetListsAdmin.addPersonalizedVariation(segmentName = "By Email Address");
+
+			AssetListsAdmin.configureItemTypeInDynamicCollection(itemType = "All Types");
+
+			AssetListsAdmin.openAssetListsAdmin(siteURLKey = "test-site-name");
+
+			AssetListsAdmin.editAssetList(assetListTitle = "Manual Collection");
+
+			AssetListsAdmin.addPersonalizedVariation(segmentName = "By Email Address");
+
+			AssetListsAdmin.addPersonalizedVariation(segmentName = "By Job Title");
+		}
+
+		task ("Then the site designer sees the variations indicator updated") {
+			ContentPagesNavigator.openEditContentPage(
+				pageName = "Test Page Name",
+				siteName = "Test Site Name");
+
+			PageEditor.gotoConfiguration(fragmentName = "Collection Display");
+
+			Click(
+				key_fieldLabel = "Collection",
+				key_text = "plus",
+				locator1 = "Icon#ANY_ITEM_SELECTOR");
+
+			SelectFrame(locator1 = "IFrame#MODAL_BODY");
+
+			LexiconCard.viewCardLabel(
+				card = "Dynamic Collection",
+				cardLabel = "2 Variations");
+
+			LexiconCard.viewCardLabel(
+				card = "Manual Collection",
+				cardLabel = "3 Variations");
+
+			LexiconEntry.changeDisplayStyle(displayStyle = "list");
+
+			LexiconList.viewListEntryLabel(
+				listEntry = "Dynamic Collection",
+				listEntryLabel = "2 Variations");
+
+			LexiconList.viewListEntryLabel(
+				listEntry = "Manual Collection",
+				listEntryLabel = "3 Variations");
 		}
 	}
 

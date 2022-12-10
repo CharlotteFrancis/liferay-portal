@@ -18,6 +18,10 @@ import com.liferay.document.library.kernel.model.DLFolderConstants;
 import com.liferay.document.library.kernel.service.DLAppLocalService;
 import com.liferay.document.library.kernel.util.ImageProcessorUtil;
 import com.liferay.document.library.util.DLURLHelper;
+import com.liferay.dynamic.data.mapping.form.field.type.constants.DDMFormFieldTypeConstants;
+import com.liferay.dynamic.data.mapping.model.Value;
+import com.liferay.dynamic.data.mapping.storage.DDMFormFieldValue;
+import com.liferay.dynamic.data.mapping.storage.DDMFormValues;
 import com.liferay.journal.constants.JournalArticleConstants;
 import com.liferay.journal.constants.JournalFeedConstants;
 import com.liferay.journal.exception.NoSuchFeedException;
@@ -59,11 +63,6 @@ import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
-import com.liferay.portal.kernel.xml.Document;
-import com.liferay.portal.kernel.xml.Element;
-import com.liferay.portal.kernel.xml.Node;
-import com.liferay.portal.kernel.xml.SAXReaderUtil;
-import com.liferay.portal.kernel.xml.XPath;
 import com.liferay.rss.export.RSSExporter;
 import com.liferay.rss.model.SyndContent;
 import com.liferay.rss.model.SyndEnclosure;
@@ -78,6 +77,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import javax.portlet.PortletRequest;
@@ -590,28 +590,31 @@ public class JournalRSSHelper {
 		else if (!contentField.equals(
 					JournalFeedConstants.WEB_CONTENT_DESCRIPTION)) {
 
-			Document document = SAXReaderUtil.read(
-				article.getContentByLocale(languageId));
+			DDMFormValues ddmFormValues = article.getDDMFormValues();
 
-			contentField = _html.escapeXPathAttribute(contentField);
+			Map<String, List<DDMFormFieldValue>> ddmFormFieldValuesMap =
+				ddmFormValues.getDDMFormFieldValuesMap(true);
 
-			XPath xPathSelector = SAXReaderUtil.createXPath(
-				"//dynamic-element[@name=" + contentField + "]");
+			List<DDMFormFieldValue> ddmFormFieldValues =
+				ddmFormFieldValuesMap.get(contentField);
 
-			List<Node> results = xPathSelector.selectNodes(document);
-
-			if (results.isEmpty()) {
+			if (ddmFormFieldValues.isEmpty()) {
 				return content;
 			}
 
-			Element element = (Element)results.get(0);
+			DDMFormFieldValue ddmFormFieldValue = ddmFormFieldValues.get(0);
 
-			String elType = element.attributeValue("type");
+			Value value = ddmFormFieldValue.getValue();
 
-			if (elType.equals("document_library")) {
-				String url = element.elementText("dynamic-content");
+			if (Objects.equals(
+					ddmFormFieldValue.getType(),
+					DDMFormFieldTypeConstants.DOCUMENT_LIBRARY) ||
+				Objects.equals(
+					ddmFormFieldValue.getType(),
+					DDMFormFieldTypeConstants.IMAGE)) {
 
-				JSONObject jsonObject = _jsonFactory.createJSONObject(url);
+				JSONObject jsonObject = _jsonFactory.createJSONObject(
+					value.getString(_language.getLocale(languageId)));
 
 				String uuid = jsonObject.getString("uuid");
 				long groupId = jsonObject.getLong("groupId");
@@ -621,7 +624,7 @@ public class JournalRSSHelper {
 						_dlAppLocalService.getFileEntryByUuidAndGroupId(
 							uuid, groupId);
 
-					url = _dlURLHelper.getPreviewURL(
+					String url = _dlURLHelper.getPreviewURL(
 						fileEntry, fileEntry.getFileVersion(), null,
 						StringPool.BLANK, false, true);
 
@@ -632,22 +635,19 @@ public class JournalRSSHelper {
 						themeDisplay.getURLPortal(), url, "\" />");
 				}
 			}
-			else if (elType.equals("image") || elType.equals("image_gallery")) {
-				String url = element.elementText("dynamic-content");
+			else if (Objects.equals(
+						ddmFormFieldValue.getType(),
+						DDMFormFieldTypeConstants.RICH_TEXT) ||
+					 Objects.equals(
+						 ddmFormFieldValue.getType(),
+						 DDMFormFieldTypeConstants.TEXT)) {
 
-				url = _processURL(feed, url, themeDisplay, syndEntry);
-
-				content = StringBundler.concat(
-					content, "<br /><br /><img alt=\"\" src=\"\"",
-					themeDisplay.getURLPortal(), url, "\"\" />");
-			}
-			else if (elType.equals("text_box")) {
 				syndContent.setType("text");
 
-				content = element.elementText("dynamic-content");
+				content = value.getString(_language.getLocale(languageId));
 			}
 			else {
-				content = element.elementText("dynamic-content");
+				content = value.getString(_language.getLocale(languageId));
 			}
 		}
 
