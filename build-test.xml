@@ -6971,6 +6971,26 @@ org.apache.catalina.startup.ClassLoaderFactory.level=INFO]]>
 
 			<property name="docker.start.script" value="docker_start.sh" />
 
+			<echo>@@ Docker start command:
+				<![CDATA[
+					docker run \
+						--detach \
+						--hostname=@{name} \
+						--interactive \
+						--name=@{name} \
+						--tty \
+						${docker.network.run.option} \
+						@{run.options} \
+						\
+						@{image} \
+						\
+						@{options}
+
+					docker ps --filter "name=@{name}" --format "Started container [ID: '{{.ID}}', name: '{{.Names}}'] from image '{{.Image}}'"
+				]]>
+			</echo>
+
+
 			<echo file="${docker.start.script}">
 				<![CDATA[
 					docker run \
@@ -7081,6 +7101,8 @@ ${docker.start.error}</fail>
 					<var name="database.docker.database.options.new" value="${database.docker.database.options}" />
 				</else>
 			</if>
+
+			<echo>@@ Database run options = ${database.docker.run.options}</echo>
 
 			<start-docker-container image="${database.docker.image}" name="${database.host}" options="${database.docker.database.options.new}">\
 				${database.docker.run.options} \
@@ -15537,6 +15559,8 @@ mail.send.blacklist=</echo>
 				<stop-docker-database />
 
 				<start-docker-database />
+				<echo>Sleeping!!</echo>
+				<sleep minutes="20"/	>
 			</then>
 		</if>
 
@@ -15613,6 +15637,13 @@ database.type=db2
 ]]></echo>
 
 		<antcall inheritAll="false" target="stop-docker-database" />
+
+		<echo>
+			Run options: ${database.db2.docker.run.options}
+			Host: database.host}_db2
+			Database version: ${database.version}
+			Image: ${database.db2.docker.image}
+		</echo>	
 
 		<antcall inheritAll="false" target="start-docker-database">
 			<param name="database.db2.docker.run.options" value="${database.db2.docker.run.options}" />
