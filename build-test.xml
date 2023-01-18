@@ -7107,8 +7107,9 @@ ${docker.start.error}</fail>
 			<start-docker-container image="${database.docker.image}" name="${database.host}" options="${database.docker.database.options.new}">\
 				${database.docker.run.options} \
 			</start-docker-container>
-
-			<sleep minutes="10" />
+			
+			<echo> sleeping!! </echo>
+			<sleep seconds="30"/>
 
 			<if>
 				<and>
@@ -7116,7 +7117,7 @@ ${docker.start.error}</fail>
 					<equals arg1="${database.type}" arg2="db2" />
 				</and>
 				<then>
-					<property name="docker.database.wait.condition">[[ "$(/bin/su - db2inst1 -c '~/sqllib/bin/db2 db2start')" =~ "SQL1026N" ]]</property>
+					<property name="docker.database.wait.condition">[[ "$(/bin/su - db2inst1 -c '/database/config/db2inst1/sqllib/bin/db2 db2start')" =~ "SQL1026N" ]]</property>
 				</then>
 				<elseif>
 					<equals arg1="${database.type}" arg2="db2" />
