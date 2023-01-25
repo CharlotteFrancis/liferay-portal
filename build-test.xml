@@ -7004,6 +7004,8 @@ org.apache.catalina.startup.ClassLoaderFactory.level=INFO]]>
 								<elseif>
 									<isset property="operating.system.docker.image" />
 									<then>
+
+										<echo> @@@@ property "operating.system.docker.image" is set </echo>
 										<sequential>
 											<get-operating-system-property property.name="operating.system.host" />
 
@@ -7016,6 +7018,9 @@ org.apache.catalina.startup.ClassLoaderFactory.level=INFO]]>
 									</then>
 								</elseif>
 								<else>
+
+									<echo> @@@@ in the last else </echo>
+
 									<beanshell>
 										<![CDATA[
 											import com.liferay.jenkins.results.parser.AppServer;
@@ -7271,6 +7276,8 @@ ${docker.start.error}</fail>
 			<start-docker-container image="${database.docker.image}" name="${database.host}" options="${database.docker.database.options.new}">\
 				${database.docker.run.options} \
 			</start-docker-container>
+
+			<sleep seconds="60" />
 
 			<if>
 				<and>
