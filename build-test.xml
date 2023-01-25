@@ -7146,6 +7146,8 @@ org.apache.catalina.startup.ClassLoaderFactory.level=INFO]]>
 						\
 						@{options}
 
+					docker logs '{{.ID}}'&
+
 					docker ps --filter "name=@{name}" --format "Started container [ID: '{{.ID}}', name: '{{.Names}}'] from image '{{.Image}}'"
 				]]>
 			</echo>
@@ -7165,6 +7167,8 @@ org.apache.catalina.startup.ClassLoaderFactory.level=INFO]]>
 						@{image} \
 						\
 						@{options}
+
+					docker logs '{{.ID}}'&	
 
 					docker ps --filter "name=@{name}" --format "Started container [ID: '{{.ID}}', name: '{{.Names}}'] from image '{{.Image}}'"
 				]]>
@@ -7267,9 +7271,6 @@ ${docker.start.error}</fail>
 			<start-docker-container image="${database.docker.image}" name="${database.host}" options="${database.docker.database.options.new}">\
 				${database.docker.run.options} \
 			</start-docker-container>
-			
-			<echo> sleeping!! </echo>
-			<sleep seconds="30"/>
 
 			<if>
 				<and>
@@ -15844,7 +15845,6 @@ url=${short.hostname}:8080</echo>
 			<isset property="database.docker.image" />
 			<then>
 				<stop-docker-database />
-
 				<start-docker-database />
 				<!-- <echo>Sleeping!!</echo>
 				<sleep minutes="20"/	> -->
