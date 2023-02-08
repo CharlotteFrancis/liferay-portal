@@ -7110,8 +7110,8 @@ ${docker.start.error}</fail>
 				${database.docker.run.options} \
 			</start-docker-container>
 			
-			<echo> sleeping!! </echo>
-			<sleep seconds="30"/>
+			<!-- <echo> sleeping!! </echo>
+			<sleep seconds="30"/> -->
 
 			<if>
 				<and>
