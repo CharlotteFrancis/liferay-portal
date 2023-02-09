@@ -7131,7 +7131,6 @@ ${docker.start.error}</fail>
 			
 			<!-- <echo> sleeping!! </echo>
 			<sleep seconds="30"/> -->
-			
  
 			<if>
 				<and>
@@ -7140,6 +7139,19 @@ ${docker.start.error}</fail>
 				</and>
 				<then>
 					<echo>@@@ inside start-docker-database db2 11.5 logic block</echo>
+
+					<execute>
+						<![CDATA[
+
+						while [ -z $(docker logs ${database.host} | grep "The execution completed successfully.")]
+						do
+							echo "Searching for db2 initialization message"
+							sleep 1
+						done
+
+						echo "db2 initialization message found"
+						]]>
+					</execute>
 
 					<property name="docker.database.wait.condition">[[ "$(/bin/su - db2inst1 -c '/database/config/db2inst1/sqllib/bin/db2 db2start')" =~ "SQL1026N" ]]</property>
 				</then>
