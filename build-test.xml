@@ -7140,6 +7140,7 @@ ${docker.start.error}</fail>
 				</and>
 				<then>
 					
+					<get-database-property property.name="docker.container" />
 					<echo>@@@ inside start-docker-database db2 11.5 logic block</echo>
 					<echo>@@@ docker.container = ${docker.container}</echo>
 					<echo>@@@ database.host = ${database.host}</echo>
