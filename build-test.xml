@@ -7146,6 +7146,13 @@ ${docker.start.error}</fail>
 					<echo>@@@ database.host = ${database.host}</echo>
 					<echo>@@@ database.docker.image = ${database.docker.image}</echo>
 
+					<execute>
+					<![CDATA[
+						docker.container.id=docker ps --filter "${database.host}" --format "'{{.ID}}'"
+						echo ${docker.container.id}
+					]]>
+					</execute>
+
 					<!-- <execute>
 						<![CDATA[
 
