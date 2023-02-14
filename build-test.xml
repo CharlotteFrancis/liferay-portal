@@ -6843,6 +6843,7 @@ org.apache.catalina.startup.ClassLoaderFactory.level=INFO]]>
 								<elseif>
 									<isset property="operating.system.docker.image" />
 									<then>
+										<echo>@@@@  os docker image is set</echo>
 										<sequential>
 											<get-operating-system-property property.name="operating.system.host" />
 
@@ -6855,6 +6856,7 @@ org.apache.catalina.startup.ClassLoaderFactory.level=INFO]]>
 									</then>
 								</elseif>
 								<else>
+									<echo>@@@@ in last else statement </echo>
 									<beanshell>
 										<![CDATA[
 											import com.liferay.jenkins.results.parser.AppServer;
@@ -6972,6 +6974,26 @@ org.apache.catalina.startup.ClassLoaderFactory.level=INFO]]>
 
 			<property name="docker.start.script" value="docker_start.sh" />
 
+			<echo>@@ Docker start command:
+				<![CDATA[
+					docker run \
+						--detach \
+						--hostname=@{name} \
+						--interactive \
+						--name=@{name} \
+						--tty \
+						${docker.network.run.option} \
+						@{run.options} \
+						\
+						@{image} \
+						\
+						@{options}
+
+					docker ps --filter "name=@{name}" --format "Started container [ID: '{{.ID}}', name: '{{.Names}}'] from image '{{.Image}}'"
+				]]>
+			</echo>
+
+
 			<echo file="${docker.start.script}">
 				<![CDATA[
 					docker run \
@@ -7035,9 +7057,12 @@ ${docker.start.error}</fail>
 		<sequential>
 			<trycatch property="start.docker.database.error">
 				<try>
+					<echo>@@@ inside start-docker-database before the retries</echo>
 					<retry retrycount="2">
 						<sequential>
+							<echo>@@@ inside start-docker-database before start-docker-database-cmd</echo>
 							<start-docker-database-cmd />
+							<echo>@@@ inside start-docker-database after start-docker-database-cmd</echo>
 						</sequential>
 					</retry>
 				</try>
@@ -7052,6 +7077,7 @@ ${docker.start.error}</fail>
 
 	<macrodef name="start-docker-database-cmd">
 		<sequential>
+			<echo>@@@ inside start-docker-database-cmd</echo>
 			<get-database-property property.name="database.host" />
 			<get-database-property property.name="database.docker.database.options" />
 			<get-database-property property.name="database.docker.image" />
@@ -7064,7 +7090,7 @@ ${docker.start.error}</fail>
 			<get-testcase-property property.name="data.archive.type" />
 			<get-testcase-property property.name="database.lowercase.enabled" />
 
-			<if>
+			<if>	
 				<and>
 					<equals arg1="${database.lowercase.enabled}" arg2="true" />
 					<equals arg1="${database.type}" arg2="mysql" />
@@ -7083,17 +7109,64 @@ ${docker.start.error}</fail>
 				</else>
 			</if>
 
+			<echo>@@ Database run options = ${database.docker.run.options}</echo>
+			<echo>@@ (before start-docker-container) Docker containers currently running: </echo>
+
+			<execute>
+				<![CDATA[
+					docker ps -al
+				]]>
+			</execute>
+
 			<start-docker-container image="${database.docker.image}" name="${database.host}" options="${database.docker.database.options.new}">\
 				${database.docker.run.options} \
 			</start-docker-container>
 
+			<echo>@@ (after start-docker-container) Docker containers currently running: </echo>
+
+			<execute>
+				<![CDATA[
+					docker ps -al
+				]]>
+			</execute>
+			
+			<!-- <echo> sleeping!! </echo>
+			<sleep seconds="30"/> -->
+ 
 			<if>
 				<and>
 					<contains string="${database.version}" substring="11.5" />
 					<equals arg1="${database.type}" arg2="db2" />
 				</and>
 				<then>
-					<property name="docker.database.wait.condition">[[ "$(/bin/su - db2inst1 -c '~/sqllib/bin/db2 db2start')" =~ "SQL1026N" ]]</property>
+					
+					<get-database-property property.name="docker.container" />
+					<echo>@@@ inside start-docker-database db2 11.5 logic block</echo>
+					<echo>@@@ docker.container = ${docker.container}</echo>
+					<echo>@@@ database.host = ${database.host}</echo>
+					<echo>@@@ database.docker.image = ${database.docker.image}</echo>
+
+					<execute>
+					<![CDATA[
+						docker.container.id=docker ps --filter "${database.host}" --format "'{{.ID}}'"
+						echo ${docker.container.id}
+					]]>
+					</execute>
+
+					<!-- <execute>
+						<![CDATA[
+
+						while [ -z $(docker logs ${docker.container} | grep "The execution completed successfully.")]
+						do
+							echo "Searching for db2 initialization message"
+							sleep 1
+						done
+
+						echo "db2 initialization message found"
+						]]>
+					</execute> -->
+
+					<property name="docker.database.wait.condition">[[ "$(/bin/su - db2inst1 -c '/database/config/db2inst1/sqllib/bin/db2 db2start')" =~ "SQL1026N" ]]</property>
 				</then>
 				<elseif>
 					<equals arg1="${database.type}" arg2="db2" />
@@ -7139,9 +7212,13 @@ ${docker.start.error}</fail>
 				</elseif>
 			</if>
 
+			<echo>@@@ inside start-docker-database before wait-wait-for-docker-database</echo>
+
 			<wait-for-docker-database
 				shell.condition="${docker.database.wait.condition}"
 			/>
+
+			<echo>@@@ inside start-docker-database after wait condition</echo>
 
 			<if>
 				<equals arg1="${database.type}" arg2="oracle" />
@@ -15514,9 +15591,16 @@ mail.send.blacklist=</echo>
 		<if>
 			<isset property="database.docker.image" />
 			<then>
+				<echo>@@@ database.docker.image isset, before stop-docker-database </echo>
 				<stop-docker-database />
 
+				<echo>@@@ after stop-docker-database, before start-docker-database </echo>
+
 				<start-docker-database />
+
+				<echo> @@@ after start docker database </echo>
+				<!-- <echo>Sleeping!!</echo>
+				<sleep minutes="20"/	> -->
 			</then>
 		</if>
 
@@ -15593,6 +15677,13 @@ database.type=db2
 ]]></echo>
 
 		<antcall inheritAll="false" target="stop-docker-database" />
+
+		<echo>
+			Run options: ${database.db2.docker.run.options}
+			Host: database.host}_db2
+			Database version: ${database.version}
+			Image: ${database.db2.docker.image}
+		</echo>	
 
 		<antcall inheritAll="false" target="start-docker-database">
 			<param name="database.db2.docker.run.options" value="${database.db2.docker.run.options}" />
