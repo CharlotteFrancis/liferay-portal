@@ -7142,11 +7142,10 @@ ${docker.start.error}</fail>
 
 					<execute>
 						<![CDATA[
-
-						while [ -z $(docker logs ${database.host} | grep "The execution completed successfully.")]
+						while [ -z '$(docker logs ${database.host} | grep "Setup has completed.")' ]
 						do
 							echo "Searching for db2 initialization message"
-							sleep 1
+							sleep 5
 						done
 
 						echo "db2 initialization message found"
