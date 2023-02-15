@@ -7140,7 +7140,9 @@ ${docker.start.error}</fail>
 				<then>
 					<echo>@@@ inside start-docker-database db2 11.5 logic block</echo>
 
-					<execute>
+					<property name="db2.wait.script" value="db2_wait.sh" />
+
+					<echo file="${db2.wait.script}">
 						<![CDATA[
 						while [ -z '$(docker logs ${database.host} | grep "Setup has completed.")' ]
 						do
@@ -7150,7 +7152,24 @@ ${docker.start.error}</fail>
 
 						echo "db2 initialization message found"
 						]]>
+					</echo>
+
+					<chmod
+						perm="a+x"
+					>
+						<fileset
+							dir="."
+							includes="${db2.wait.script}"
+						/>
+					</chmod>
+
+					<execute>
+						<![CDATA[
+							./${db2.wait.script}
+						]]>
 					</execute>
+
+					<delete file="${db2.wait.script}" />
 
 					<property name="docker.database.wait.condition">[[ "$(/bin/su - db2inst1 -c '/database/config/db2inst1/sqllib/bin/db2 db2start')" =~ "SQL1026N" ]]</property>
 				</then>
@@ -7172,6 +7191,7 @@ ${docker.start.error}</fail>
 				<elseif>
 					<equals arg1="${database.type}" arg2="oracle" />
 					<then>
+
 						<property name="docker.database.wait.condition">[[ "$(${ORACLE_HOME}/bin/lsnrctl status | grep READY)" != "" ]]</property>
 					</then>
 				</elseif>
