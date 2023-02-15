@@ -7154,6 +7154,8 @@ ${docker.start.error}</fail>
 						]]>
 					</echo>
 
+					<print-file file.name="${db2.wait.script}" />
+
 					<chmod
 						perm="a+x"
 					>
