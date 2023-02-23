@@ -7144,6 +7144,7 @@ ${docker.start.error}</fail>
 
 					<echo file="${db2.wait.script}">
 						<![CDATA[
+						#!/bin/bash
 						while [ -z '$(docker logs ${database.host} | grep "Setup has completed.")' ]
 						do
 							echo "Searching for db2 initialization message"
