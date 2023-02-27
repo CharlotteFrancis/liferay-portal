@@ -7143,6 +7143,12 @@ ${docker.start.error}</fail>
 
 						<property name="db2.wait.script" value="db2_wait.sh" />
 
+						<execute>
+							<![CDATA[
+								pwd
+							]]>
+						</execute>
+
 						<echo file="${db2.wait.script}">
 							<![CDATA[
 							while [ -z '$(docker logs ${database.host} | grep "Setup has completed.")' ]
