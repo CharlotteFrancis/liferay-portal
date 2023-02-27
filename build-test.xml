@@ -7138,43 +7138,44 @@ ${docker.start.error}</fail>
 					<equals arg1="${database.type}" arg2="db2" />
 				</and>
 				<then>
-					<echo>@@@ inside start-docker-database db2 11.5 logic block</echo>
+					<sequential>
+						<echo>@@@ inside start-docker-database db2 11.5 logic block</echo>
 
-					<property name="db2.wait.script" value="db2_wait.sh" />
+						<property name="db2.wait.script" value="db2_wait.sh" />
 
-					<echo file="${db2.wait.script}">
-						<![CDATA[
-						#!/bin/bash
-						while [ -z '$(docker logs ${database.host} | grep "Setup has completed.")' ]
-						do
-							echo "Searching for db2 initialization message"
-							sleep 5
-						done
+						<echo file="${db2.wait.script}">
+							<![CDATA[
+							while [ -z '$(docker logs ${database.host} | grep "Setup has completed.")' ]
+							do
+								echo "Searching for db2 initialization message"
+								sleep 5
+							done
 
-						echo "db2 initialization message found"
-						]]>
-					</echo>
+							echo "db2 initialization message found"
+							]]>
+						</echo>
 
-					<print-file file.name="${db2.wait.script}" />
+						<print-file file.name="${db2.wait.script}" />
 
-					<chmod
-						perm="a+x"
-					>
-						<fileset
-							dir="."
-							includes="${db2.wait.script}"
-						/>
-					</chmod>
+						<chmod
+							perm="a+x"
+						>
+							<fileset
+								dir="."
+								includes="${db2.wait.script}"
+							/>
+						</chmod>
 
-					<execute>
-						<![CDATA[
-							./${db2.wait.script}
-						]]>
-					</execute>
+						<execute>
+							<![CDATA[
+								./${db2.wait.script}
+							]]>
+						</execute>
 
-					<delete file="${db2.wait.script}" />
+						<delete file="${db2.wait.script}" />
 
-					<property name="docker.database.wait.condition">[[ "$(/bin/su - db2inst1 -c '/database/config/db2inst1/sqllib/bin/db2 db2start')" =~ "SQL1026N" ]]</property>
+						<property name="docker.database.wait.condition">[[ "$(/bin/su - db2inst1 -c '/database/config/db2inst1/sqllib/bin/db2 db2start')" =~ "SQL1026N" ]]</property>
+					</sequential>
 				</then>
 				<elseif>
 					<equals arg1="${database.type}" arg2="db2" />
