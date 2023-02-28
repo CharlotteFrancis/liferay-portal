@@ -7169,8 +7169,8 @@ ${docker.start.error}</fail>
 							perm="a+x"
 						>
 							<fileset
-								dir="."
-								includes="${db2.wait.script}"
+								dir="/opt/dev/projects/github/liferay-portal/"
+								includes="db2_wait.sh"
 							/>
 						</chmod>
 
