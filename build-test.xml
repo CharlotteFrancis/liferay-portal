@@ -7174,11 +7174,13 @@ ${docker.start.error}</fail>
 							/>
 						</chmod>
 
-						<execute>
-							<![CDATA[
-								${db2.wait.script}
-							]]>
-						</execute>
+						<echo>
+							executing db2_wait.sh
+						</echo>
+						
+						<exec excecutable="/bin/bash">
+							<arg value="${db2.wait.script}"/>
+						</exec>
 
 						<delete file="${db2.wait.script}" />
 
