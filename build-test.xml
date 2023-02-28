@@ -7141,7 +7141,7 @@ ${docker.start.error}</fail>
 					<sequential>
 						<echo>@@@ inside start-docker-database db2 11.5 logic block</echo>
 
-						<property name="db2.wait.script" value="db2_wait.sh" />
+						<property name="db2.wait.script" location="db2_wait.sh" />
 
 						<property name="db2.wait.script.1" location="db2_wait.sh" />
 
@@ -7176,7 +7176,7 @@ ${docker.start.error}</fail>
 
 						<execute>
 							<![CDATA[
-								./${db2.wait.script}
+								${db2.wait.script}
 							]]>
 						</execute>
 
