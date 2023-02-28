@@ -7143,11 +7143,13 @@ ${docker.start.error}</fail>
 
 						<property name="db2.wait.script" value="db2_wait.sh" />
 
-						<execute>
-							<![CDATA[
-								pwd
-							]]>
-						</execute>
+						<property name="db2.wait.script.1" location="db2_wait.sh" />
+
+						<echo>db2.wait.script=${db2.wait.script.1}</echo>
+
+						<property name="db2.wait.script.2" value="db2_wait.sh" />
+
+						<echo>db2.wait.script=${db2.wait.script.2}</echo>
 
 						<echo file="${db2.wait.script}">
 							<![CDATA[
