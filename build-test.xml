@@ -7143,17 +7143,9 @@ ${docker.start.error}</fail>
 
 						<property name="db2.wait.script" location="db2_wait.sh" />
 
-						<property name="db2.wait.script.1" location="db2_wait.sh" />
-
-						<echo>db2.wait.script=${db2.wait.script.1}</echo>
-
-						<property name="db2.wait.script.2" value="db2_wait.sh" />
-
-						<echo>db2.wait.script=${db2.wait.script.2}</echo>
-
 						<echo file="${db2.wait.script}">
 							<![CDATA[
-							while [ -z '$(docker logs ${database.host} | grep "Setup has completed.")' ]
+							while [ -z "$(docker logs ${database.host} | grep "Setup has completed.")" ]
 							do
 								echo "Searching for db2 initialization message"
 								sleep 5
@@ -7178,7 +7170,7 @@ ${docker.start.error}</fail>
 							executing db2_wait.sh
 						</echo>
 						
-						<exec excecutable="/bin/bash">
+						<exec executable="/bin/bash">
 							<arg value="${db2.wait.script}"/>
 						</exec>
 
