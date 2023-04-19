@@ -9247,7 +9247,7 @@ org.apache.catalina.tribes.level = FINE]]>
 					</delete>
 
 					<if>
-						<equals arg1="${database.version}" arg2="2022">
+						<equals arg1="${database.version}" arg2="2022" />
 						<then>
 							<mirrors-get
 								dest="${todir}"
