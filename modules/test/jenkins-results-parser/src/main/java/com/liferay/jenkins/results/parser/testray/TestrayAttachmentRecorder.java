@@ -509,6 +509,8 @@ public class TestrayAttachmentRecorder {
 			JenkinsResultsParserUtil.copy(
 				gradlePluginsFile,
 				new File(_getRecordedFilesBuildDir(), "gradle_plugins.tar.gz"));
+
+				System.out.println("@@@ RECORDED tar.gz for gradle_plugins");
 		}
 		catch (IOException ioException) {
 			throw new RuntimeException(ioException);
