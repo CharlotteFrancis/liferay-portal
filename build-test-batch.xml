@@ -5714,6 +5714,10 @@ information. Make sure to commit in all format-javadoc results.
 			</tarfileset>
 		</tar>
 		<gzip destfile="${project.dir}/tmp/gradle_plugins.tar.gz" src="${project.dir}/tmp/gradle_plugins.tar"/>
+		<copy
+            file="${project.dir}/tmp/gradle_plugins.tar.gz"
+            todir="${env.JENKINS_HOME}/userContent/jobs/${env.JOB_NAME}/builds/${env.BUILD_NUMBER}"
+        />
 	</target>
 
 	<target name="javadoc-jdk8">
