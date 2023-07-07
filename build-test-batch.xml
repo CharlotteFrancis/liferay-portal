@@ -5705,6 +5705,19 @@ information. Make sure to commit in all format-javadoc results.
 				</for>
 			</test-action>
 		</run-batch-test>
+		<tar destfile="${project.dir}/tmp/gradle_plugins.tar">
+			<tarfileset dir="${project.dir}/modules/sdk/gradle-plugins-workspace/build/reports" 
+				prefix="gradle-plugins-workspace">
+			</tarfileset>
+			<tarfileset dir="${project.dir}/modules/sdk/gradle-plugins-target-platform/build/reports" 
+				prefix="gradle-plugins-target-platform">
+			</tarfileset>
+		</tar>
+		<gzip destfile="${project.dir}/tmp/gradle_plugins.tar.gz" src="${project.dir}/tmp/gradle_plugins.tar"/>
+		<copy
+            file="${project.dir}/tmp/gradle_plugins.tar.gz"
+            todir="${env.JENKINS_HOME}/userContent/jobs/${env.JOB_NAME}/builds/${env.BUILD_NUMBER}"
+        />
 	</target>
 
 	<target name="javadoc-jdk8">
