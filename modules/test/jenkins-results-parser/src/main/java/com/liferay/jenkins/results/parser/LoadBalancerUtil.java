@@ -138,6 +138,8 @@ public class LoadBalancerUtil {
 	public static String getMostAvailableMasterURL(
 		Properties properties, boolean clock, boolean verbose) {
 
+		System.out.println("PR Test Message");
+
 		long start = JenkinsResultsParserUtil.getCurrentTimeMillis();
 
 		int retries = 0;
