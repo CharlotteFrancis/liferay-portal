@@ -73,7 +73,7 @@ public class LoadBalancerUtil {
 			for (JenkinsMaster jenkinsMaster : allJenkinsMasters) {
 				if (blacklist.contains(jenkinsMaster.getName()) ||
 					(goodClockRequired &&
-					!goodClockList.contains(jenkinsMaster.getName())) ||
+					 !goodClockList.contains(jenkinsMaster.getName())) ||
 					(jenkinsMaster.getSlaveRAM() < minimumRAM) ||
 					(jenkinsMaster.getSlavesPerHost() > maximumSlavesPerHost)) {
 
@@ -119,12 +119,6 @@ public class LoadBalancerUtil {
 	}
 
 	public static String getMostAvailableMasterURL(
-		Properties properties) {
-
-		return getMostAvailableMasterURL(properties, true);
-	}
-
-	public static String getMostAvailableMasterURL(
 			boolean verbose, String... overridePropertiesArray)
 		throws Exception {
 
@@ -156,11 +150,15 @@ public class LoadBalancerUtil {
 
 				String blacklistString = properties.getProperty("blacklist");
 
-				Boolean goodClockRequired = properties.getProperty("good.clock.required");
+				Boolean goodClockRequired = false;
 
-				if (goodClockRequired == null) {
-					goodClockRequired = false;
-				} 
+				String goodClockRequiredString = properties.getProperty(
+					"good.clock.required");
+
+				if (goodClockRequiredString != null) {
+					goodClockRequired = Boolean.parseBoolean(
+						goodClockRequiredString);
+				}
 
 				Integer minimumRAM = JenkinsMaster.getSlaveRAMMinimumDefault();
 
@@ -186,8 +184,8 @@ public class LoadBalancerUtil {
 				}
 
 				List<JenkinsMaster> jenkinsMasters = getAvailableJenkinsMasters(
-					masterPrefix, blacklistString, goodClockRequired, minimumRAM,
-					maximumSlavesPerHost, properties, verbose);
+					masterPrefix, blacklistString, goodClockRequired,
+					minimumRAM, maximumSlavesPerHost, properties, verbose);
 
 				long nextUpdateTimestamp = _getNextUpdateTimestamp(
 					masterPrefix);
@@ -289,14 +287,6 @@ public class LoadBalancerUtil {
 	public static String getMostAvailableMasterURL(
 			String propertiesURL, String[] overridePropertiesArray,
 			boolean verbose)
-		throws Exception {
-
-		return getMostAvailableMasterURL(
-			propertiesURL, overridePropertiesArray, verbose);
-	}
-
-	public static String getMostAvailableMasterURL(
-			String propertiesURL, String[] overridePropertiesArray, boolean verbose)
 		throws Exception {
 
 		Properties properties = new Properties();
