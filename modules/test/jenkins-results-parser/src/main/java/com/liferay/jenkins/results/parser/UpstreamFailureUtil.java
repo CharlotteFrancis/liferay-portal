@@ -245,6 +245,8 @@ public class UpstreamFailureUtil {
 		TopLevelBuild topLevelBuild) {
 			String testSuiteName = topLevelBuild.getTestSuiteName();
 
+			System.out.println("@@@@@ test suit name: " + testSuiteName);
+
 			if (testSuiteName.equals("stable")) {
 				return false;
 			}
