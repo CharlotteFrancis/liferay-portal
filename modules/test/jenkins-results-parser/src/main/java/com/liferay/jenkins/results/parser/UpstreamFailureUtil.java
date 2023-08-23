@@ -243,10 +243,15 @@ public class UpstreamFailureUtil {
 
 	public static boolean isUpstreamComparisonAvailable(
 		TopLevelBuild topLevelBuild) {
+			String testSuiteName = topLevelBuild.getTestSuiteName();
 
-		getUpstreamTopLevelBuildReport(topLevelBuild);
+			if (testSuiteName.equals("stable")) {
+				return false;
+			}
 
-		return _upstreamComparisonAvailable;
+			getUpstreamTopLevelBuildReport(topLevelBuild);
+
+			return _upstreamComparisonAvailable;
 	}
 
 	public static void reset() {
