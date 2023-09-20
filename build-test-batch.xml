@@ -2511,13 +2511,13 @@ log.sanitizer.enabled=false</echo>
 
 							<for list="${test.class.group}" param="test.class">
 								<sequential>
-									<lstopwatch action="start" name="test.execution.duration.${test.class.group}" />
+									<lstopwatch action="start" name="test.execution.duration.${test.class}" />
 									<run-modules-junit-test test.class="@{test.class}" test.task="testIntegration">
 										<arg value="--continue" />
 										<arg value="-Dbuild.exclude.ant.plugin=true" />
 										<arg value="-Dtest.class.group.index=${axis.variable}" />
 									</run-modules-junit-test>
-									<lstopwatch action="total" name="test.execution.duration.${test.class.group}" />
+									<lstopwatch action="total" name="test.execution.duration.${test.class}" />
 								</sequential>
 							</for>
 
@@ -7032,7 +7032,8 @@ information. Make sure to commit in all format-javadoc results.
 
 				<for list="${test.class.group}" param="test.class">
 					<sequential>
-						<lstopwatch action="start" name="test.execution.duration.${test.class.group}" />
+						<lstopwatch action="start" name="test.execution.duration.${test.class}" />
+
 						<run-modules-junit-test test.class="@{test.class}" test.task="test">
 							<arg value="--continue" />
 							<arg value="-Dbuild.exclude.ant.plugin=true" />
@@ -7041,7 +7042,8 @@ information. Make sure to commit in all format-javadoc results.
 							<arg if:set="project.templates.test.builds" value="-Dproject.templates.test.builds=${project.templates.test.builds}" />
 							<arg value="-Dtest.class.group.index=${axis.variable}" />
 						</run-modules-junit-test>
-						<lstopwatch action="total" name="test.execution.duration.${test.class.group}" />
+
+						<lstopwatch action="total" name="test.execution.duration.${test.class}" />
 					</sequential>
 				</for>
 
