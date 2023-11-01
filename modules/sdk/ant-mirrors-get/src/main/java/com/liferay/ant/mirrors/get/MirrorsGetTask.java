@@ -337,9 +337,11 @@ public class MirrorsGetTask extends Task {
 				catch (IOException ioException) {
 					URL defaultURL = new URL(_src);
 
-					System.out.println(
-						"Unable to connect to " + sourceURL +
-							", defaulting to " + defaultURL);
+					if (_verbose) {
+						System.out.println(
+							"Unable to connect to " + sourceURL +
+								", defaulting to " + defaultURL);
+					}
 
 					_downloadFile(defaultURL, localCacheFile, 0);
 				}
