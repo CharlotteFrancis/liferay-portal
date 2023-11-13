@@ -6,7 +6,7 @@
 package com.liferay.source.formatter.check;
 
 import com.liferay.petra.string.CharPool;
-import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.source.formatter.SourceFormatterExcludes;
 import com.liferay.source.formatter.util.FileUtil;
 import com.liferay.source.formatter.util.GradleBuildFile;
@@ -83,16 +83,10 @@ public class GradleMissingDependenciesForUpgradeJava11Check
 			String gradleDependencyGroup = gradleDependency.getGroup();
 			String gradleDependencyName = gradleDependency.getName();
 
-			if (Validator.isNull(gradleDependencyConfiguration) ||
-				Validator.isNull(gradleDependencyGroup) ||
-				Validator.isNull(gradleDependencyName)) {
-
-				continue;
-			}
-
-			if (gradleDependencyConfiguration.equals(configuration) &&
-				gradleDependencyGroup.equals(group) &&
-				gradleDependencyName.equals(name)) {
+			if (StringUtil.equals(
+					gradleDependencyConfiguration, configuration) &&
+				StringUtil.equals(gradleDependencyGroup, group) &&
+				StringUtil.equals(gradleDependencyName, name)) {
 
 				return content;
 			}
