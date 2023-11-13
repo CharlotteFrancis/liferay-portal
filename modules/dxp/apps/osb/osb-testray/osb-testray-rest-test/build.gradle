@@ -5,6 +5,8 @@ configurations.all {
 }
 
 dependencies {
+	compileOnly group: "javax.annotation", name: "javax.annotation-api", version: "1.3.2"
+
 	testCompileOnly group: "com.liferay.portal", name: "com.liferay.portal.impl", version: "default"
 	testCompileOnly group: "com.liferay.portal", name: "com.liferay.portal.kernel", version: "default"
 
