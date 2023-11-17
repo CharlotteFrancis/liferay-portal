@@ -4907,7 +4907,7 @@ public class LiferayOSGiDefaultsPlugin implements Plugin<Project> {
 
 	private static final String _GROUP_PORTAL = "com.liferay.portal";
 
-	private static final JavaVersion _JAVA_VERSION = JavaVersion.VERSION_1_8;
+	private static final JavaVersion _JAVA_VERSION = JavaVersion.VERSION_11;
 
 	private static final String _LANG_BUILDER_PORTAL_TOOL_NAME =
 		"com.liferay.lang.builder";
