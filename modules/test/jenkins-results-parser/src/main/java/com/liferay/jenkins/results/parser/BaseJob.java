@@ -404,12 +404,12 @@ public abstract class BaseJob implements Job {
 			List<BatchTestClassGroup> batchTestClassGroups =
 				getBatchTestClassGroups();
 
-				System.out.println("batchTestClassGroups: " + batchTestClassGroups);	
+			System.out.println("batchTestClassGroups: " + batchTestClassGroups);
 
 			if ((batchTestClassGroups != null) &&
 				!batchTestClassGroups.isEmpty()) {
 
-				System.out.println("batchTestClassGroups not null.");	
+				System.out.println("batchTestClassGroups not null.");
 
 				JSONArray batchesJSONArray = new JSONArray();
 
@@ -459,8 +459,8 @@ public abstract class BaseJob implements Job {
 					"test_suite_name", testSuiteJob.getTestSuiteName());
 			}
 
-		    System.out.println("Bottom of BaseJob.getJSONObject.");
-		    System.out.println("jsonObject: " + jsonObject);
+			System.out.println("Bottom of BaseJob.getJSONObject.");
+			System.out.println("jsonObject: " + jsonObject);
 
 			return jsonObject;
 		}
