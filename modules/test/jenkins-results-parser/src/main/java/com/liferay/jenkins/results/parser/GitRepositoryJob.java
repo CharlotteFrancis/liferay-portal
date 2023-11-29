@@ -52,11 +52,17 @@ public abstract class GitRepositoryJob extends BaseJob {
 
 	@Override
 	public JSONObject getJSONObject() {
+		System.out.println("Inside GitRepositoryJob.getJSONObject.");
+		System.out.println("jsonObject: " + jsonObject);
+
 		if (jsonObject != null) {
 			return jsonObject;
 		}
 
 		jsonObject = super.getJSONObject();
+
+		System.out.println("Inside GitRepositoryJob.getJSONObject after super call.");
+		System.out.println("jsonObject: " + jsonObject);
 
 		jsonObject.put("branch", _getBranchJSONObject());
 		jsonObject.put("git_repository_dir", gitRepositoryDir);
