@@ -389,18 +389,27 @@ public abstract class BaseJob implements Job {
 
 	@Override
 	public JSONObject getJSONObject() {
+		System.out.println("Inside BaseJob.getJSONObject.");
+		System.out.println("jsonObject: " + jsonObject);
+
 		synchronized (_jobProperties) {
 			if (jsonObject != null) {
 				return jsonObject;
 			}
+
+			System.out.println("jsonObject is null, generating new object.");
 
 			jsonObject = new JSONObject();
 
 			List<BatchTestClassGroup> batchTestClassGroups =
 				getBatchTestClassGroups();
 
+				System.out.println("batchTestClassGroups: " + batchTestClassGroups);	
+
 			if ((batchTestClassGroups != null) &&
 				!batchTestClassGroups.isEmpty()) {
+
+				System.out.println("batchTestClassGroups not null.");	
 
 				JSONArray batchesJSONArray = new JSONArray();
 
@@ -449,6 +458,9 @@ public abstract class BaseJob implements Job {
 				jsonObject.put(
 					"test_suite_name", testSuiteJob.getTestSuiteName());
 			}
+
+		    System.out.println("Bottom of BaseJob.getJSONObject.");
+		    System.out.println("jsonObject: " + jsonObject);
 
 			return jsonObject;
 		}
