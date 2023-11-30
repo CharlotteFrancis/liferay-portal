@@ -446,7 +446,7 @@ public class LiferayOSGiDefaultsPlugin implements Plugin<Project> {
 		_configureDeployDir(
 			project, liferayExtension, deployToAppServerLibs, deployToTools);
 		_configureEclipse(project);
-		_configureJavaPlugin(project);
+		_configureJavaPlugin(project, portalVersion);
 		_configureLocalPortalTool(
 			project, portalRootDir, LangBuilderPlugin.CONFIGURATION_NAME,
 			_LANG_BUILDER_PORTAL_TOOL_NAME);
@@ -2687,12 +2687,18 @@ public class LiferayOSGiDefaultsPlugin implements Plugin<Project> {
 		plusConfigurations.add(portalTestConfiguration);
 	}
 
-	private void _configureJavaPlugin(Project project) {
+	private void _configureJavaPlugin(Project project, String portalVersion) {
 		JavaPluginConvention javaPluginConvention = GradleUtil.getConvention(
 			project, JavaPluginConvention.class);
 
-		javaPluginConvention.setSourceCompatibility(_JAVA_VERSION);
-		javaPluginConvention.setTargetCompatibility(_JAVA_VERSION);
+		if (PortalTools.PORTAL_VERSION_7_0_X.equals(portalVersion)) {
+			javaPluginConvention.setSourceCompatibility(_JAVA_VERSION_8);
+			javaPluginConvention.setTargetCompatibility(_JAVA_VERSION_8);
+		}
+		else {
+			javaPluginConvention.setSourceCompatibility(_JAVA_VERSION_11);
+			javaPluginConvention.setTargetCompatibility(_JAVA_VERSION_11);
+		}
 
 		File testResultsDir = project.file("test-results/unit");
 
@@ -4907,7 +4913,9 @@ public class LiferayOSGiDefaultsPlugin implements Plugin<Project> {
 
 	private static final String _GROUP_PORTAL = "com.liferay.portal";
 
-	private static final JavaVersion _JAVA_VERSION = JavaVersion.VERSION_11;
+	private static final JavaVersion _JAVA_VERSION_8 = JavaVersion.VERSION_1_8;
+
+	private static final JavaVersion _JAVA_VERSION_11 = JavaVersion.VERSION_11;
 
 	private static final String _LANG_BUILDER_PORTAL_TOOL_NAME =
 		"com.liferay.lang.builder";
