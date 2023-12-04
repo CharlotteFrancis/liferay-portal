@@ -5202,6 +5202,10 @@ information. Make sure to commit in all format-javadoc results.
 		<run-functional-test app.server.type="tomcat" database.type="mysql" database.version="8.0" test.portal.log.assert="true" />
 	</target>
 
+	<target name="functional-smoke-tomcat90-mysql80-jdk11_oracle">
+		<run-functional-test app.server.type="tomcat" database.type="mysql" database.version="8.0" test.portal.log.assert="true" />
+	</target>
+
 	<target name="functional-smoke-tomcat90-oracle193-jdk8">
 		<run-functional-test app.server.type="tomcat" database.type="oracle" database.version="19.3.0.0.0" test.portal.log.assert="true" />
 	</target>
