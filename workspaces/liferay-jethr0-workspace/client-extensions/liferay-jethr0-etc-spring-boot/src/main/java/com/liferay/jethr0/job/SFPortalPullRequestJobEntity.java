@@ -5,11 +5,6 @@
 
 package com.liferay.jethr0.job;
 
-import com.liferay.jethr0.bui1d.BuildEntity;
-import com.liferay.jethr0.util.StringUtil;
-
-import java.net.URL;
-
 import java.util.Map;
 
 import org.json.JSONObject;
@@ -20,65 +15,24 @@ import org.json.JSONObject;
 public class SFPortalPullRequestJobEntity
 	extends BasePortalPullRequestJobEntity {
 
-	@Override
-	public URL getPortalPullRequestURL() {
-		if (_portalPullRequestURL != null) {
-			return _portalPullRequestURL;
-		}
-
-		_portalPullRequestURL = super.getPortalPullRequestURL();
-
-		if (_portalPullRequestURL != null) {
-			return _portalPullRequestURL;
-		}
-
-		for (BuildEntity initialBuildEntity : getInitialBuildEntities()) {
-			String pullRequestURL = initialBuildEntity.getBuildParameterValue(
-				"PULL_REQUEST_URL");
-
-			if (!StringUtil.isNullOrEmpty(pullRequestURL)) {
-				_portalPullRequestURL = StringUtil.toURL(pullRequestURL);
-
-				return _portalPullRequestURL;
-			}
-		}
-
-		return null;
-	}
-
-	@Override
-	public String getTestSuiteName() {
-		String testSuiteName = super.getTestSuiteName();
-
-		if (StringUtil.isNullOrEmpty(testSuiteName)) {
-			testSuiteName = "sf";
-
-			setTestSuiteName(testSuiteName);
-		}
-
-		return testSuiteName;
-	}
-
 	protected SFPortalPullRequestJobEntity(JSONObject jsonObject) {
 		super(jsonObject);
 	}
 
 	@Override
 	protected Map<String, String> getInitialBuildParameters() {
-		Map<String, String> initialBuildParamaters =
+		Map<String, String> initialBuildParameters =
 			super.getInitialBuildParameters();
 
-		initialBuildParamaters.put(
+		initialBuildParameters.put(
 			"PULL_REQUEST_URL", String.valueOf(getPortalPullRequestURL()));
 
-		return initialBuildParamaters;
+		return initialBuildParameters;
 	}
 
 	@Override
 	protected String getJenkinsJobName() {
 		return "test-portal-source-format";
 	}
-
-	private URL _portalPullRequestURL;
 
 }

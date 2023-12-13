@@ -99,6 +99,13 @@ public class UpgradeSourceProcessorTest extends BaseSourceProcessorTestCase {
 	}
 
 	@Test
+	public void testUpgradeJavaDDMFormValuesSerializerTrackerCheck()
+		throws Exception {
+
+		test("upgrade/UpgradeJavaDDMFormValuesSerializerTrackerCheck.testjava");
+	}
+
+	@Test
 	public void testUpgradeJavaFacetedSearcherCheck() throws Exception {
 		test("upgrade/UpgradeJavaFacetedSearcherCheck.testjava");
 	}
@@ -182,11 +189,6 @@ public class UpgradeSourceProcessorTest extends BaseSourceProcessorTestCase {
 		throws Exception {
 
 		test("upgrade/UpgradeJavaServiceReferenceAnnotationCheck.testjava");
-	}
-
-	@Test
-	public void testUpgradeJavaServiceTrackerListCheck() throws Exception {
-		test("upgrade/UpgradeJavaServiceTrackerListCheck.testjava");
 	}
 
 	@Test

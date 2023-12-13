@@ -589,7 +589,10 @@ const ActionForm = ({
 										placeholder={Liferay.Language.get(
 											'please-select-an-option'
 										)}
-										value={actionData.method}
+										value={
+											actionData.method ||
+											ACTION_METHOD.DELETE
+										}
 									/>
 								</ClayForm.Group>
 							</ClayLayout.Col>

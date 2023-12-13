@@ -12,6 +12,8 @@ import com.liferay.jethr0.jenkins.cohort.JenkinsCohortEntity;
 import com.liferay.jethr0.task.TaskEntity;
 import com.liferay.jethr0.testsuite.TestSuiteEntity;
 
+import java.net.URL;
+
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -54,9 +56,15 @@ public interface JobEntity extends Entity {
 
 	public List<JSONObject> getInitialBuildJSONObjects();
 
+	public URL getJenkinsBranchURL();
+
 	public Set<JenkinsCohortEntity> getJenkinsCohortEntities();
 
 	public String getName();
+
+	public Map<String, String> getParameters();
+
+	public String getParameterValue(String name);
 
 	public int getPriority();
 
@@ -92,7 +100,11 @@ public interface JobEntity extends Entity {
 
 	public void removeTestSuiteEntity(TestSuiteEntity testSuiteEntity);
 
+	public void setJenkinsBranchURL(URL jenkinsGitHubURL);
+
 	public void setName(String name);
+
+	public void setParameterValue(String name, String value);
 
 	public void setPriority(int priority);
 
@@ -155,8 +167,17 @@ public interface JobEntity extends Entity {
 	public enum Type {
 
 		DEFAULT("default", "Default"),
+		PORTAL_APP_RELEASE("portalAppRelease", "Portal App Release"),
+		PORTAL_FIXPACK_RELEASE(
+			"portalFixpackRelease", "Portal Fixpack Release"),
+		PORTAL_HOTFIX_RELEASE("portalHotfixRelease", "Portal Hotfix Release"),
 		PORTAL_PULL_REQUEST("portalPullRequest", "Portal Pull Request"),
-		PORTAL_PULL_REQUEST_SF("portalPullRequestSF", "Portal Pull Request SF");
+		PORTAL_PULL_REQUEST_SF("portalPullRequestSF", "Portal Pull Request SF"),
+		PORTAL_RELEASE("portalRelease", "Portal Release"),
+		PORTAL_UPSTREAM_ACCEPTANCE(
+			"portalUpstreamAcceptance", "Portal Upstream Acceptance"),
+		PORTAL_UPSTREAM_TEST_SUITE(
+			"portalUpstreamTestSuite", "Portal Upstream Test Suite");
 
 		public static Type get(JSONObject jsonObject) {
 			return getByKey(jsonObject.getString("key"));

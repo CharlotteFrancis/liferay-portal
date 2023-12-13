@@ -17,6 +17,7 @@ type Account = {
 	id: number;
 	logoURL?: string;
 	name: string;
+	taxId: string;
 	type: string;
 };
 
@@ -26,6 +27,11 @@ type Categories = {
 	name: string;
 	vocabulary: string;
 };
+
+interface CheckboxVersion {
+	isChecked: boolean;
+	versionName: string;
+}
 
 type CustomField = {
 	customValue: {
@@ -138,6 +144,7 @@ type CartItem = {
 };
 
 type Catalog = {
+	accountId: number | null;
 	currencyCode: string;
 	defaultLanguageId: string;
 	externalReferenceCode: string;
@@ -193,7 +200,7 @@ type CommerceOption = {
 	name: string;
 };
 
-interface Order {
+type Order = {
 	account: {
 		id: number;
 		type: string;
@@ -226,20 +233,20 @@ interface Order {
 		}
 	];
 	orderStatus: number;
+	orderStatusInfo?: {
+		label: string;
+	};
 	orderTypeExternalReferenceCode?: string;
-	orderTypeId: number;
+	orderTypeId?: number;
 	shippingAmount?: number;
 	shippingWithTaxAmount?: number;
-}
+};
 
-interface OrderType {
-	active: boolean;
-	displayDate: string;
-	displayOrder: number;
+type OrderType = {
 	externalReferenceCode: string;
 	id: number;
 	name: {[key: string]: string};
-}
+};
 
 type PaymentMethodSelector = 'order' | 'pay' | 'trial' | 'free';
 
@@ -262,6 +269,7 @@ interface PlacedOrder {
 interface PlacedOrderItems {
 	id: number;
 	name: string;
+	options: string;
 	price: {
 		priceFormatted: string;
 	};
@@ -324,6 +332,7 @@ interface Product {
 	attachments: ProductAttachment[];
 	catalog: Catalog;
 	catalogId: number;
+	catalogName?: string;
 	categories: ProductCategories[];
 	customFields?: CustomField[];
 	description: {[key: string]: string};
@@ -334,6 +343,7 @@ interface Product {
 	modifiedDate: string;
 	name: {[key: string]: string};
 	price?: number;
+	productChannelFilter?: boolean;
 	productChannels: Channel[];
 	productId: number;
 	productSpecifications: ProductSpecification[];
@@ -349,12 +359,65 @@ interface Product {
 	};
 }
 
-interface ProductAttachment {
-	customFields?: CustomField[];
-	externalReferenceCode: string;
+interface DeliveryProductAttachment {
+	customFields: CustomField[];
+	galleryEnabled: boolean;
 	id: number;
 	priority: number;
 	src: string;
+	tags?: string[];
+	title: string;
+	type: number;
+}
+
+interface DeliveryProductSpecification {
+	id: number;
+	optionCategoryId: number;
+	priority: number;
+	specificationGroupKey: string;
+	specificationGroupTitle: string;
+	specificationId: number;
+	specificationKey: string;
+	specificationTitle: string;
+	value: string;
+}
+
+type DeliverySKU = {
+	customFields?: CustomField[];
+	externalReferenceCode: string;
+	id: number;
+	price: {price: number; priceFormatted: string};
+	purchasable: boolean;
+	sku: string;
+	skuOptions: {skuOptionKey: string; skuOptionValueKey: string}[];
+};
+
+interface DeliveryProduct {
+	attachments: DeliveryProductAttachment[];
+	catalogName?: string;
+	categories: ProductCategories[];
+	customFields?: CustomField[];
+	description: string;
+	externalReferenceCode: string;
+	id: number;
+	images: ProductImages[];
+	modifiedDate: string;
+	name: string;
+	productId: number;
+	productSpecifications: DeliveryProductSpecification[];
+	productType: string;
+	skus: DeliverySKU[];
+	urlImage: string;
+}
+
+interface ProductAttachment {
+	customFields?: CustomField[];
+	externalReferenceCode: string;
+	galleryEnabled: boolean;
+	id: number;
+	priority: number;
+	src: string;
+	tags?: string[];
 	title: {[key: string]: string};
 }
 
@@ -395,6 +458,22 @@ type SKU = {
 	skuOptions: {key: string; value: string}[];
 };
 
+type OptionCategory = {
+	description?: {[key: string]: string};
+	id?: number;
+	key?: string;
+	priority?: number;
+	title?: {[key: string]: string};
+};
+
+type Specification = {
+	description?: {[key: string]: string};
+	id?: number;
+	key?: string;
+	optionCategory?: OptionCategory;
+	title?: {[key: string]: string};
+};
+
 type ProductSpecification = {
 	id?: number;
 	optionCategoryId?: number;
@@ -417,6 +496,8 @@ type UserAccount = {
 	image: string;
 	isCustomerAccount: boolean;
 	isPublisherAccount: boolean;
+	logoURL: string;
+	name: string;
 	newsSubscription: boolean;
 	password: string;
 };
@@ -499,6 +580,8 @@ type RadioOption<T> = {
 	index: number;
 	value: T;
 };
+
+type StorageType = 'persisted' | 'temporary';
 
 type APIResponse<Query = any> = {
 	actions: ObjectActions;

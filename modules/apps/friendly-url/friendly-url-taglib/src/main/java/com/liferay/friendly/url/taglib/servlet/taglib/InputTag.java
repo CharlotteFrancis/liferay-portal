@@ -47,6 +47,10 @@ public class InputTag extends IncludeTag {
 		return _classPK;
 	}
 
+	public String getDefaultLanguageId() {
+		return _defaultLanguageId;
+	}
+
 	public String getHelpMessage() {
 		return _helpMessage;
 	}
@@ -81,6 +85,10 @@ public class InputTag extends IncludeTag {
 
 	public void setClassPK(long classPK) {
 		_classPK = classPK;
+	}
+
+	public void setDefaultLanguageId(String defaultLanguageId) {
+		_defaultLanguageId = defaultLanguageId;
 	}
 
 	public void setDisabled(boolean disabled) {
@@ -124,6 +132,7 @@ public class InputTag extends IncludeTag {
 
 		_className = null;
 		_classPK = 0;
+		_defaultLanguageId = null;
 		_disabled = false;
 		_helpMessage = null;
 		_inputAddon = null;
@@ -146,6 +155,9 @@ public class InputTag extends IncludeTag {
 			"liferay-friendly-url:input:className", getClassName());
 		httpServletRequest.setAttribute(
 			"liferay-friendly-url:input:classPK", getClassPK());
+		httpServletRequest.setAttribute(
+			"liferay-friendly-url:input:defaultLanguageId",
+			getDefaultLanguageId());
 		httpServletRequest.setAttribute(
 			"liferay-friendly-url:input:disabled", isDisabled());
 		httpServletRequest.setAttribute(
@@ -209,8 +221,13 @@ public class InputTag extends IncludeTag {
 				return urlTitle;
 			}
 
-			String languageId = LanguageUtil.getLanguageId(
-				LocaleUtil.getDefault());
+			String languageId = BeanPropertiesUtil.getString(
+				_getModel(), "defaultLanguageId");
+
+			if (languageId == null) {
+				languageId = LanguageUtil.getLanguageId(
+					LocaleUtil.getDefault());
+			}
 
 			return LocalizationUtil.getXml(
 				HashMapBuilder.put(
@@ -295,6 +312,7 @@ public class InputTag extends IncludeTag {
 
 	private String _className;
 	private long _classPK;
+	private String _defaultLanguageId;
 	private boolean _disabled;
 	private String _helpMessage;
 	private String _inputAddon;

@@ -42,17 +42,18 @@ const PublishedAppsTable: React.FC<PublishedAppsTableProps> = ({items}) => {
 			columns={[
 				{
 					key: 'name',
-					render: (name, {attachments}) => (
-						<div className="dashboard-table-row-name-container">
+					render: (name, {images}) => (
+						<div style={{width: 200}}>
 							<img
 								alt="App Image"
-								className="dashboard-table-row-name-logo"
+								height={36}
 								src={showAppImage(
-									getThumbnailByProductAttachment(attachments)
+									getThumbnailByProductAttachment(images)
 								)}
+								width={36}
 							/>
 
-							<span className="dashboard-table-row-name-text">
+							<span className="font-weight-semi-bold ml-2">
 								{name?.en_US}
 							</span>
 						</div>

@@ -1053,9 +1053,15 @@ public class ObjectFieldLocalServiceImpl
 			objectField1 -> !objectField1.isMetadata());
 
 		if (objectDefinition.isApproved() && (objectFields.size() == 1)) {
+			if (!deleteRelationshipObjectField) {
+				throw new RequiredObjectFieldException.
+					MustNotDeleteObjectFieldPublishedObjectDefinition(
+						objectField.getName());
+			}
+
 			throw new RequiredObjectFieldException.
-				MustNotDeleteObjectFieldPublishedObjectDefinition(
-					objectField.getName());
+				MustNotDeleteObjectFieldRelationship(
+					objectDefinition.getShortName(), objectField.getName());
 		}
 
 		if (Objects.equals(
@@ -1540,7 +1546,9 @@ public class ObjectFieldLocalServiceImpl
 					" business types support localization"));
 		}
 
-		if (!objectDefinition.isEnableLocalization()) {
+		if (!objectDefinition.isEnableLocalization() &&
+			objectDefinition.isApproved()) {
+
 			throw new ObjectDefinitionEnableLocalizationException();
 		}
 

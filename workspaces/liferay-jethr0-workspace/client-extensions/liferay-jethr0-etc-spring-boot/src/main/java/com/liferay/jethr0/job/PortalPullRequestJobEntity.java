@@ -12,8 +12,6 @@ import java.net.URL;
  */
 public interface PortalPullRequestJobEntity extends JobEntity {
 
-	public URL getJenkinsGitHubURL();
-
 	public String getOriginName();
 
 	public URL getPortalPullRequestURL();
@@ -29,8 +27,6 @@ public interface PortalPullRequestJobEntity extends JobEntity {
 	public String getUpstreamBranchName();
 
 	public String getUpstreamBranchSHA();
-
-	public void setJenkinsGitHubURL(URL jenkinsGitHubURL);
 
 	public void setOriginName(String originName);
 

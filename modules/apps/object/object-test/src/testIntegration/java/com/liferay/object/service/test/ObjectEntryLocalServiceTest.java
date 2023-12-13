@@ -23,6 +23,7 @@ import com.liferay.object.constants.ObjectFieldConstants;
 import com.liferay.object.constants.ObjectFieldSettingConstants;
 import com.liferay.object.constants.ObjectValidationRuleConstants;
 import com.liferay.object.constants.ObjectValidationRuleSettingConstants;
+import com.liferay.object.exception.DuplicateObjectEntryExternalReferenceCodeException;
 import com.liferay.object.exception.NoSuchObjectEntryException;
 import com.liferay.object.exception.ObjectDefinitionScopeException;
 import com.liferay.object.exception.ObjectEntryStatusException;
@@ -3198,8 +3199,10 @@ public class ObjectEntryLocalServiceTest {
 		long objectEntryId2 = objectEntry2.getObjectEntryId();
 
 		AssertUtils.assertFailure(
-			ObjectEntryValuesException.MustNotBeDuplicate.class,
-			"Duplicate value newExternalReferenceCode",
+			DuplicateObjectEntryExternalReferenceCodeException.class,
+			"Duplicate object entry with external reference code " +
+				"newExternalReferenceCode and object definition ID " +
+					_objectDefinition.getObjectDefinitionId(),
 			() -> _objectEntryLocalService.updateObjectEntry(
 				TestPropsValues.getUserId(), objectEntryId2,
 				HashMapBuilder.<String, Serializable>put(
@@ -3225,8 +3228,11 @@ public class ObjectEntryLocalServiceTest {
 			ServiceContextTestUtil.getServiceContext());
 
 		AssertUtils.assertFailure(
-			ObjectEntryValuesException.MustNotBeDuplicate.class,
-			"Duplicate value " + objectEntry1.getUuid(),
+			DuplicateObjectEntryExternalReferenceCodeException.class,
+			StringBundler.concat(
+				"Duplicate object entry with external reference code ",
+				objectEntry1.getUuid(), " and object definition ID ",
+				_objectDefinition.getObjectDefinitionId()),
 			() -> _objectEntryLocalService.updateObjectEntry(
 				TestPropsValues.getUserId(), objectEntryId1,
 				HashMapBuilder.<String, Serializable>put(

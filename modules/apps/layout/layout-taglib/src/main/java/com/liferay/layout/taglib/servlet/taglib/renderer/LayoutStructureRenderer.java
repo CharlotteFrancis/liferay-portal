@@ -52,12 +52,7 @@ import com.liferay.petra.string.StringPool;
 import com.liferay.petra.string.StringUtil;
 import com.liferay.portal.kernel.feature.flag.FeatureFlagManagerUtil;
 import com.liferay.portal.kernel.io.unsync.UnsyncStringWriter;
-import com.liferay.portal.kernel.json.JSONException;
-import com.liferay.portal.kernel.json.JSONFactoryUtil;
-import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.language.LanguageUtil;
-import com.liferay.portal.kernel.log.Log;
-import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.model.LayoutConstants;
 import com.liferay.portal.kernel.model.LayoutTemplate;
@@ -85,6 +80,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -230,26 +226,15 @@ public class LayoutStructureRenderer {
 					getListObjectReference();
 
 			if (listObjectReference != null) {
-				try {
-					JSONObject jsonObject = JSONFactoryUtil.createJSONObject(
-						listObjectReference.toJSON());
-
-					if (jsonObject.has("key")) {
-						jspWriter.write(
-							" id=\"analytics-targetable-collection-");
-						jspWriter.write(jsonObject.getString("key"));
-						jspWriter.write("\"");
-					}
-				}
-				catch (JSONException jsonException) {
-					if (_log.isDebugEnabled()) {
-						_log.debug(
-							"Unable to parse JSON: " +
-								listObjectReference.toJSON(),
-							jsonException);
-					}
-				}
+				jspWriter.write(" data-analytics-targetable-collection=\"");
+				jspWriter.write(
+					HtmlUtil.escape(listObjectReference.toString()));
+				jspWriter.write("\"");
 			}
+
+			jspWriter.write(" id=\"analytics-targetable-collection-");
+			jspWriter.write(collectionStyledLayoutStructureItem.getNamespace());
+			jspWriter.write("\"");
 		}
 
 		jspWriter.write("\" style=\"");
@@ -1124,9 +1109,16 @@ public class LayoutStructureRenderer {
 			List<String> childrenItemIds, InfoForm infoForm)
 		throws Exception {
 
+		Set<String> hiddenItemIds =
+			_renderLayoutStructureDisplayContext.getHiddenItemIds();
+
 		for (String childrenItemId : childrenItemIds) {
 			LayoutStructureItem layoutStructureItem =
 				_layoutStructure.getLayoutStructureItem(childrenItemId);
+
+			if (hiddenItemIds.contains(childrenItemId)) {
+				continue;
+			}
 
 			long start = System.currentTimeMillis();
 
@@ -1341,9 +1333,6 @@ public class LayoutStructureRenderer {
 				fragmentStyledLayoutStructureItem));
 		jspWriter.write("\">");
 	}
-
-	private static final Log _log = LogFactoryUtil.getLog(
-		LayoutStructureRenderer.class);
 
 	private final HttpServletRequest _httpServletRequest;
 	private final LayoutStructure _layoutStructure;

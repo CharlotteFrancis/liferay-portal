@@ -175,12 +175,22 @@ public class DownstreamBuild extends BaseBuild {
 		String status = getStatus();
 
 		if (!status.equals("completed") && (getParentBuild() != null)) {
+			System.out.println(
+				JenkinsResultsParserUtil.combine(
+					"[", getBuildName(), "] Skipped creating a failure GitHub ",
+					"message because status is ", status));
+
 			return null;
 		}
 
 		String result = getResult();
 
 		if (result.equals("SUCCESS")) {
+			System.out.println(
+				JenkinsResultsParserUtil.combine(
+					"[", getBuildName(), "] Skipped creating a failure GitHub ",
+					"message because result is ", result));
+
 			return null;
 		}
 
@@ -237,14 +247,30 @@ public class DownstreamBuild extends BaseBuild {
 				Dom4JUtil.getOrderedListElement(
 					upstreamJobFailureElements,
 					upstreamJobFailureMessageElement, 3);
+
+				System.out.println(
+					JenkinsResultsParserUtil.combine(
+						"[", getBuildName(), "] Saved an upstream failure ",
+						"GitHub message"));
 			}
 
 			Dom4JUtil.getOrderedListElement(failureElements, messageElement, 3);
 
 			if (failureElements.isEmpty()) {
+				System.out.println(
+					JenkinsResultsParserUtil.combine(
+						"[", getBuildName(),
+						"] Skipped creating a failure GitHub message because ",
+						"no failure elements were created"));
+
 				return null;
 			}
 		}
+
+		System.out.println(
+			JenkinsResultsParserUtil.combine(
+				"[", getBuildName(), "] Created a failure GitHub message: ",
+				String.valueOf(hashCode())));
 
 		return messageElement;
 	}
@@ -417,8 +443,21 @@ public class DownstreamBuild extends BaseBuild {
 					"testName", methodName
 				);
 
-				untestedTestResults.add(
-					TestResultFactory.newTestResult(this, caseJSONObject));
+				TestResult testResult = TestResultFactory.newTestResult(
+					this, caseJSONObject);
+
+				TestClassResult testClassResult =
+					testResult.getTestClassResult();
+
+				if (testClassResult != null) {
+					String status = testClassResult.getStatus();
+
+					if (status.equals("SKIPPED")) {
+						continue;
+					}
+				}
+
+				untestedTestResults.add(testResult);
 			}
 		}
 

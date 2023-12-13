@@ -10,7 +10,7 @@ import OrderDetailsHeader from '../../../components/OrderDetailsHeader';
 type LicenseDetailsModalHeaderProps = {
 	modalData: any;
 	myUserAccount: UserAccount;
-	product: Product;
+	product: DeliveryProduct;
 };
 
 const LicenseDetailsModalHeader: React.FC<LicenseDetailsModalHeaderProps> = ({
@@ -27,8 +27,8 @@ const LicenseDetailsModalHeader: React.FC<LicenseDetailsModalHeaderProps> = ({
 			<OrderDetailsHeader
 				className="d-flex flex-row justify-content-between mt-3"
 				hasOrderDescription={modalData?.description}
-				image={getThumbnailByProductAttachment(product?.attachments)}
-				name={product?.name?.en_US}
+				image={getThumbnailByProductAttachment(product?.images)}
+				name={product?.name}
 				version={modalData?.productVersion}
 			/>
 		</div>

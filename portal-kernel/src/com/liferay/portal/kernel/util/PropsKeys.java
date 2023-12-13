@@ -441,9 +441,6 @@ public interface PropsKeys {
 	public static final String COMPANY_LOGIN_PREPOPULATE_DOMAIN =
 		"company.login.prepopulate.domain";
 
-	public static final String COMPANY_SECURITY_AUTH_REQUIRES_HTTPS =
-		"company.security.auth.requires.https";
-
 	public static final String COMPANY_SECURITY_AUTH_TYPE =
 		"company.security.auth.type";
 
@@ -2910,6 +2907,9 @@ public interface PropsKeys {
 
 	public static final String WORKFLOW_EMAIL_FROM_NAME =
 		"workflow.email.from.name";
+
+	public static final String XML_RPC_MAX_PARAMETERS =
+		"xml.rpc.max.parameters";
 
 	public static final String XML_SECURITY_ENABLED = "xml.security.enabled";
 

@@ -34,6 +34,13 @@ type DefinitionAction = {
 	method: string;
 };
 
+interface DeletedObjectDefinition {
+	hasObjectRelationship: boolean;
+	id: number;
+	name: string;
+	objectEntriesCount: number;
+}
+
 type DefinitionActions = {
 	delete: DefinitionAction;
 	get: DefinitionAction;
@@ -225,6 +232,7 @@ interface ObjectDefinitionNodeData
 	linkedObjectDefinition: boolean;
 	objectFields: ObjectFieldNodeRow[];
 	selected: boolean;
+	showAllObjectFields: boolean;
 }
 
 interface ObjectEntry {

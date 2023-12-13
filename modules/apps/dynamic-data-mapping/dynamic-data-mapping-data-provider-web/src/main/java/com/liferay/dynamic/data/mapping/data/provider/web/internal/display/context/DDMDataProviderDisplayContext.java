@@ -46,6 +46,7 @@ import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.bean.BeanParamUtil;
 import com.liferay.portal.kernel.dao.search.SearchContainer;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.feature.flag.FeatureFlagManagerUtil;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.User;
@@ -271,20 +272,17 @@ public class DDMDataProviderDisplayContext {
 	}
 
 	public List<DropdownItem> getFilterItemsDropdownItems() {
+		if (FeatureFlagManagerUtil.isEnabled("LPS-144527")) {
+			return null;
+		}
+
 		HttpServletRequest httpServletRequest =
 			_ddmDataProviderRequestHelper.getRequest();
 
 		return DropdownItemListBuilder.addGroup(
 			dropdownGroupItem -> {
 				dropdownGroupItem.setDropdownItems(
-					_getFilterNavigationDropdownItems());
-				dropdownGroupItem.setLabel(
-					LanguageUtil.get(
-						httpServletRequest, "filter-by-navigation"));
-			}
-		).addGroup(
-			dropdownGroupItem -> {
-				dropdownGroupItem.setDropdownItems(_getOrderByDropdownItems());
+					getOrderItemsDropdownItems());
 				dropdownGroupItem.setLabel(
 					LanguageUtil.get(httpServletRequest, "order-by"));
 			}
@@ -359,6 +357,14 @@ public class DDMDataProviderDisplayContext {
 			"asc");
 
 		return _orderByType;
+	}
+
+	public List<DropdownItem> getOrderItemsDropdownItems() {
+		return DropdownItemListBuilder.add(
+			_getOrderByDropdownItem("modified-date")
+		).add(
+			_getOrderByDropdownItem("name")
+		).build();
 	}
 
 	public PortletURL getPortletURL() {
@@ -654,18 +660,6 @@ public class DDMDataProviderDisplayContext {
 		return _ddmDataProviderRegistry.getDDMDataProviderTypes();
 	}
 
-	private List<DropdownItem> _getFilterNavigationDropdownItems() {
-		return DropdownItemListBuilder.add(
-			dropdownItem -> {
-				dropdownItem.setActive(true);
-				dropdownItem.setHref(getPortletURL(), "navigation", "all");
-				dropdownItem.setLabel(
-					LanguageUtil.get(
-						_ddmDataProviderRequestHelper.getRequest(), "all"));
-			}
-		).build();
-	}
-
 	private long[] _getGroupIds() {
 		long scopeGroupId = _ddmDataProviderRequestHelper.getScopeGroupId();
 
@@ -695,14 +689,6 @@ public class DDMDataProviderDisplayContext {
 				LanguageUtil.get(
 					_ddmDataProviderRequestHelper.getRequest(), orderByCol));
 		};
-	}
-
-	private List<DropdownItem> _getOrderByDropdownItems() {
-		return DropdownItemListBuilder.add(
-			_getOrderByDropdownItem("modified-date")
-		).add(
-			_getOrderByDropdownItem("name")
-		).build();
 	}
 
 	private String _getRefererPortletName() {

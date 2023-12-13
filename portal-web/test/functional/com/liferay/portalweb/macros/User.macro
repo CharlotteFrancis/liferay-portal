@@ -1349,6 +1349,19 @@ definition {
 	}
 
 	@summary = "Default summary"
+	macro createMultipleUsers(letter = null) {
+		for (var letter : list ${letter}) {
+			User.createUser(
+				userEmailAddress = "${letter}@liferay.com",
+				userFirstName = ${letter},
+				userLastName = ${letter},
+				userScreenName = ${letter});
+
+			Navigator.gotoBack();
+		}
+	}
+
+	@summary = "Default summary"
 	macro createUser(lng = null, userEmailAddress = null, userFirstName = null, userJobTitle = null, userComment = null, userTag = null, userLastName = null, userScreenName = null, userMiddleName = null, userGender = null, lat = null, userBirthday = null,) {
 		LexiconEntry.gotoAdd();
 
@@ -1391,6 +1404,15 @@ definition {
 			User.bulkDeactivateCP(
 				deactivateType = ${deactivateType},
 				userFirstNameList = ${userFirstNameList});
+		}
+	}
+
+	@summary = "Default summary"
+	macro deactivateMultipleUsers(letter = null) {
+		for (var letter : list ${letter}) {
+			User.deactivateCP(
+				deactivateType = "Actions",
+				userFirstName = ${letter});
 		}
 	}
 
@@ -2698,10 +2720,7 @@ definition {
 
 	@summary = "Default summary"
 	macro tearDownCP() {
-		ApplicationsMenu.gotoPortlet(
-			category = "Users",
-			panel = "Control Panel",
-			portlet = "Users and Organizations");
+		User.openUsersAdmin();
 
 		Click(locator1 = "Dropdown#FILTER_AND_ORDER");
 
@@ -2736,10 +2755,7 @@ definition {
 
 	@summary = "Default summary"
 	macro tearDownSpecificUser(userScreenName = null) {
-		ApplicationsMenu.gotoPortlet(
-			category = "Users",
-			panel = "Control Panel",
-			portlet = "Users and Organizations");
+		User.openUsersAdmin();
 
 		Click(locator1 = "Dropdown#FILTER_AND_ORDER");
 

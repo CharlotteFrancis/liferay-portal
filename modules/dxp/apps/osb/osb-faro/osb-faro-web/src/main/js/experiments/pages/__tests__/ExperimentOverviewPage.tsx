@@ -3,52 +3,35 @@ import ExperimentOverviewPage from '../ExperimentOverviewPage';
 import mockStore from 'test/mock-store';
 import React from 'react';
 import {ApolloProvider} from '@apollo/react-hooks';
-import {ExperimentResolver as Experiment} from 'shared/apollo/resolvers';
 import {fireEvent, render} from '@testing-library/react';
 import {MemoryRouter, Route} from 'react-router-dom';
 import {MockedProvider} from '@apollo/react-testing';
-import {
-	mockExperimentReq,
-	mockExperimentRootReq,
-	mockTimeRangeReq
-} from 'test/graphql-data';
+import {mockExperimentReq} from 'test/graphql-data';
 import {Provider} from 'react-redux';
 import {Routes} from 'shared/util/router';
 import {waitForLoadingToBeRemoved} from 'test/helpers';
 
 jest.unmock('react-dom');
 
-const WrappedComponent = ({
-	publishable = false,
-	publishedDXPVariantId = null,
-	status
-}) => (
+jest.mock('react-router-dom', () => ({
+	...jest.requireActual('react-router-dom'),
+	useParams: () => ({
+		channelId: '2000',
+		groupId: '1000',
+		id: '123',
+		query: {}
+	})
+}));
+
+const WrappedComponent = experiment => (
 	<ApolloProvider client={client}>
-		<Provider store={mockStore() as any}>
+		<Provider store={mockStore()}>
 			<MemoryRouter
 				initialEntries={['/workspace/1000/2000/tests/overview/123']}
 			>
 				<Route path={Routes.TESTS_OVERVIEW}>
-					<MockedProvider
-						mocks={[
-							mockTimeRangeReq(),
-							mockExperimentRootReq({publishable, status}),
-							mockExperimentReq({
-								publishedDXPVariantId
-							})
-						]}
-						resolvers={{Experiment}}
-					>
-						<ExperimentOverviewPage
-							router={{
-								params: {
-									channelId: '2000',
-									groupId: '1000',
-									id: '123'
-								},
-								query: {}
-							}}
-						/>
+					<MockedProvider mocks={[mockExperimentReq(experiment)]}>
+						<ExperimentOverviewPage />
 					</MockedProvider>
 				</Route>
 			</MemoryRouter>
@@ -57,6 +40,24 @@ const WrappedComponent = ({
 );
 
 describe('ExperimentOverviewPage', () => {
+	const {ResizeObserver} = window;
+
+	beforeEach(() => {
+		delete window.ResizeObserver;
+
+		window.ResizeObserver = jest.fn().mockImplementation(() => ({
+			disconnect: jest.fn(),
+			observe: jest.fn(),
+			unobserve: jest.fn()
+		}));
+	});
+
+	afterEach(() => {
+		window.ResizeObserver = ResizeObserver;
+
+		jest.restoreAllMocks();
+	});
+
 	it('renders review and delete button in the DRAFT status', async () => {
 		const {container, findByRole} = render(
 			<WrappedComponent status='DRAFT' />
@@ -324,5 +325,29 @@ describe('ExperimentOverviewPage', () => {
 		await waitForLoadingToBeRemoved(container);
 
 		expect(await findByText(/published/i)).toBeInTheDocument();
+	});
+
+	it('renders test sessions card when test type is AB', async () => {
+		const {container, queryByText} = render(
+			<WrappedComponent status='RUNNING' type='AB' />
+		);
+
+		await waitForLoadingToBeRemoved(container);
+
+		expect(queryByText('Test Sessions')).toBeInTheDocument();
+
+		expect(queryByText('Test Traffic')).toBeNull();
+	});
+
+	it('renders test traffic card when test type is MAB', async () => {
+		const {container, queryByText} = render(
+			<WrappedComponent status='RUNNING' type='MAB' />
+		);
+
+		await waitForLoadingToBeRemoved(container);
+
+		expect(queryByText('Test Traffic')).toBeInTheDocument();
+
+		expect(queryByText('Test Sessions')).toBeNull();
 	});
 });
