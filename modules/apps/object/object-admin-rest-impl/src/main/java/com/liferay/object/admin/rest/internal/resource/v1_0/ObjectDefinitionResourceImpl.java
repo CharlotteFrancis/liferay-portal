@@ -413,7 +413,7 @@ public class ObjectDefinitionResourceImpl
 				_objectDefinitionService.getObjectDefinition(
 					objectDefinitionId);
 
-		if (GetterUtil.getBoolean(serviceBuilderObjectDefinition.getSystem())) {
+		if (GetterUtil.getBoolean(serviceBuilderObjectDefinition.isSystem())) {
 			return _toObjectDefinition(
 				_objectDefinitionService.publishSystemObjectDefinition(
 					objectDefinitionId));
@@ -455,9 +455,7 @@ public class ObjectDefinitionResourceImpl
 				_objectDefinitionService.getObjectDefinition(
 					objectDefinitionId);
 
-		if (!serviceBuilderObjectDefinition.isApproved()) {
-			_addListTypeDefinition(objectDefinition);
-		}
+		_addListTypeDefinition(objectDefinition);
 
 		long accountEntryRestrictedObjectFieldId = 0;
 
@@ -509,7 +507,7 @@ public class ObjectDefinitionResourceImpl
 						objectDefinition.getAccountEntryRestricted()),
 					GetterUtil.getBoolean(
 						objectDefinition.getActive(),
-						serviceBuilderObjectDefinition.getActive()),
+						serviceBuilderObjectDefinition.isActive()),
 					GetterUtil.getBoolean(
 						objectDefinition.getEnableCategorization(), true),
 					GetterUtil.getBoolean(objectDefinition.getEnableComments()),
@@ -802,6 +800,89 @@ public class ObjectDefinitionResourceImpl
 			}
 		}
 
+		// Object relationship must be created before object layout
+
+		if (objectRelationships != null) {
+			ObjectRelationshipResource.Builder builder =
+				_objectRelationshipResourceFactory.create();
+
+			ObjectRelationshipResource objectRelationshipResource =
+				builder.user(
+					contextUser
+				).build();
+
+			Set<String> updateReverseObjectRelationshipNames = new HashSet<>();
+
+			for (ObjectRelationship objectRelationship : objectRelationships) {
+				com.liferay.object.model.ObjectRelationship
+					serviceBuilderObjectRelationship =
+						_objectRelationshipLocalService.
+							fetchObjectRelationshipByExternalReferenceCode(
+								objectRelationship.getExternalReferenceCode(),
+								contextCompany.getCompanyId(),
+								objectDefinitionId);
+
+				if (serviceBuilderObjectRelationship == null) {
+					serviceBuilderObjectRelationship =
+						_objectRelationshipLocalService.
+							fetchObjectRelationshipByObjectDefinitionId1(
+								objectDefinitionId,
+								objectRelationship.getName());
+				}
+
+				if (serviceBuilderObjectRelationship != null) {
+					if (updateReverseObjectRelationshipNames.contains(
+							serviceBuilderObjectRelationship.getName())) {
+
+						serviceBuilderObjectRelationship =
+							_objectRelationshipLocalService.
+								fetchReverseObjectRelationship(
+									serviceBuilderObjectRelationship, true);
+					}
+
+					objectRelationshipResource.putObjectRelationship(
+						serviceBuilderObjectRelationship.
+							getObjectRelationshipId(),
+						objectRelationship);
+
+					if (Objects.equals(
+							serviceBuilderObjectRelationship.getType(),
+							ObjectRelationshipConstants.TYPE_MANY_TO_MANY) &&
+						serviceBuilderObjectRelationship.isSelf()) {
+
+						updateReverseObjectRelationshipNames.add(
+							serviceBuilderObjectRelationship.getName());
+					}
+
+					continue;
+				}
+
+				objectRelationship =
+					objectRelationshipResource.
+						postObjectDefinitionObjectRelationship(
+							objectDefinitionId, objectRelationship);
+
+				if (Objects.equals(
+						objectRelationship.getTypeAsString(),
+						ObjectRelationshipConstants.TYPE_MANY_TO_MANY) &&
+					Objects.equals(
+						objectRelationship.getObjectDefinitionId1(),
+						objectRelationship.getObjectDefinitionId2())) {
+
+					updateReverseObjectRelationshipNames.add(
+						objectRelationship.getName());
+				}
+
+				if (accountEntryRestrictedObjectRelationshipsNames.contains(
+						objectRelationship.getName())) {
+
+					_objectDefinitionLocalService.enableAccountEntryRestricted(
+						_objectRelationshipLocalService.getObjectRelationship(
+							objectRelationship.getId()));
+				}
+			}
+		}
+
 		if (objectLayouts != null) {
 			ObjectLayoutResource.Builder builder =
 				_objectLayoutResourceFactory.create();
@@ -813,51 +894,6 @@ public class ObjectDefinitionResourceImpl
 			for (ObjectLayout objectLayout : objectLayouts) {
 				objectLayoutResource.postObjectDefinitionObjectLayout(
 					objectDefinitionId, objectLayout);
-			}
-		}
-
-		if (objectRelationships != null) {
-			ObjectRelationshipResource.Builder builder =
-				_objectRelationshipResourceFactory.create();
-
-			ObjectRelationshipResource objectRelationshipResource =
-				builder.user(
-					contextUser
-				).build();
-
-			for (ObjectRelationship objectRelationship : objectRelationships) {
-				com.liferay.object.model.ObjectRelationship
-					serviceBuilderObjectRelationship =
-						_objectRelationshipLocalService.
-							fetchObjectRelationshipByExternalReferenceCode(
-								objectRelationship.getExternalReferenceCode(),
-								objectDefinitionId);
-
-				if (serviceBuilderObjectRelationship != null) {
-					if (serviceBuilderObjectRelationship.isReverse()) {
-						continue;
-					}
-
-					objectRelationshipResource.putObjectRelationship(
-						serviceBuilderObjectRelationship.
-							getObjectRelationshipId(),
-						objectRelationship);
-
-					continue;
-				}
-
-				objectRelationship =
-					objectRelationshipResource.
-						postObjectDefinitionObjectRelationship(
-							objectDefinitionId, objectRelationship);
-
-				if (accountEntryRestrictedObjectRelationshipsNames.contains(
-						objectRelationship.getName())) {
-
-					_objectDefinitionLocalService.enableAccountEntryRestricted(
-						_objectRelationshipLocalService.getObjectRelationship(
-							objectRelationship.getId()));
-				}
 			}
 		}
 
@@ -940,7 +976,7 @@ public class ObjectDefinitionResourceImpl
 					objectRelationship.getObjectDefinitionId2());
 
 			if ((objectDefinition2 == null) ||
-				!objectDefinition2.getAccountEntryRestricted()) {
+				!objectDefinition2.isAccountEntryRestricted()) {
 
 				continue;
 			}
@@ -1108,17 +1144,17 @@ public class ObjectDefinitionResourceImpl
 				defaultLanguageId = _localization.getDefaultLanguageId(
 					objectDefinition.getLabel());
 				enableCategorization =
-					objectDefinition.getEnableCategorization();
-				enableComments = objectDefinition.getEnableComments();
-				enableLocalization = objectDefinition.getEnableLocalization();
+					objectDefinition.isEnableCategorization();
+				enableComments = objectDefinition.isEnableComments();
+				enableLocalization = objectDefinition.isEnableLocalization();
 				enableObjectEntryHistory =
-					objectDefinition.getEnableObjectEntryHistory();
+					objectDefinition.isEnableObjectEntryHistory();
 				externalReferenceCode =
 					objectDefinition.getExternalReferenceCode();
 				id = objectDefinition.getObjectDefinitionId();
 				label = LocalizedMapUtil.getLanguageIdMap(
 					objectDefinition.getLabelMap());
-				modifiable = objectDefinition.getModifiable();
+				modifiable = objectDefinition.isModifiable();
 				name = objectDefinition.getShortName();
 				objectActions = transformToArray(
 					_objectActionLocalService.getObjectActions(
@@ -1145,7 +1181,8 @@ public class ObjectDefinitionResourceImpl
 						objectDefinition.getObjectDefinitionId()),
 					objectLayout -> ObjectLayoutUtil.toObjectLayout(
 						null, _objectDefinitionLocalService,
-						_objectFieldLocalService, objectLayout),
+						_objectFieldLocalService,
+						_objectRelationshipLocalService, objectLayout),
 					ObjectLayout.class);
 				objectRelationships = transformToArray(
 					_objectRelationshipLocalService.getObjectRelationships(
@@ -1184,7 +1221,7 @@ public class ObjectDefinitionResourceImpl
 					".*/\\{\\w+}/.*");
 				pluralLabel = LocalizedMapUtil.getLanguageIdMap(
 					objectDefinition.getPluralLabelMap());
-				portlet = objectDefinition.getPortlet();
+				portlet = objectDefinition.isPortlet();
 				restContextPath = finalRESTContextPath;
 				scope = objectDefinition.getScope();
 				status = new Status() {
@@ -1221,7 +1258,7 @@ public class ObjectDefinitionResourceImpl
 							return null;
 						}
 
-						return objectDefinition.getEnableObjectEntryDraft();
+						return objectDefinition.isEnableObjectEntryDraft();
 					});
 				setObjectFolderExternalReferenceCode(
 					() -> {

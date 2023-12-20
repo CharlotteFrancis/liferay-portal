@@ -44,6 +44,7 @@ import com.liferay.layout.item.selector.criterion.LayoutItemSelectorCriterion;
 import com.liferay.layout.page.template.model.LayoutPageTemplateEntry;
 import com.liferay.layout.page.template.service.LayoutPageTemplateEntryLocalServiceUtil;
 import com.liferay.layout.page.template.service.LayoutPageTemplateEntryServiceUtil;
+import com.liferay.petra.function.transform.TransformUtil;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.bean.BeanParamUtil;
@@ -84,7 +85,7 @@ import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.site.item.selector.criterion.SiteItemSelectorCriterion;
-import com.liferay.site.util.RecentGroupManager;
+import com.liferay.site.manager.RecentGroupManager;
 
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -580,6 +581,20 @@ public class JournalEditArticleDisplayContext {
 		return _defaultArticleLanguageId;
 	}
 
+	public Map<String, Object> getFieldMap() throws PortalException {
+		if (_article == null) {
+			return null;
+		}
+
+		return HashMapBuilder.<String, Object>put(
+			"description", _article.getDescriptionMap()
+		).put(
+			"friendlyURL", _article.getFriendlyURLMap()
+		).put(
+			"title", _article.getTitleMap()
+		).build();
+	}
+
 	public long getFolderId() {
 		if (_folderId != null) {
 			return _folderId;
@@ -774,6 +789,23 @@ public class JournalEditArticleDisplayContext {
 			_themeDisplay.getScopeGroupId());
 
 		return _groupId;
+	}
+
+	public List<Map<String, Object>> getLanguages() {
+		return TransformUtil.transform(
+			getAvailableLocales(),
+			locale -> {
+				String bcp47LanguageId = LanguageUtil.getBCP47LanguageId(
+					locale);
+
+				return HashMapBuilder.<String, Object>put(
+					"icon", StringUtil.toLowerCase(bcp47LanguageId)
+				).put(
+					"id", LanguageUtil.getLanguageId(locale)
+				).put(
+					"label", bcp47LanguageId
+				).build();
+			});
 	}
 
 	public String getPortletResource() {

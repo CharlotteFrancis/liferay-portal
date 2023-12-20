@@ -1,3 +1,24 @@
+# 3aa30f7e03264d3798731f301853ec4f952c3637
+
+The commit message does not include the full path. The correct message should be:
+
+```
+COMMERCE-12579 Use new find method. Also rename hasDirectReplacement.
+
+# breaking
+ 
+## What modules/apps/commerce/commerce-product-content-api/src/main/java/com/liferay/commerce/product/content/helper/CPContentHelper.java
+
+modules/apps/commerce/commerce-product-content-api/src/main/java/com/liferay/commerce/product/content/helper/CPContentHelper.java has method hasDirectReplacement renamed to isDirectReplacement
+
+## Why
+
+The method now checks whether the sku is a replacement of another product rather than checking whether it has replacements
+
+```
+
+----
+
 # 1063732432e7a5e5d3cf782ec1652728ef053eb9
 
 On the message of the commit 1063732432e7a5e5d3cf782ec1652728ef053eb9 the file path is not the complete path:
@@ -223,5 +244,36 @@ LPS-200073 Remove class AssetEntriesFacet
 Class is removed.
 ## Why
 This class has been deprecated since 7.1.x, its only usage in rules_user_custom_attribute_content.drl is replaced by FacetImpl.
+----
+```
+----
+
+# f46f1e49076f31484ad6cceede099bb16c9ef911
+Incorrect format on breaking change
+
+Correct message should be:
+```
+# breaking
+## What portal-kernel/src/com/liferay/portal/kernel/dao/orm/IndexableActionableDynamicQuery.java
+setIndexWriterHelper() method is being removed.
+## Why
+This setter was added for the class UserIndexer (see 73427a8). UserIndexer has been deprecated and removed from the portal though.
+----
+```
+----
+
+# 76c2d3b68c19a1b33f18e9221d83f34310daed45
+
+Typo in file path.
+
+Correct message should be:
+```
+LPS-196035 Avoid needing to regenerate after every screenName or emailAddress change. Use the immutable userId field for WebDAV access.
+
+# breaking_change_report
+## What portal-impl/src/com/liferay/portal/model/impl/UserImpl.java
+WebDAV clients can no longer use the user's screenName or emailAddress, nor the user's regular password when authenticating via Digest Auth.
+## Why
+WebDAV (or Digest Auth more generally) now requires each user to generate a separate password for this access, and it requires the user to take specific Account Settings UI actions to do so. Previously a simple web login would suffice. To avoid unexpected WebDav access rejections, we decided to simplify the the UX and use userId.
 ----
 ```

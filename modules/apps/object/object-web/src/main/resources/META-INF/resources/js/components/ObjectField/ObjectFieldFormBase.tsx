@@ -40,10 +40,12 @@ import {FORMULA_OUTPUT_OPTIONS, FormulaOutput} from './formulaFieldUtil';
 import './ObjectFieldFormBase.scss';
 
 import ClayIcon from '@clayui/icon';
+import ClayLoadingIndicator from '@clayui/loading-indicator';
 
 interface ObjectFieldFormBaseProps {
 	baseResourceURL: string;
 	children?: ReactNode;
+	className?: string;
 	creationLanguageId2?: Liferay.Language.Locale;
 	disabled?: boolean;
 	editingObjectField?: boolean;
@@ -133,12 +135,14 @@ async function getObjectFieldSettingsByBusinessType(
 	objectRelationshipId: number,
 	setListTypeDefinitions: (value: ListTypeDefinition[]) => void,
 	setOneToManyObjectRelationship: (value: TObjectRelationship) => void,
+	setReloadPicklistSingleSelect: (value: boolean) => void,
 	setSelectedOutputValue: (value: string) => void,
 	values: Partial<ObjectField>
 ) {
 	const {businessType, objectFieldSettings} = values;
 
 	if (businessType === 'Picklist' || businessType === 'MultiselectPicklist') {
+		setReloadPicklistSingleSelect(true);
 		updateListTypeDefinitions(setListTypeDefinitions);
 	}
 
@@ -170,6 +174,7 @@ async function getObjectFieldSettingsByBusinessType(
 export default function ObjectFieldFormBase({
 	baseResourceURL,
 	children,
+	className,
 	creationLanguageId2,
 	disabled,
 	editingObjectField = false,
@@ -199,8 +204,11 @@ export default function ObjectFieldFormBase({
 		oneToManyObjectRelationship,
 		setOneToManyObjectRelationship,
 	] = useState<TObjectRelationship>();
-	const [selectedOutputValue, setSelectedOutputValue] = useState<string>('');
-
+	const [
+		reloadPicklistSingleSelect,
+		setReloadPicklistSingleSelect,
+	] = useState(false);
+	const [selectedOutputValue, setSelectedOutputValue] = useState<string>();
 	const validListTypeDefinitionId =
 		values.listTypeDefinitionId !== undefined &&
 		values.listTypeDefinitionId !== 0;
@@ -243,7 +251,7 @@ export default function ObjectFieldFormBase({
 				? values.indexedLanguageId ?? defaultLanguageId
 				: '';
 
-		setSelectedOutputValue('');
+		setSelectedOutputValue(undefined);
 
 		setValues({
 			DBType: selectedObjectFieldType?.dbType,
@@ -373,6 +381,7 @@ export default function ObjectFieldFormBase({
 				objectRelationshipId as number,
 				setListTypeDefinitions,
 				setOneToManyObjectRelationship,
+				setReloadPicklistSingleSelect,
 				setSelectedOutputValue,
 				values
 			);
@@ -392,6 +401,12 @@ export default function ObjectFieldFormBase({
 		makeFetch();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [objectRelationshipId, values.businessType]);
+
+	useEffect(() => {
+		if (reloadPicklistSingleSelect) {
+			setTimeout(() => setReloadPicklistSingleSelect(false), 200);
+		}
+	}, [reloadPicklistSingleSelect]);
 
 	return (
 		<>
@@ -416,6 +431,7 @@ export default function ObjectFieldFormBase({
 			/>
 
 			<SingleSelect<ObjectFieldType>
+				className={className}
 				disabled={disabled}
 				error={errors.businessType}
 				items={
@@ -556,7 +572,12 @@ export default function ObjectFieldFormBase({
 							: 'lfr-objects__object-field-form-base-picklist-add-field'
 					)}
 				>
-					<div className="lfr-objects__object-field-form-base-picklist-container">
+					{reloadPicklistSingleSelect ? (
+						<ClayLoadingIndicator
+							displayType="secondary"
+							size="sm"
+						/>
+					) : (
 						<SingleSelect
 							className="lfr-objects__object-field-form-base-picklist-select-field"
 							disabled={disabled}
@@ -600,21 +621,19 @@ export default function ObjectFieldFormBase({
 								selectedListTypeDefinitionExternalReferenceCode
 							}
 						/>
+					)}
 
-						<ClayButtonWithIcon
-							aria-label={Liferay.Language.get('refresh-list')}
-							className="lfr-objects__object-field-form-base-picklist-reload-button"
-							data-tooltip-align="top"
-							displayType="secondary"
-							onClick={() =>
-								updateListTypeDefinitions(
-									setListTypeDefinitions
-								)
-							}
-							symbol="reload"
-							title={Liferay.Language.get('refresh-list')}
-						/>
-					</div>
+					<ClayButtonWithIcon
+						aria-label={Liferay.Language.get('refresh-list')}
+						className="lfr-objects__object-field-form-base-picklist-reload-button"
+						data-tooltip-align="top"
+						displayType="secondary"
+						onClick={() =>
+							updateListTypeDefinitions(setListTypeDefinitions)
+						}
+						symbol="reload"
+						title={Liferay.Language.get('refresh-list')}
+					/>
 
 					<ClayButton
 						aria-labelledby={Liferay.Language.get(

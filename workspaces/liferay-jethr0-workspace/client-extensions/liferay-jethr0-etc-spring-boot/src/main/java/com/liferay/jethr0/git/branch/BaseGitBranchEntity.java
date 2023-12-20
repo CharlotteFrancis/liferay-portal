@@ -62,6 +62,16 @@ public class BaseGitBranchEntity extends BaseEntity implements GitBranchEntity {
 	}
 
 	@Override
+	public String getFileContent(String filePath) {
+		return _gitHubClient.requestGet(
+			StringUtil.toURL(
+				StringUtil.combine(
+					"https://raw.githubusercontent.com/", getBranchUserName(),
+					"/", getRepositoryName(), "/", getBranchName(), "/",
+					filePath)));
+	}
+
+	@Override
 	public Set<JobEntity> getJobEntities() {
 		return _jobEntities;
 	}
@@ -76,7 +86,15 @@ public class BaseGitBranchEntity extends BaseEntity implements GitBranchEntity {
 			"branchURL", getBranchURL()
 		).put(
 			"rebased", getRebased()
-		).put(
+		);
+
+		Type type = getType();
+
+		if (type != null) {
+			jsonObject.put("type", type.getJSONObject());
+		}
+
+		jsonObject.put(
 			"upstreamBranchSHA", getUpstreamBranchSHA()
 		).put(
 			"upstreamBranchURL", getUpstreamBranchURL()
@@ -94,7 +112,7 @@ public class BaseGitBranchEntity extends BaseEntity implements GitBranchEntity {
 
 			if (properties == null) {
 				properties = PropertiesUtil.getProperties(
-					_gitHubClient.getFileContent(this, propertiesFilePath));
+					getFileContent(propertiesFilePath));
 
 				_propertiesFiles.put(propertiesFilePath, properties);
 			}

@@ -211,6 +211,7 @@ export function ObjectFolderReducer(state: TState, action: TAction): TState {
 								...objectDefinitionNode.data,
 								objectFields: newObjectFields,
 								selected: true,
+								showAllObjectFields: true,
 							},
 						};
 
@@ -568,6 +569,7 @@ export function ObjectFolderReducer(state: TState, action: TAction): TState {
 								objectFields: objectFieldsCustomSort(
 									objectDefinition.objectFields
 								),
+								showAllObjectFields: false,
 							},
 							id: objectDefinition.id.toString(),
 							position: {
@@ -649,6 +651,15 @@ export function ObjectFolderReducer(state: TState, action: TAction): TState {
 				],
 				rightSidebarType: 'empty',
 				selectedObjectField: undefined,
+			};
+		}
+
+		case TYPES.SET_DELETE_OBJECT_DEFINITION: {
+			const {newDeleteObjectDefinition} = action.payload;
+
+			return {
+				...state,
+				deleteObjectDefinition: newDeleteObjectDefinition,
 			};
 		}
 
@@ -770,8 +781,7 @@ export function ObjectFolderReducer(state: TState, action: TAction): TState {
 					);
 
 					if (
-						objectDefinitionNode.id ===
-						selectedObjectDefinitionId.toString()
+						objectDefinitionNode.id === selectedObjectDefinitionId
 					) {
 						selectedObjectDefinitionNode = {
 							...objectDefinitionNode,
@@ -950,6 +960,50 @@ export function ObjectFolderReducer(state: TState, action: TAction): TState {
 			};
 		}
 
+		case TYPES.SET_SHOW_ALL_OBJECT_FIELDS: {
+			const {
+				objectDefinitionExternalReferenceCode,
+				showAllObjectFields,
+			} = action.payload;
+
+			const {elements} = state;
+
+			const objectDefinitionNodes = elements.filter((element) =>
+				isNode(element)
+			) as Node<ObjectDefinitionNodeData>[];
+
+			const objectRelationshipEdges = elements.filter((element) =>
+				isEdge(element)
+			) as Edge<ObjectRelationshipEdgeData>[];
+
+			const newObjectDefinitionNodes = objectDefinitionNodes.map(
+				(objectDefinitionNode) => {
+					if (
+						objectDefinitionNode?.data?.externalReferenceCode ===
+						objectDefinitionExternalReferenceCode
+					) {
+						return {
+							...objectDefinitionNode,
+							data: {
+								...objectDefinitionNode.data,
+								showAllObjectFields: !showAllObjectFields,
+							},
+						};
+					}
+
+					return objectDefinitionNode;
+				}
+			) as Node<ObjectDefinitionNodeData>[];
+
+			return {
+				...state,
+				elements: [
+					...newObjectDefinitionNodes,
+					...objectRelationshipEdges,
+				],
+			};
+		}
+
 		case TYPES.SET_SHOW_CHANGES_SAVED: {
 			const {updatedShowChangesSaved} = action.payload;
 
@@ -1105,6 +1159,15 @@ export function ObjectFolderReducer(state: TState, action: TAction): TState {
 					...newObjectDefinitionNodes,
 					...objectRelationshipEdges,
 				],
+			};
+		}
+
+		case TYPES.UPDATE_VISIBILITY_MODEL_BUILDER_MODALS: {
+			const {modelBuilderModals} = action.payload;
+
+			return {
+				...state,
+				modelBuilderModals,
 			};
 		}
 

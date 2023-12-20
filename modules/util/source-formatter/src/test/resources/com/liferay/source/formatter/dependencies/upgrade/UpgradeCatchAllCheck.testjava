@@ -10,7 +10,7 @@ import org.osgi.service.component.annotations.Reference;
 /**
  * @author Nícolas Moura
  */
-public class UpgradeCatchAllCheck {
+public class UpgradeCatchAllCheck implements ConfigurationBeanDeclaration {
 
 	public void method() {
 		AccountPortletKeys.COMMERCE_ACCOUNT_ADMIN;
@@ -49,6 +49,8 @@ public class UpgradeCatchAllCheck {
 
 		PortletDisplayTemplateManager.DISPLAY_STYLE_PREFIX;
 		PortletDisplayTemplateManager.ENTRIES;
+
+		ServiceTrackerList<Class<T>, Class<E>> serviceTrackerList = ServiceTrackerListFactory.open(null, null);
 	}
 
 	public void method(
@@ -397,11 +399,11 @@ public class UpgradeCatchAllCheck {
 		int[] statuses, int start, int end,
 		OrderByComparator<CalendarBooking> orderByComparator) {
 
-			CalendarBookingLocalServiceUtil.search(companyId, groupIds, calendarIds, calendarResourceIds, parentCalendarBookingId, keywords, startTime, endTime, recurring, statuses, start, end, orderByComparator);
-			CalendarBookingServiceUtil.search(123, groupIds, calendarIds, calendarResourceIds, parentCalendarBookingId, keywords, startTime, endTime, recurring, statuses, start, end, orderByComparator);
-			CalendarBookingServiceUtil.search(companyId, groupIds, calendarIds, calendarResourceIds, parentCalendarBookingId, keywords, startTime, endTime, recurring, statuses, start, end, orderByComparator);
-			_calendarBookingLocalService.search(companyId, groupIds, calendarIds, calendarResourceIds, parentCalendarBookingId, keywords, startTime, endTime, recurring, statuses, start, end, orderByComparator);
-			_calendarBookingService.search(companyId, groupIds, calendarIds, calendarResourceIds, parentCalendarBookingId, keywords, startTime, endTime, recurring, statuses, start, end, orderByComparator);
+		CalendarBookingLocalServiceUtil.search(companyId, groupIds, calendarIds, calendarResourceIds, parentCalendarBookingId, keywords, startTime, endTime, recurring, statuses, start, end, orderByComparator);
+		CalendarBookingServiceUtil.search(123, groupIds, calendarIds, calendarResourceIds, parentCalendarBookingId, keywords, startTime, endTime, recurring, statuses, start, end, orderByComparator);
+		CalendarBookingServiceUtil.search(companyId, groupIds, calendarIds, calendarResourceIds, parentCalendarBookingId, keywords, startTime, endTime, recurring, statuses, start, end, orderByComparator);
+		_calendarBookingLocalService.search(companyId, groupIds, calendarIds, calendarResourceIds, parentCalendarBookingId, keywords, startTime, endTime, recurring, statuses, start, end, orderByComparator);
+		_calendarBookingService.search(companyId, groupIds, calendarIds, calendarResourceIds, parentCalendarBookingId, keywords, startTime, endTime, recurring, statuses, start, end, orderByComparator);
 	}
 
 	public void method(long companyId, String externalReferenceCode) {
@@ -625,6 +627,8 @@ public class UpgradeCatchAllCheck {
 
 	@Reference
 	private LayoutService _layoutService;
+
+	private ServiceTrackerList<Class<T>, Class<E>> _serviceTrackerList;
 
 	@Reference
 	private UserLocalService _userLocalService;

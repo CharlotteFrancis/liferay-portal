@@ -80,7 +80,8 @@ const Licenses = () => {
 						pageSize: pageSize.toString(),
 					})
 				);
-			} catch (error) {
+			}
+			catch (error) {
 				return {
 					items: [],
 					totalCount: 0,
@@ -325,7 +326,7 @@ const Licenses = () => {
 							<LicenseDetailsModalHeader
 								modalData={modalData}
 								myUserAccount={myUserAccount}
-								product={product as Product}
+								product={product as DeliveryProduct}
 							/>
 						}
 						modalData={modalData as LicenseKey}

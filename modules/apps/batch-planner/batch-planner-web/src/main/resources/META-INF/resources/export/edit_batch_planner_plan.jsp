@@ -25,6 +25,10 @@ renderResponse.setTitle(editable ? LanguageUtil.get(request, "edit-template") : 
 		<input id="<portlet:namespace />batchPlannerPlanId" name="<portlet:namespace />batchPlannerPlanId" type="hidden" value="<%= batchPlannerPlanId %>" />
 		<input id="<portlet:namespace />export" name="<portlet:namespace />export" type="hidden" value="<%= true %>" />
 
+		<c:if test='<%= FeatureFlagManagerUtil.isEnabled("LPS-173135") %>'>
+			<input id="<portlet:namespace />containsHeaders" name="<portlet:namespace />containsHeaders" type="hidden" value="<%= true %>" />
+		</c:if>
+
 		<div class="card">
 			<h4 class="card-header"><liferay-ui:message key="export-settings" /></h4>
 
@@ -33,27 +37,28 @@ renderResponse.setTitle(editable ? LanguageUtil.get(request, "edit-template") : 
 					<div id="<portlet:namespace />templateSelect"></div>
 
 					<clay:row>
-						<clay:col
-							md="6"
-						>
-							<clay:select
-								id='<%= liferayPortletResponse.getNamespace() + "internalClassNameKey" %>'
-								label="entity-type"
-								name="internalClassNameKey"
-								options="<%= editBatchPlannerPlanDisplayContext.getInternalClassNameKeySelectOptions() %>"
-							/>
-						</clay:col>
-
-						<clay:col
-							md="6"
-						>
-							<clay:select
-								id='<%= liferayPortletResponse.getNamespace() + "externalType" %>'
-								label="export-file-format"
-								name="externalType"
-								options="<%= editBatchPlannerPlanDisplayContext.getExternalTypeSelectOptions() %>"
-							/>
-						</clay:col>
+						<react:component
+							module="js/components/ExportSettings"
+							props='<%=
+								HashMapBuilder.<String, Object>put(
+									"externalTypeId", liferayPortletResponse.getNamespace() + "externalType"
+								).put(
+									"externalTypeInitialOptions", editBatchPlannerPlanDisplayContext.getExternalTypeSelectOptions()
+								).put(
+									"externalTypeLabel", LanguageUtil.get(request, "export-file-format")
+								).put(
+									"externalTypeName", liferayPortletResponse.getNamespace() + "externalType"
+								).put(
+									"internalClassNameKeyId", liferayPortletResponse.getNamespace() + "internalClassNameKey"
+								).put(
+									"internalClassNameKeyInitialOptions", editBatchPlannerPlanDisplayContext.getInternalClassNameKeySelectOptions()
+								).put(
+									"internalClassNameKeyLabel", LanguageUtil.get(request, "entity-type")
+								).put(
+									"internalClassNameKeyName", liferayPortletResponse.getNamespace() + "internalClassNameKey"
+								).build()
+							%>'
+						/>
 					</clay:row>
 
 					<clay:row>
@@ -65,18 +70,6 @@ renderResponse.setTitle(editable ? LanguageUtil.get(request, "edit-template") : 
 							/>
 						</clay:col>
 					</clay:row>
-
-					<c:if test='<%= FeatureFlagManagerUtil.isEnabled("LPS-173135") %>'>
-						<div class="contains-headers-wrapper d-none">
-							<clay:checkbox
-								checked="<%= true %>"
-								disabled="<%= true %>"
-								id='<%= liferayPortletResponse.getNamespace() + "containsHeaders" %>'
-								label="include-headers"
-								name='<%= liferayPortletResponse.getNamespace() + "containsHeaders" %>'
-							/>
-						</div>
-					</c:if>
 				</liferay-frontend:edit-form-body>
 			</div>
 		</div>

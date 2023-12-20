@@ -38,6 +38,12 @@ class HeadlessCommerceAdminCatalog {
 		);
 	}
 
+	async getCatalogs(searchParams = new URLSearchParams()) {
+		return fetcher<APIResponse<Catalog>>(
+			`/o/headless-commerce-admin-catalog/v1.0/catalogs?${searchParams.toString()}`
+		);
+	}
+
 	async getProductSpecifications(productId: string | number) {
 		const response = await fetcher(
 			`/o/headless-commerce-admin-catalog/v1.0/products/${productId}/productSpecifications`
@@ -61,6 +67,12 @@ class HeadlessCommerceAdminCatalog {
 		);
 	}
 
+	async getProductSkus(productId: string | number) {
+		return fetcher<APIResponse<SKU>>(
+			`/o/headless-commerce-admin-catalog/v1.0/products/${productId}/skus`
+		);
+	}
+
 	async updateProductByExternalReferenceCode(
 		externalReferenceCode: string,
 		{
@@ -80,8 +92,6 @@ class HeadlessCommerceAdminCatalog {
 		);
 	}
 }
-
-export {HeadlessCommerceAdminCatalog};
 
 const HeadlessCommerceAdminCatalogImpl = new HeadlessCommerceAdminCatalog();
 

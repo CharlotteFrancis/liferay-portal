@@ -58,32 +58,7 @@ export default function ({
 		`#${namespace}externalType`
 	);
 
-	if (isExport) {
-		if (Liferay.FeatureFlags['LPS-173135']) {
-			const containsHeadersInput = document.querySelector(
-				`#${namespace}containsHeaders`
-			);
-			const containsHeadersCheckboxWrapper = document
-				.getElementById(`${namespace}containsHeaders`)
-				.closest('.contains-headers-wrapper');
-
-			externalTypeInput.addEventListener('change', ({target}) => {
-				if (target.value === 'CSV') {
-					containsHeadersInput.disabled = false;
-
-					containsHeadersCheckboxWrapper.classList.remove('d-none');
-				}
-				else {
-					containsHeadersInput.disabled = true;
-
-					containsHeadersCheckboxWrapper.classList.add('d-none');
-				}
-			});
-
-			externalTypeInput.dispatchEvent(new Event('change'));
-		}
-	}
-	else {
+	if (!isExport) {
 		handleOverrideExistingRecordsCheckbox(namespace);
 	}
 
@@ -138,7 +113,6 @@ export default function ({
 			);
 
 			const data = await response.json();
-
 			Liferay.fire(SCHEMA_SELECTED_EVENT, {
 				isExport,
 				schema: data.items,
