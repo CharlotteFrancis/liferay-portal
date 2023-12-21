@@ -14,8 +14,19 @@ export {
 	default as ColorPicker,
 	DEFAULT_TOKEN_LABEL,
 } from './components/color_picker/ColorPicker';
+export {default as ScreenReaderAnnouncer} from './components/screen_reader_announcer/ScreenReaderAnnouncer';
+export {
+	ScreenReaderAnnouncerContext,
+	ScreenReaderAnnouncerContextProvider,
+	ScreenReaderAnnouncerContextType,
+} from './contexts/ScreenReaderContext';
 export {default as SearchForm} from './components/search_form/SearchForm';
 export {default as SearchResultsMessage} from './components/search_results_message/SearchResultsMessage';
+export {
+	default as TranslationSelector,
+	Language,
+	Translations,
+} from './components/translation_selector/TranslationSelector';
 export {
 	StyleErrorsContextProvider,
 	useHasStyleErrors,

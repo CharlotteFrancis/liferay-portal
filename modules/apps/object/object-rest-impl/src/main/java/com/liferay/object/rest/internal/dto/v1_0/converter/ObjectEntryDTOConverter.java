@@ -9,6 +9,7 @@ import com.liferay.asset.kernel.model.AssetTag;
 import com.liferay.asset.kernel.service.AssetCategoryLocalService;
 import com.liferay.asset.kernel.service.AssetTagLocalService;
 import com.liferay.document.library.kernel.model.DLFileEntry;
+import com.liferay.document.library.kernel.model.DLFolder;
 import com.liferay.document.library.kernel.service.DLAppService;
 import com.liferay.document.library.kernel.service.DLFileEntryLocalService;
 import com.liferay.document.library.util.DLURLHelper;
@@ -29,6 +30,7 @@ import com.liferay.object.related.models.ObjectRelatedModelsProviderRegistry;
 import com.liferay.object.rest.dto.v1_0.AuditEvent;
 import com.liferay.object.rest.dto.v1_0.AuditFieldChange;
 import com.liferay.object.rest.dto.v1_0.FileEntry;
+import com.liferay.object.rest.dto.v1_0.Folder;
 import com.liferay.object.rest.dto.v1_0.ListEntry;
 import com.liferay.object.rest.dto.v1_0.ObjectEntry;
 import com.liferay.object.rest.dto.v1_0.Status;
@@ -58,6 +60,7 @@ import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.BaseModel;
 import com.liferay.portal.kernel.model.Group;
+import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.util.Base64;
@@ -111,6 +114,62 @@ public class ObjectEntryDTOConverter
 	@Override
 	public String getContentType() {
 		return ObjectEntry.class.getSimpleName();
+	}
+
+	@Override
+	public ObjectEntry toDTO(DTOConverterContext dtoConverterContext)
+		throws Exception {
+
+		ObjectDefinition objectDefinition =
+			(ObjectDefinition)dtoConverterContext.getAttribute(
+				"objectDefinition");
+
+		ObjectEntry objectEntry = ObjectEntry.unsafeToDTO(
+			(String)dtoConverterContext.getAttribute("payload"));
+
+		User user = dtoConverterContext.getUser();
+
+		objectEntry.setActions(dtoConverterContext.getActions());
+
+		if (objectEntry.getStatus() == null) {
+			objectEntry.setStatus(
+				new Status() {
+					{
+						code = WorkflowConstants.STATUS_APPROVED;
+						label = WorkflowConstants.LABEL_APPROVED;
+						label_i18n = _language.get(
+							user.getLocale(), WorkflowConstants.LABEL_APPROVED);
+					}
+				});
+		}
+
+		List<ObjectField> objectFields =
+			_objectFieldLocalService.getObjectFields(
+				objectDefinition.getObjectDefinitionId());
+
+		for (ObjectField objectField : objectFields) {
+			if (!Objects.equals(
+					objectField.getBusinessType(),
+					ObjectFieldConstants.BUSINESS_TYPE_PICKLIST)) {
+
+				continue;
+			}
+
+			Map<String, Object> properties = objectEntry.getProperties();
+
+			Map<String, String> map = (Map<String, String>)properties.get(
+				objectField.getName());
+
+			properties.put(
+				objectField.getName(),
+				_getListEntry(
+					dtoConverterContext, map.get("key"),
+					objectField.getListTypeDefinitionId()));
+
+			objectEntry.setProperties(properties);
+		}
+
+		return objectEntry;
 	}
 
 	@Override
@@ -603,7 +662,8 @@ public class ObjectEntryDTOConverter
 		if (entityExtensionHandler != null) {
 			nestedFieldsRelatedProperties =
 				entityExtensionHandler.getExtendedProperties(
-					objectDefinition.getCompanyId(), dto);
+					objectDefinition.getCompanyId(),
+					dtoConverterContext.getUserId(), dto);
 		}
 
 		return ExtendedEntity.extend(dto, nestedFieldsRelatedProperties, null);
@@ -661,6 +721,41 @@ public class ObjectEntryDTOConverter
 								fieldName -> Base64.encode(
 									_file.getBytes(
 										dlFileEntry.getContentStream()))));
+						fileEntry.setFolder(
+							(Folder)NestedFieldsSupplier.supply(
+								objectFieldName + ".folder",
+								fieldName -> {
+									if (!Objects.equals(
+											ObjectFieldSettingConstants.
+												VALUE_DOCS_AND_MEDIA,
+											ObjectFieldSettingUtil.getValue(
+												ObjectFieldSettingConstants.
+													NAME_FILE_SOURCE,
+												objectField))) {
+
+										return null;
+									}
+
+									Folder folder = new Folder();
+
+									folder.setExternalReferenceCode(
+										() -> {
+											if (dlFileEntry.getFolderId() ==
+													0) {
+
+												return null;
+											}
+
+											DLFolder dlFolder =
+												dlFileEntry.getFolder();
+
+											return dlFolder.
+												getExternalReferenceCode();
+										});
+									folder.setSiteId(dlFileEntry.getGroupId());
+
+									return folder;
+								}));
 					}
 
 					fileEntry.setId(dlFileEntry.getFileEntryId());

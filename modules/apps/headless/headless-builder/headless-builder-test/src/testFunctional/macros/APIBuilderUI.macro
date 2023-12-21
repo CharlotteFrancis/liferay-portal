@@ -181,15 +181,30 @@ definition {
 	}
 
 	@summary = "Default summary"
-	macro createAPIEndpoint(path = null, name = null, applicationId = null, scope = null) {
+	macro createAPIEndpoint(path = null, method = null, scope = null, name = null, retrieveType = null, applicationId = null) {
 		Variables.assertDefined(parameterList = ${path});
 
-		Click(locator1 = "Button#PLUS");
+		if (isSet(addByPlus)) {
+			Click(locator1 = "Button#PLUS");
+		}
+		else {
+			Click(locator1 = "APIBuilder#ADD_API_ENDPOINT");
+		}
 
 		if (isSet(name)) {
 			Type(
 				locator1 = "TextInput#NAME",
 				value1 = ${name});
+		}
+
+		if (isSet(method)) {
+			Click(
+				key_value = "Select Method",
+				locator1 = "APIBuilder#DROPDOWN_TOGGLE");
+
+			Click(
+				key_optionName = ${method},
+				locator1 = "ObjectAdmin#LAYOUT_ADD_FIELD_OPTION");
 		}
 
 		if (isSet(retrieveType)) {
@@ -210,6 +225,13 @@ definition {
 			Click(
 				key_optionName = ${scope},
 				locator1 = "ObjectAdmin#LAYOUT_ADD_FIELD_OPTION");
+		}
+
+		if (isSet(description)) {
+			Type(
+				key_value = "endpoint",
+				locator1 = "APIBuilder#DESCRIPTION",
+				value1 = ${description});
 		}
 
 		Type(
@@ -476,6 +498,30 @@ definition {
 		Click(
 			locator1 = "Button#BUTTON_WITH_VALUE",
 			value = ${entity});
+	}
+
+	@summary = "Default summary"
+	macro updateSchemaNameAndDescription(tabEntity = null, name = null, schemaDescription = null, title = null, schemaName = null, entity = null) {
+		Variables.assertDefined(parameterList = "${name},${entity},${title},${tabEntity},${schemaName},${schemaDescription},");
+
+		APIBuilderUI.goToEditRelatedEntryInEditApplication(
+			entity = ${entity},
+			name = ${name},
+			tabEntity = ${tabEntity},
+			title = ${title});
+
+		Type(
+			locator1 = "TextInput#NAME",
+			value1 = ${schemaName});
+
+		Type(
+			key_fieldId = "Description",
+			locator1 = "TextArea#ANY_ID",
+			value1 = ${schemaDescription});
+
+		if (isSet(publish)) {
+			Click(locator1 = "APIBuilder#PUBLISH_BUTTON");
+		}
 	}
 
 	@summary = "Default summary"

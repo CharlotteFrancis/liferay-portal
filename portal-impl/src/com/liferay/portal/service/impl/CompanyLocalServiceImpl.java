@@ -319,6 +319,84 @@ public class CompanyLocalServiceImpl extends CompanyLocalServiceBaseImpl {
 		}
 	}
 
+	public Company addDBPartitionCompany(
+			long companyId, String name, String virtualHostName, String webId)
+		throws PortalException {
+
+		if (!DBPartition.isPartitionEnabled()) {
+			throw new UnsupportedOperationException(
+				"Database partition must be enabled");
+		}
+
+		if (companyId == PortalInstances.getDefaultCompanyId()) {
+			throw new IllegalArgumentException(
+				"Company ID " + companyId + " is the default company ID");
+		}
+
+		DBPartitionUtil.insertDBPartition(companyId);
+
+		try (SafeCloseable safeCloseable =
+				CompanyThreadLocal.setWithSafeCloseable(companyId)) {
+
+			companyPersistence.clearCache();
+			_virtualHostPersistence.clearCache();
+
+			Company company = companyPersistence.findByPrimaryKey(companyId);
+
+			if (Validator.isNotNull(name) &&
+				!StringUtil.equals(company.getName(), name)) {
+
+				validateName(companyId, name);
+
+				company.setName(name);
+
+				company = companyPersistence.update(company);
+			}
+
+			if (Validator.isNotNull(virtualHostName) &&
+				!StringUtil.equals(
+					company.getVirtualHostname(), virtualHostName)) {
+
+				validateVirtualHost(company.getWebId(), virtualHostName);
+
+				company = updateVirtualHostname(companyId, virtualHostName);
+			}
+
+			if (Validator.isNotNull(webId) &&
+				!StringUtil.equals(company.getWebId(), webId)) {
+
+				validateWebId(webId);
+
+				company.setWebId(webId);
+
+				company = companyPersistence.update(company);
+			}
+
+			preregisterCompany(company);
+
+			_resourceActionLocalService.checkResourceActions();
+
+			TransactionCommitCallbackUtil.registerCallback(
+				() -> {
+					Company dbPartitionCompany =
+						companyPersistence.findByPrimaryKey(companyId);
+
+					registerCompany(dbPartitionCompany);
+
+					PortalInstances.initCompany(dbPartitionCompany, true);
+
+					return null;
+				});
+
+			return company;
+		}
+		catch (PortalException portalException) {
+			extractDBPartitionCompany(companyId);
+
+			throw portalException;
+		}
+	}
+
 	/**
 	 * Returns the company with the web domain.
 	 *
@@ -404,7 +482,9 @@ public class CompanyLocalServiceImpl extends CompanyLocalServiceBaseImpl {
 		return company;
 	}
 
-	public Company extractCompany(long companyId) throws PortalException {
+	public Company extractDBPartitionCompany(long companyId)
+		throws PortalException {
+
 		if (!DBPartition.isPartitionEnabled()) {
 			throw new UnsupportedOperationException(
 				"Database partition must be enabled");

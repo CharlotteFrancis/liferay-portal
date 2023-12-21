@@ -4138,6 +4138,10 @@ public class JenkinsResultsParserUtil {
 
 		synchronized (_redactTokens) {
 			for (String redactToken : _redactTokens) {
+				if (_forbiddenRedactTokens.contains(redactToken)) {
+					continue;
+				}
+
 				string = string.replace(redactToken, "[REDACTED]");
 			}
 		}
@@ -6486,28 +6490,21 @@ public class JenkinsResultsParserUtil {
 
 			String redactToken = getProperty(properties, key);
 
-			if (redactToken != null) {
-				if ((redactToken.length() < 5) && redactToken.matches("\\d+")) {
-					System.out.println(
-						combine(
-							"Ignoring ", key,
-							" because the value is numeric and ",
-							"less than 5 characters long."));
-				}
-				else {
-					if (!redactToken.isEmpty()) {
-						_redactTokens.add(redactToken);
+			if (isNullOrEmpty(redactToken) ||
+				_forbiddenRedactTokens.contains(redactToken) ||
+				redactToken.matches("^\\s*\\d{5}\\s*$")) {
 
-						if (redactToken.contains("\\")) {
-							_redactTokens.add(
-								redactToken.replace("\\", "\\\\"));
-						}
-					}
+				continue;
+			}
+
+			if (!redactToken.isEmpty()) {
+				_redactTokens.add(redactToken);
+
+				if (redactToken.contains("\\")) {
+					_redactTokens.add(redactToken.replace("\\", "\\\\"));
 				}
 			}
 		}
-
-		_redactTokens.remove("test");
 	}
 
 	private static boolean _isJSONExpectedAndActualEqual(
@@ -6595,7 +6592,7 @@ public class JenkinsResultsParserUtil {
 	private static final Pattern _dockerFilePattern = Pattern.compile(
 		".*FROM (?<dockerImageName>[^\\s]+)( AS builder)?\\n[\\s\\S]*");
 	private static final List<String> _forbiddenRedactTokens = Arrays.asList(
-		"test");
+		"liferay", "test");
 	private static JSONArray _gitDirectoriesJSONArray;
 	private static final Pattern _gitHubAPIURLPattern = Pattern.compile(
 		"https\\:\\/\\/api\\.github\\.com(.*)");

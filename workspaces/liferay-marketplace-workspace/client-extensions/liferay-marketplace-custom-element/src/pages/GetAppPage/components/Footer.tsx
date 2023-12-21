@@ -16,13 +16,14 @@ interface ProductFooterProps {
 	addresses: BillingAddress[];
 	cartId?: number;
 	cartUtil: ReturnType<typeof useCart>;
+	disabled: boolean;
 	enablePurchaseButton: boolean;
 	handleGetApp: (orderId?: number) => void;
 	isFreeApp: boolean;
 	licenseSelected: boolean;
 	selectedAccount?: Account;
 	selectedPaymentMethod: PaymentMethodSelector;
-	selectedSKU?: SKU;
+	selectedSKU?: DeliverySKU;
 	setStep: (nextStep: StepType) => void;
 	step: StepType;
 	stepsNavigation: StepsNavigation;
@@ -42,6 +43,7 @@ const onCancel = () => {
 const ProductFooter = ({
 	addresses,
 	cartUtil,
+	disabled,
 	enablePurchaseButton,
 	handleGetApp,
 	isFreeApp,
@@ -80,6 +82,13 @@ const ProductFooter = ({
 		const isAccountStep = step === StepType.ACCOUNT;
 		const isLicenseStep = step === StepType.LICENSES;
 
+		if (
+			selectedPaymentMethod === PaymentMethod.TRIAL &&
+			cartUtil?.cart?.id
+		) {
+			await cartUtil.removeCart(cartUtil?.cart?.id);
+		}
+
 		if ((!isFreeApp && isAccountStep && selectedAccount) || isLicenseStep) {
 			return setStep(nextStep);
 		}
@@ -90,7 +99,7 @@ const ProductFooter = ({
 			(isFreeApp && selectedAccount) ||
 			(enablePurchaseButton && addresses && isPaymentStep)
 		) {
-			handleGetApp(cartUtil.cart?.id);
+			await handleGetApp(cartUtil.cart?.id);
 		}
 	};
 
@@ -124,6 +133,7 @@ const ProductFooter = ({
 						<ClayButton
 							className="ml-5"
 							disabled={
+								disabled ||
 								(step === StepType.ACCOUNT &&
 									!selectedAccount) ||
 								(step === StepType.LICENSES && !licenseSelected)

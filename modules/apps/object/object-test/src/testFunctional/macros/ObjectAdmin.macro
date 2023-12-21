@@ -178,6 +178,7 @@ definition {
 	@summary = "Default summary"
 	macro addObjectEntryViaAPI(userPassword = null, valueList = null, objectName = null, userEmailAddress = null, fieldNameList = null) {
 		var objectEntryId = JSONObject.addObjectEntry(
+			entryLanguageList = ${entryLanguageList},
 			fieldNameList = ${fieldNameList},
 			objectName = ${objectName},
 			userEmailAddress = ${userEmailAddress},
@@ -201,20 +202,23 @@ definition {
 			indexed = ${indexed},
 			indexedAsKeyword = ${indexedAsKeyword},
 			indexedLanguageId = ${indexedLanguageId},
+			initialValue = ${initialValue},
 			isReadOnly = ${isReadOnly},
 			isRequired = ${isRequired},
 			objectName = ${objectName},
 			outputOption = ${outputOption},
 			picklistName = ${picklistName},
+			prefix = ${prefix},
 			readOnlyExpression = ${readOnlyExpression},
 			showFilesInDocumentsAndMedia = ${showFilesInDocumentsAndMedia},
+			suffix = ${suffix},
 			timeStorageOption = ${timeStorageOption},
 			userEmailAddress = ${userEmailAddress},
 			userPassword = ${userPassword});
 	}
 
 	@summary = "Default summary"
-	macro addObjectFieldViaUI(fieldTimeStorage = null, fieldName = null, acceptUniqueValuesOnly = null, formulaFieldOption = null, fieldPicklist = null, itemName = null, field = null, fieldLabel = null, sorting = null, markAsState = null, fieldAttachment = null, functionType = null, relationship = null, fieldType = null, isMandatory = null) {
+	macro addObjectFieldViaUI(prefixValue = null, initialValue = null, suffixValue = null, fieldTimeStorage = null, fieldName = null, acceptUniqueValuesOnly = null, formulaFieldOption = null, fieldPicklist = null, itemName = null, field = null, fieldLabel = null, sorting = null, markAsState = null, fieldAttachment = null, functionType = null, relationship = null, fieldType = null, isMandatory = null) {
 		LexiconEntry.gotoAdd();
 
 		Type(
@@ -264,6 +268,29 @@ definition {
 					ObjectAdmin.selectDropdownItem(
 						labelName = "Field",
 						optionName = ${field});
+				}
+			}
+
+			if (${fieldType} == "Auto Increment") {
+				if (isSet(prefixValue)) {
+					Type(
+						key_labelName = "Prefix",
+						locator1 = "ObjectField#INPUT_GENERIC_LABEL",
+						value1 = ${prefixValue});
+				}
+
+				if (isSet(initialValue)) {
+					Type(
+						key_labelName = "Initial Value",
+						locator1 = "ObjectField#INPUT_GENERIC_LABEL",
+						value1 = ${initialValue});
+				}
+
+				if (isSet(suffixValue)) {
+					Type(
+						key_labelName = "Suffix",
+						locator1 = "ObjectField#INPUT_GENERIC_LABEL",
+						value1 = ${suffixValue});
 				}
 			}
 		}
@@ -405,7 +432,9 @@ definition {
 		}
 
 		if (isSet(parameterOption)) {
-			ObjectRelationships.editRelationshipsParameter(parameterOption = ${parameterOption});
+			ObjectAdmin.selectDropdownItem(
+				labelName = "Parameter",
+				optionName = ${parameterOption});
 		}
 
 		if (${invalidEntry} == "true") {
@@ -419,11 +448,14 @@ definition {
 	@summary = "Default summary"
 	macro addObjectSingleFieldEntryViaAPI(userPassword = null, fieldName = null, objectName = null, userEmailAddress = null, value = null) {
 		var objectEntryId = JSONObject.addObjectSingleFieldEntry(
+			ercName = ${ercName},
 			fieldName = ${fieldName},
+			fieldType = ${fieldType},
 			objectName = ${objectName},
 			userEmailAddress = ${userEmailAddress},
 			userPassword = ${userPassword},
-			value = ${value});
+			value = ${value},
+			valueList = ${valueList});
 
 		return ${objectEntryId};
 
@@ -446,6 +478,20 @@ definition {
 			Click(
 				key_picklistOption = ${entryOption},
 				locator1 = "ObjectAdmin#ENTRY_PICKLIST_OPTION");
+		}
+
+		if (isSet(fieldEntryLanguage)) {
+			Click(
+				key_buttonFieldEntryLanguage = ${buttonFieldEntryLanguage},
+				locator1 = "ObjectField#BUTTON_FIELD_ENTRY_LANGUAGE");
+
+			Click(
+				key_locale = ${locale},
+				locator1 = "Translation#DROPDOWN_MENU_ITEM");
+
+			Type(
+				locator1 = "ObjectAdmin#ENTRY_STRING_VALUE_FIELD",
+				value1 = ${entryValueTranslated});
 		}
 
 		if (${invalidEntry} == "true") {
@@ -1246,7 +1292,7 @@ definition {
 
 			if (${thenAction} == "Notification") {
 				Click(
-					key_currentOption = "Select an option",
+					key_currentOption = "Select an Option",
 					locator1 = "ObjectAdmin#CLAY_GENERIC_SELECT_OPTION");
 
 				Click(
@@ -1416,10 +1462,7 @@ definition {
 
 	@summary = "Default summary"
 	macro gotoRolesAndSelectCustomObject(roleName = null, key_itemName = null) {
-		ApplicationsMenu.gotoPortlet(
-			category = "Users",
-			panel = "Control Panel",
-			portlet = "Roles");
+		Role.openRolesAdmin();
 
 		Search.searchCP(searchTerm = ${roleName});
 
@@ -1475,21 +1518,6 @@ definition {
 		Click(locator1 = "ObjectAdmin#LAYOUT_INFO_TAB");
 
 		Click.clickAtNotVisible(locator1 = "ObjectAdmin#ENTRY_BOOLEAN_CHECKBOX");
-	}
-
-	@summary = "Default summary"
-	macro moveDefinitionFolder(definitionName = null,folderLabel = null) {
-		Click(
-			key_value = ${definitionName},
-			locator1 = "ObjectAdmin#BODY_VERTICAL_ELLIPSIS");
-
-		DropdownMenuItem.click(menuItem = "Move");
-
-		Click(
-			key_folderLabel = ${folderLabel},
-			locator1 = "ObjectAdmin#SELECT_MOVE_FOLDER");
-
-		Button.click(button = "Move");
 	}
 
 	@summary = "Default summary"
@@ -1578,13 +1606,11 @@ definition {
 			key_entry = ${objectEntryId},
 			locator1 = "ObjectPortlet#ENTRY_VALUE");
 
-		ObjectAutoGenerated.clickSelectFile();
-
 		var filePath = TestCase.getDependenciesDirPath(fileName = ${fileName});
 
-		UploadFile(
-			locator1 = "TextInput#FILE",
-			value1 = ${filePath});
+		UploadDependencyFile.uploadArchiveFile(fileName = ${fileName});
+
+		WaitForSPARefresh();
 
 		PortletEntry.save();
 	}
@@ -1607,7 +1633,7 @@ definition {
 			key_labelName = ${labelName},
 			locator1 = "ObjectAdmin#CLAY_GENERIC_BUTTON");
 
-		Click(
+		Click.javaScriptClick(
 			key_optionName = ${optionName},
 			locator1 = "ObjectAdmin#CLAY_GENERIC_DROPDOWN_ITEM");
 	}

@@ -1715,8 +1715,8 @@ public class VerifyProperties {
 		"com.liferay.portal.servlet.filters.validhtml.ValidHtmlFilter",
 		"com.liferay.portal.upload.UploadServletRequestImpl.max.size",
 		"com.liferay.portal.upload.UploadServletRequestImpl.temp.dir",
-		"commons.pool.enabled", "company.security.send.password",
-		"company.settings.form.configuration",
+		"commons.pool.enabled", "company.security.auth.requires.https",
+		"company.security.send.password", "company.settings.form.configuration",
 		"company.settings.form.identification",
 		"company.settings.form.miscellaneous", "company.settings.form.social",
 		"control.panel.home.portlet.id",
@@ -2020,6 +2020,7 @@ public class VerifyProperties {
 		"sites.form.add.miscellaneous", "sites.form.add.seo",
 		"sites.form.update.advanced", "sites.form.update.main",
 		"sites.form.update.miscellaneous", "sites.form.update.seo",
+		"spring.infrastructure.configs",
 		"sql.data.com.liferay.portal.kernel.model.Country.country.id",
 		"sql.data.com.liferay.portal.kernel.model.ListType.account.address",
 		"sql.data.com.liferay.portal.kernel.model.ListType.account.email." +

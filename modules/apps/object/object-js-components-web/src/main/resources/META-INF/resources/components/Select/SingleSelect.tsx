@@ -45,7 +45,7 @@ export function SingleSelect<T extends SingleSelectOption>({
 	items,
 	label,
 	onSelectionChange,
-	placeholder,
+	placeholder = Liferay.Language.get('select-an-option'),
 	required,
 	selectedKey,
 	tooltip,
@@ -62,7 +62,9 @@ export function SingleSelect<T extends SingleSelectOption>({
 			tooltip={tooltip}
 		>
 			<Picker<T>
+				UNSAFE_menuClassName={className}
 				as={as}
+				className={className}
 				defaultSelectedKey={defaultSelectedKey}
 				disabled={disabled}
 				items={items}

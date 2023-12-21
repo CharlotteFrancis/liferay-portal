@@ -363,10 +363,6 @@ public class PropsValues {
 		GetterUtil.getBoolean(
 			PropsUtil.get(PropsKeys.COMPANY_LOGIN_PREPOPULATE_DOMAIN));
 
-	public static final boolean COMPANY_SECURITY_AUTH_REQUIRES_HTTPS =
-		GetterUtil.getBoolean(
-			PropsUtil.get(PropsKeys.COMPANY_SECURITY_AUTH_REQUIRES_HTTPS));
-
 	public static final String COMPANY_SECURITY_AUTH_TYPE = PropsUtil.get(
 		PropsKeys.COMPANY_SECURITY_AUTH_TYPE);
 
@@ -2213,9 +2209,6 @@ public class PropsValues {
 		GetterUtil.getBoolean(
 			PropsUtil.get(PropsKeys.SPRING_HIBERNATE_SESSION_FACTORY_VERIFY));
 
-	public static final String[] SPRING_INFRASTRUCTURE_CONFIGS =
-		PropsUtil.getArray(PropsKeys.SPRING_INFRASTRUCTURE_CONFIGS);
-
 	public static int STAGING_DRAFT_EXPORT_IMPORT_CONFIGURATION_CHECK_INTERVAL =
 		GetterUtil.getInteger(
 			PropsUtil.get(
@@ -2567,6 +2560,9 @@ public class PropsValues {
 	public static final boolean WORK_DIR_OVERRIDE_ENABLED =
 		GetterUtil.getBoolean(
 			PropsUtil.get(PropsKeys.WORK_DIR_OVERRIDE_ENABLED));
+
+	public static final int XML_RPC_MAX_PARAMETERS = GetterUtil.getInteger(
+		PropsUtil.get(PropsKeys.XML_RPC_MAX_PARAMETERS), 50);
 
 	public static final boolean XML_SECURITY_ENABLED = GetterUtil.getBoolean(
 		PropsUtil.get(PropsKeys.XML_SECURITY_ENABLED));
