@@ -683,9 +683,7 @@ definition {
 
 		PortletEntry.selectAll();
 
-		Click(
-			key_text = "ellipsis",
-			locator1 = "ManagementBar#ANY_ICON");
+		Click(locator1 = "ManagementBar#ELLIPSIS");
 
 		MenuItem.click(menuItem = "Checkout");
 
@@ -1115,7 +1113,9 @@ definition {
 
 		PortletEntry.selectAll();
 
-		Click(locator1 = "Icon#DELETE");
+		Click(
+			key_text = "trash",
+			locator1 = "ManagementBar#ANY_ICON");
 
 		Alert.viewSuccessMessage();
 
@@ -4096,9 +4096,7 @@ definition {
 
 		ManagementBar.setFilterAndOrder(filterBy = "Tags...");
 
-		DMDocument.ViewSelectedTags(tagNameList = "tag1,tag2");
-
-		DMDocument.selectTags(tagName = "tag3");
+		DMDocument.selectTags(tagName = "tag1,tag2,tag3");
 
 		DMDocument.viewDefault();
 	}
@@ -4396,7 +4394,7 @@ definition {
 	@description = "This test covers LPS-144687. It validates that a temp zip is not created if NoSuchFileException occurs during a download."
 	@priority = 4
 	test NoZipFileIsCreatedIfDownloadResultsInError {
-		DMDocument.deleteTempFolder(appServer = "tomcat-9.0.82");
+		DMDocument.deleteTempFolder(appServer = "tomcat-9.0.83");
 
 		for (var num : list "1,2,3") {
 			JSONDocument.addFileWithUploadedFile(
@@ -4416,7 +4414,7 @@ definition {
 		AssertConsoleTextPresent(value1 = "com.liferay.document.library.kernel.exception.NoSuchFileException");
 
 		DMDocument.assertNoZipFileFromTempFolder(
-			appServer = "tomcat-9.0.82",
+			appServer = "tomcat-9.0.83",
 			fileNamePattern = "*.zip");
 	}
 

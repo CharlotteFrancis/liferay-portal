@@ -29,13 +29,11 @@ definition {
 				key_dataSetViewNameList = "View Test");
 		}
 
-		task ("When the user goes to the Action tab") {
+		task ("When the user goes to the Action tab.") {
 			DataSetAdmin.goToSpecificViewPage(
 				dataSetName = "Data Set Test",
 				key_viewName = "View Test");
-		}
 
-		task ("When the user goes to the Action tab.") {
 			DataSetAdmin.goToTab(tabName = "Actions");
 		}
 	}
@@ -108,8 +106,362 @@ definition {
 		}
 	}
 
-	@description = "LPS-191485. Verify if the options GET, POST, PATCH, LPS-199219DELETE are present in the Method dropdown in the Item Action"
+	@description = "LPS-192956 Confirm that When the user selects the Modal option, the following fields are displayed in the modal:Variant,Title,URL,Headless Action Key,Confirmation Message,Message Type"
+	@priority = 3
+	test AllFieldsAreInModalTypeOnItemAction {
+		task ("Given a new data set entry") {
+			DataSetAdmin.goToDataSetAdminPage();
+
+			DataSetAdmin.createDataSetEntryViaAPI(
+				dataSetName = "Country",
+				restApplication = "/headless-admin-address/v1.0",
+				restEndpoint = "/v1.0/countries",
+				restSchema = "Country");
+		}
+
+		task ("And a new view") {
+			DataSetAdmin.createFDSViewViaAPI(
+				dataSetName = "Country",
+				dataSetViewDescription = "FDSViewDescription",
+				key_dataSetViewNameList = "View Test");
+		}
+
+		task ("When the user goes to the view created") {
+			DataSetAdmin.goToSpecificViewPage(
+				dataSetName = "Country",
+				key_viewName = "View Test");
+		}
+
+		task ("When the user goes to the Action tab.") {
+			DataSetAdmin.goToTab(tabName = "Actions");
+		}
+
+		task ("And clicks on Type field and chooses the Modal option") {
+			LexiconEntry.gotoAdd();
+
+			Select(
+				key_fieldLabel = "Type",
+				locator1 = "Select#GENERIC_SELECT_FIELD",
+				value1 = "Modal");
+		}
+
+		task ("Then the Variant field is displayed") {
+			AssertElementPresent(
+				key_fieldLabel = "Variant",
+				locator1 = "Select#GENERIC_SELECT_FIELD");
+		}
+
+		task ("And Title field is displayed") {
+			AssertElementPresent(
+				key_placeholder = "add-here-the-title-of-the-modal",
+				locator1 = "FrontendDataSet#PLACEHOLDER");
+		}
+
+		task ("And the URL field is displayed") {
+			AssertElementPresent(
+				key_fieldId = "URL",
+				locator1 = "TextArea#ANY_ID");
+		}
+
+		task ("And the Headless Action Key field is displayed") {
+			AssertElementPresent(
+				key_placeholder = "Add a value here.",
+				locator1 = "FrontendDataSet#PLACEHOLDER");
+		}
+	}
+
+	@description = "LPS-192956 Confirm that when the user selects the Side Panel option, the following fields are displayed in the modal"
+	@priority = 3
+	test AllFieldsAreInSidePanelOptionOnItemAction {
+		task ("Given a new data set entry") {
+			DataSetAdmin.goToDataSetAdminPage();
+
+			DataSetAdmin.createDataSetEntryViaAPI(
+				dataSetName = "Country",
+				restApplication = "/headless-admin-address/v1.0",
+				restEndpoint = "/v1.0/countries",
+				restSchema = "Country");
+		}
+
+		task ("And a new view") {
+			DataSetAdmin.createFDSViewViaAPI(
+				dataSetName = "Country",
+				dataSetViewDescription = "FDSViewDescription",
+				key_dataSetViewNameList = "View Test");
+		}
+
+		task ("When the user goes to the view created") {
+			DataSetAdmin.goToSpecificViewPage(
+				dataSetName = "Country",
+				key_viewName = "View Test");
+		}
+
+		task ("When the user goes to the Action tab.") {
+			DataSetAdmin.goToTab(tabName = "Actions");
+		}
+
+		task ("And clicks on Type field and chooses the Side Panel option") {
+			LexiconEntry.gotoAdd();
+
+			Select(
+				key_fieldLabel = "Type",
+				locator1 = "Select#GENERIC_SELECT_FIELD",
+				value1 = "Side Panel");
+		}
+
+		task ("Then the Panel Title field is displayed") {
+			AssertElementPresent(
+				key_fieldName = "add-here-the-title-of-the-side-panel",
+				locator1 = "DataSet#PRESELECT_VALUE_INPUT",
+				value1 = "");
+		}
+
+		task ("And the URL field is displayed") {
+			AssertElementPresent(
+				key_fieldId = "URL",
+				locator1 = "TextArea#ANY_ID");
+		}
+
+		task ("And the Headless Action Key field is displayed") {
+			AssertElementPresent(
+				key_placeholder = "Add a value here.",
+				locator1 = "FrontendDataSet#PLACEHOLDER");
+		}
+
+		task ("And the Confirmation Message field is displayed") {
+			AssertElementPresent(
+				key_placeholder = "Add a message here.",
+				locator1 = "FrontendDataSet#PLACEHOLDER");
+		}
+
+		task ("And the Message Type field is displayed") {
+			AssertElementPresent(
+				key_fieldLabel = "Message Type",
+				locator1 = "Select#GENERIC_SELECT_FIELD");
+		}
+	}
+
+	@description = "LPS-192956 Confirm that all the values set in the creation for all the fields are still present when the Edit modal is opened"
 	@priority = 4
+	test AllFieldsArePresentWhenEditASidePanelAction {
+		task ("Given a new data set entry") {
+			DataSetAdmin.goToDataSetAdminPage();
+
+			DataSetAdmin.createDataSetEntryViaAPI(
+				dataSetName = "Country",
+				restApplication = "/headless-admin-address/v1.0",
+				restEndpoint = "/v1.0/countries",
+				restSchema = "Country");
+		}
+
+		task ("And a new view") {
+			DataSetAdmin.createFDSViewViaAPI(
+				dataSetName = "Country",
+				dataSetViewDescription = "FDSViewDescription",
+				key_dataSetViewNameList = "View Test");
+		}
+
+		task ("When the user goes to the view created") {
+			DataSetAdmin.goToSpecificViewPage(
+				dataSetName = "Country",
+				key_viewName = "View Test");
+		}
+
+		task ("When the user goes to the Action tab.") {
+			DataSetAdmin.goToTab(tabName = "Actions");
+		}
+
+		task ("And creates a modal item action and clicks on save button and clicks on Save button") {
+			DataSetAdmin.addActions(
+				actionName = "Edit",
+				confirmationMessage = "This is a confirmation message",
+				icon = "pencil",
+				messageType = "Info",
+				title = "Edit side panel",
+				type = "Modal",
+				url = "https://gist.github.com/deborasoliveira/40716d0b03d33ff7e636ca5d366c79c5#file-link-action-url-example");
+		}
+
+		task ("And clicks on the new side panel item action 3 dot menu button") {
+			Click(
+				key_tableEntry = "Edit",
+				locator1 = "LexiconTable#TABLE_ENTRY_ELLIPSIS");
+		}
+
+		task ("And clicks on Edit option") {
+			MenuItem.click(menuItem = "Edit");
+		}
+
+		task ("Then the values set in the creation are still present") {
+			AssertElementPresent(
+				key_unnamedTitle = "",
+				locator1 = "TextInput#DEPOT_UNNAMED_DEFAULT_TITLE",
+				value1 = "Edit");
+
+			AssertElementPresent(
+				key_fieldLabel = "Type",
+				locator1 = "Select#GENERIC_SELECT_FIELD",
+				value1 = "Side Panel");
+
+			AssertElementPresent(
+				key_fieldId = "URL",
+				locator1 = "TextArea#ANY_ID",
+				value1 = "https://gist.github.com/deborasoliveira/40716d0b03d33ff7e636ca5d366c79c5#file-link-action-url-example");
+
+			AssertElementPresent(
+				key_fieldName = "add-here-the-title-of-the-modal",
+				locator1 = "DataSet#PRESELECT_VALUE_INPUT",
+				value1 = "Edit side panel");
+
+			AssertElementPresent(
+				key_placeholder = "Add a message here.",
+				locator1 = "FrontendDataSet#PLACEHOLDER",
+				value1 = "This is a confirmation message");
+
+			AssertElementPresent(
+				key_fieldLabel = "Message Type",
+				locator1 = "Select#GENERIC_SELECT_FIELD",
+				value1 = "Info");
+		}
+	}
+
+	@description = "LPS-192956 When the user clicks on the Variant field, a dropdown with the options “Full Screen”, “Large” and “Small” is displayed"
+	@priority = 5
+	test AllVariantOptionArePresentInItemAction {
+		property portal.acceptance = "true";
+
+		task ("Given a new data set entry") {
+			DataSetAdmin.goToDataSetAdminPage();
+
+			DataSetAdmin.createDataSetEntryViaAPI(
+				dataSetName = "Country",
+				restApplication = "/headless-admin-address/v1.0",
+				restEndpoint = "/v1.0/countries",
+				restSchema = "Country");
+		}
+
+		task ("And a new view") {
+			DataSetAdmin.createFDSViewViaAPI(
+				dataSetName = "Country",
+				dataSetViewDescription = "FDSViewDescription",
+				key_dataSetViewNameList = "View Test");
+		}
+
+		task ("When the user goes to the view created") {
+			DataSetAdmin.goToSpecificViewPage(
+				dataSetName = "Country",
+				key_viewName = "View Test");
+		}
+
+		task ("When the user goes to the Action tab.") {
+			DataSetAdmin.goToTab(tabName = "Actions");
+		}
+
+		task ("And chooses the Modal option on Type field") {
+			LexiconEntry.gotoAdd();
+
+			Select(
+				key_fieldLabel = "Type",
+				locator1 = "Select#GENERIC_SELECT_FIELD",
+				value1 = "Modal");
+		}
+
+		task ("And clicks on Variant field") {
+			Click(
+				key_fieldLabel = "Variant",
+				locator1 = "Select#GENERIC_SELECT_FIELD");
+		}
+
+		task ("Then the options Full Screen, Large and Small are displayed in the dropdown") {
+			for (var assertFields : list "Full Screen,Large,Small") {
+				AssertElementPresent(
+					key_fieldLabel = "Variant",
+					locator1 = "Select#GENERIC_SELECT_FIELD",
+					value1 = ${assertFields});
+			}
+		}
+	}
+
+	@description = "LPS-192956 Confirm that all the values set in the creation for all the fields are still present when the Edit modal is opened"
+	@priority = 4
+	test AssertAllFieldsArePresentWhenEditAModalActionOnItemAction {
+		task ("Given a new data set entry") {
+			DataSetAdmin.goToDataSetAdminPage();
+
+			DataSetAdmin.createDataSetEntryViaAPI(
+				dataSetName = "Country",
+				restApplication = "/headless-admin-address/v1.0",
+				restEndpoint = "/v1.0/countries",
+				restSchema = "Country");
+		}
+
+		task ("And a new view") {
+			DataSetAdmin.createFDSViewViaAPI(
+				dataSetName = "Country",
+				dataSetViewDescription = "FDSViewDescription",
+				key_dataSetViewNameList = "View Test");
+		}
+
+		task ("When the user goes to the view created") {
+			DataSetAdmin.goToSpecificViewPage(
+				dataSetName = "Country",
+				key_viewName = "View Test");
+		}
+
+		task ("When the user goes to the Action tab.") {
+			DataSetAdmin.goToTab(tabName = "Actions");
+		}
+
+		task ("And creates a modal item action and clicks on save button") {
+			DataSetAdmin.addActions(
+				actionName = "Edit",
+				icon = "pencil",
+				title = "Edit item Action",
+				type = "Modal",
+				url = "https://gist.github.com/deborasoliveira/40716d0b03d33ff7e636ca5d366c79c5#file-link-action-url-example",
+				variant = "Small");
+		}
+
+		task ("And clicks on the new modal item action 3 dot menu button") {
+			Click(
+				key_tableEntry = "pencil",
+				locator1 = "LexiconTable#TABLE_ENTRY_ELLIPSIS");
+		}
+
+		task ("And clicks on Edit option") {
+			MenuItem.click(menuItem = "Edit");
+		}
+
+		task ("Then the values set in the creation are still present") {
+			AssertElementPresent(
+				key_unnamedTitle = "",
+				locator1 = "TextInput#DEPOT_UNNAMED_DEFAULT_TITLE",
+				value1 = "Edit");
+
+			AssertElementPresent(
+				key_fieldLabel = "Type",
+				locator1 = "Select#GENERIC_SELECT_FIELD",
+				value1 = "Modal");
+
+			AssertElementPresent(
+				key_fieldId = "URL",
+				locator1 = "TextArea#ANY_ID",
+				value1 = "https://gist.github.com/deborasoliveira/40716d0b03d33ff7e636ca5d366c79c5#file-link-action-url-example");
+
+			AssertElementPresent(
+				key_fieldLabel = "Variant",
+				locator1 = "Select#GENERIC_SELECT_FIELD",
+				value1 = "Small");
+
+			AssertElementPresent(
+				key_fieldName = "add-here-the-title-of-the-modal",
+				locator1 = "DataSet#PRESELECT_VALUE_INPUT",
+				value1 = "Edit item Action");
+		}
+	}
+
+	@description = "LPS-191485. Verify if the options GET, POST, PATCH, LPS-199219DELETE are present in the Method dropdown in the Item Action"
+	@priority = 3
 	test AssertAllMethodOptionsArePresentOnItemAction {
 		task ("When clicks on New Action button") {
 			Click(
@@ -391,10 +743,8 @@ definition {
 	}
 
 	@description = "LPS-191485. Verify if is possible to cancel a Async Item Action"
-	@priority = 5
+	@priority = 3
 	test CanCancelAsyncItemAction {
-		property portal.acceptance = "true";
-
 		task ("When Create a New Action") {
 			LexiconEntry.gotoAdd();
 		}
@@ -579,7 +929,7 @@ definition {
 	}
 
 	@description = "LPS-191488. Confirm that it's possible to cancel changes in the Actions tab."
-	@priority = 5
+	@priority = 3
 	test CanCancelEditions {
 		task ("And creates a new item action") {
 			DataSetAdmin.addActions(
@@ -628,10 +978,8 @@ definition {
 	}
 
 	@description = "LPS-191485. Verify if is possible to cancel a Headless Item Action"
-	@priority = 5
+	@priority = 3
 	test CanCancelHedlessItemAction {
-		property portal.acceptance = "true";
-
 		task ("When Create a New Action") {
 			LexiconEntry.gotoAdd();
 
@@ -694,9 +1042,87 @@ definition {
 		}
 	}
 
+	@description = "LPS-196835 Confirm that the user can change the selected icon in the Item Action"
+	@priority = 4
+	test CanChangeIconOnItemAction {
+		task ("When the user clicks on the plus button in the Item Action") {
+			LexiconEntry.gotoAdd();
+		}
+
+		task ("And user click on the plus button and choose an icon") {
+			LexiconEntry.gotoAdd();
+
+			SelectFrameTop();
+
+			Type(
+				locator1 = "DataSet#MODAL_SEARCH",
+				value1 = "analytics");
+
+			Click.mouseOverClick(
+				key_text = "analytics",
+				locator1 = "Modal#MODAL_ICON");
+		}
+
+		task ("Then user clicks on the Change icon button, the Select an icon modal is displayed and the icon previously selected is high-lighted") {
+			Click.mouseOverClick(
+				key_text = "change",
+				locator1 = "Icon#ANY");
+
+			AssertElementPresent(
+				locator1 = "Modal#HEADER",
+				value1 = "Select an Icon");
+		}
+
+		task ("And user can change to another icon") {
+			Click.mouseOverClick(
+				key_text = "accessibility",
+				locator1 = "Modal#MODAL_ICON");
+		}
+	}
+
+	@description = "LPS-196835 Confirm that the icon picker shows in Item Actions creation page when is selected on the icon field"
+	@priority = 3
+	test CanChooseAIconOnItemAction {
+		task ("When the user clicks on the plus button in the Item Action") {
+			LexiconEntry.gotoAdd();
+		}
+
+		task ("And clicks on the plus button in the icon picker") {
+			LexiconEntry.gotoAdd();
+		}
+
+		task ("Then choose an icon") {
+			SelectFrameTop();
+
+			Type(
+				locator1 = "DataSet#MODAL_SEARCH",
+				value1 = "analytics");
+
+			Click.mouseOverClick(
+				key_text = "analytics",
+				locator1 = "Modal#MODAL_ICON");
+		}
+
+		task ("And the icon appears as selected in the icon field, the modal is closed") {
+			AssertElementPresent(
+				key_text = "analytics",
+				locator1 = "Icon#ANY");
+
+			AssertElementNotPresent(locator1 = "Modal#MODAL");
+		}
+
+		task ("And correct icon name and image show inside the picker") {
+			AssertElementPresent(
+				key_unnamedTitle = "analytics",
+				locator1 = "TextInput#DEPOT_UNNAMED_DEFAULT_TITLE");
+		}
+	}
+
 	@description = "LPS-192150. Verify if is possible to click on the Action icon in the Data Set fragment and the action works."
 	@priority = 5
 	test CanClickActionIconInFragment {
+		property portal.acceptance = "true";
+
 		task ("Given a new Object entity") {
 			ObjectAdmin.addObjectViaAPI(
 				labelName = "Data Set Object",
@@ -836,9 +1262,11 @@ definition {
 		}
 	}
 
-	@description = "LPS-192149. Verify if the user can an Action"
+	@description = "LPS-192149. Verify if the user can create a Item Action Link type"
 	@priority = 5
 	test CanCreateActionEntry {
+		property portal.acceptance = "true";
+
 		task ("And clicks on Create Item Action button") {
 			LexiconEntry.gotoAdd();
 		}
@@ -888,11 +1316,62 @@ definition {
 		}
 	}
 
-	@description = "LPS-191485. Verify if the use can create a Async item action"
-	@priority = 5
-	test CanCreateAsyncItemActionOnItemAction {
-		property portal.acceptance = "true";
+	@description = "LPS-192956 Confirm the Side Panel item action is created and it's present in the item action list"
+	@priority = 4
+	test CanCreateASidePanelItemAction {
+		task ("Given a new data set entry") {
+			DataSetAdmin.goToDataSetAdminPage();
 
+			DataSetAdmin.createDataSetEntryViaAPI(
+				dataSetName = "Country",
+				restApplication = "/headless-admin-address/v1.0",
+				restEndpoint = "/v1.0/countries",
+				restSchema = "Country");
+		}
+
+		task ("And a new view") {
+			DataSetAdmin.createFDSViewViaAPI(
+				dataSetName = "Country",
+				dataSetViewDescription = "FDSViewDescription",
+				key_dataSetViewNameList = "View Test");
+		}
+
+		task ("When the user goes to the view created") {
+			DataSetAdmin.goToSpecificViewPage(
+				dataSetName = "Country",
+				key_viewName = "View Test");
+		}
+
+		task ("When the user goes to the Action tab.") {
+			DataSetAdmin.goToTab(tabName = "Actions");
+		}
+
+		task ("And creates a modal item action and clicks on save button and clicks on Save button") {
+			DataSetAdmin.addActions(
+				actionName = "Edit",
+				icon = "pencil",
+				title = "Edit side panel",
+				type = "Side Panel",
+				url = "https://gist.github.com/deborasoliveira/40716d0b03d33ff7e636ca5d366c79c5#file-link-action-url-example");
+		}
+
+		task ("Then a successful toast message is displayed") {
+			AssertTextEquals.assertPartialText(
+				locator1 = "Message#SUCCESS",
+				value1 = "Your request completed successfully.");
+		}
+
+		task ("And the side panel item action is created") {
+			AssertElementPresent(
+				key_position = 1,
+				keyName = "Edit",
+				locator1 = "DataSet#FIELDS_TABLE");
+		}
+	}
+
+	@description = "LPS-191485. Verify if the use can create a Async item action"
+	@priority = 4
+	test CanCreateAsyncItemActionOnItemAction {
 		task ("When Create a New Action") {
 			LexiconEntry.gotoAdd();
 		}
@@ -989,37 +1468,161 @@ definition {
 		}
 	}
 
-	@description = "LPS-191485. Verify if is possible to delete a Async Item Action created"
-	@priority = 5
-	test CanDeleteAAsyncItemAction {
-		property portal.acceptance = "true";
+	@description = "LPS-192956 Confirm that is possible to create a Modal Action with Large variant on the Item Action"
+	@priority = 4
+	test CanCreateLargeModalItemAction {
+		task ("Given a new data set entry") {
+			DataSetAdmin.goToDataSetAdminPage();
 
-		task ("When Create a New Action") {
-			DataSetAdmin.addActions(
-				actionName = "Async Item Action",
-				errorMessage = "Failed.",
-				icon = "asterisk",
-				method = "GET",
-				successMessage = "Passed.",
-				type = "Async",
-				url = "/group/control_panel/manage?p_p_id=com_liferay_object_web_internal_object_definitions_portlet_ObjectDefinitionsPortlet_34759&p_p_lifecycle=0&p_p_state=maximized&p_p_mode=view&_com_liferay_object_web_internal_object_definitions_portlet_ObjectDefinitionsPortlet_34759_objectDefinitionId=34759&_com_liferay_object_web_internal_object_definitions_portlet_ObjectDefinitionsPortlet_34759_mvcRenderCommandName=%2Fobject_entries%2Fedit_object_entry&_com_liferay_object_web_internal_object_definitions_portlet_ObjectDefinitionsPortlet_34759_externalReferenceCode={externalReferenceCode}");
+			DataSetAdmin.createDataSetEntryViaAPI(
+				dataSetName = "Country",
+				restApplication = "/headless-admin-address/v1.0",
+				restEndpoint = "/v1.0/countries",
+				restSchema = "Country");
 		}
 
-		task ("Then it appears on the Action tab") {
+		task ("And a new view") {
+			DataSetAdmin.createFDSViewViaAPI(
+				dataSetName = "Country",
+				dataSetViewDescription = "FDSViewDescription",
+				key_dataSetViewNameList = "View Test");
+		}
+
+		task ("When the user goes to the view created") {
+			DataSetAdmin.goToSpecificViewPage(
+				dataSetName = "Country",
+				key_viewName = "View Test");
+		}
+
+		task ("When the user goes to the Action tab.") {
+			DataSetAdmin.goToTab(tabName = "Actions");
+		}
+
+		task ("And creates a modal item action and clicks on save button") {
+			DataSetAdmin.addActions(
+				actionName = "Edit",
+				headlessAction = "update",
+				icon = "pencil",
+				title = "Edit item Action",
+				type = "Modal",
+				url = "https://gist.github.com/deborasoliveira/40716d0b03d33ff7e636ca5d366c79c5#file-link-action-url-example",
+				variant = "Large");
+		}
+
+		task ("Then the modal item action is created and a successful toast message is displayed") {
+			AssertTextEquals.assertPartialText(
+				locator1 = "Message#SUCCESS",
+				value1 = "Your request completed successfully.");
+
 			AssertElementPresent(
 				key_position = 1,
-				keyName = "Async Item Action",
+				keyName = "Edit",
 				locator1 = "DataSet#FIELDS_TABLE");
 		}
+	}
 
-		task ("When the user Delete Async Item Action item") {
-			DataSetAdmin.deleteActionEntry(actionName = "Async Item Action");
+	@description = "LPS-192956 Confirm that is possible to create a Modal Actions on the Item Action"
+	@priority = 4
+	test CanCreateModalItemAction {
+		task ("Given a new data set entry") {
+			DataSetAdmin.goToDataSetAdminPage();
+
+			DataSetAdmin.createDataSetEntryViaAPI(
+				dataSetName = "Country",
+				restApplication = "/headless-admin-address/v1.0",
+				restEndpoint = "/v1.0/countries",
+				restSchema = "Country");
 		}
 
-		task ("Then the list of action items is empty") {
-			AssertElementNotPresent(
+		task ("And a new view") {
+			DataSetAdmin.createFDSViewViaAPI(
+				dataSetName = "Country",
+				dataSetViewDescription = "FDSViewDescription",
+				key_dataSetViewNameList = "View Test");
+		}
+
+		task ("When the user goes to the view created") {
+			DataSetAdmin.goToSpecificViewPage(
+				dataSetName = "Country",
+				key_viewName = "View Test");
+		}
+
+		task ("When the user goes to the Action tab.") {
+			DataSetAdmin.goToTab(tabName = "Actions");
+		}
+
+		task ("And creates a modal item action and clicks on save button") {
+			DataSetAdmin.addActions(
+				actionName = "Edit",
+				icon = "pencil",
+				title = "Edit item Action",
+				type = "Modal",
+				url = "https://gist.github.com/deborasoliveira/40716d0b03d33ff7e636ca5d366c79c5#file-link-action-url-example",
+				variant = "Full Screen");
+		}
+
+		task ("Then the modal item action is created and a successful toast message is displayed") {
+			AssertTextEquals.assertPartialText(
+				locator1 = "Message#SUCCESS",
+				value1 = "Your request completed successfully.");
+
+			AssertElementPresent(
 				key_position = 1,
-				keyName = "Async Item Action",
+				keyName = "Edit",
+				locator1 = "DataSet#FIELDS_TABLE");
+		}
+	}
+
+	@description = "LPS-192956  Confirm that is possible to create a Modal Action with Small variant on the Item Action"
+	@priority = 4
+	test CanCreateSmallModalItemAction {
+		task ("Given a new data set entry") {
+			DataSetAdmin.goToDataSetAdminPage();
+
+			DataSetAdmin.createDataSetEntryViaAPI(
+				dataSetName = "Country",
+				restApplication = "/headless-admin-address/v1.0",
+				restEndpoint = "/v1.0/countries",
+				restSchema = "Country");
+		}
+
+		task ("And a new view") {
+			DataSetAdmin.createFDSViewViaAPI(
+				dataSetName = "Country",
+				dataSetViewDescription = "FDSViewDescription",
+				key_dataSetViewNameList = "View Test");
+		}
+
+		task ("When the user goes to the view created") {
+			DataSetAdmin.goToSpecificViewPage(
+				dataSetName = "Country",
+				key_viewName = "View Test");
+		}
+
+		task ("When the user goes to the Action tab.") {
+			DataSetAdmin.goToTab(tabName = "Actions");
+		}
+
+		task ("And creates a modal item action and clicks on save button") {
+			DataSetAdmin.addActions(
+				actionName = "Edit",
+				confirmationMessage = "This is an info message",
+				icon = "pencil",
+				messageType = "Info",
+				title = "Edit item Action",
+				type = "Modal",
+				url = "https://gist.github.com/deborasoliveira/40716d0b03d33ff7e636ca5d366c79c5#file-link-action-url-example",
+				variant = "Small");
+		}
+
+		task ("Then the modal item action is created and a successful toast message is displayed") {
+			AssertTextEquals.assertPartialText(
+				locator1 = "Message#SUCCESS",
+				value1 = "Your request completed successfully.");
+
+			AssertElementPresent(
+				key_position = 1,
+				keyName = "Edit",
 				locator1 = "DataSet#FIELDS_TABLE");
 		}
 	}
@@ -1027,6 +1630,8 @@ definition {
 	@description = "LPS-191486. Verify if the user can delete an Action entry"
 	@priority = 5
 	test CanDeleteAction {
+		property portal.acceptance = "true";
+
 		task ("And creates an item action") {
 			DataSetAdmin.addActions(
 				actionName = "delete",
@@ -1108,8 +1713,42 @@ definition {
 		}
 	}
 
-	@description = "LPS-192149. Verify if the user can change the entry order with drag and drop in the action entries table"
+	@description = "LPS-196835 Confirm that the user can delete the selected icon in the Item Action"
 	@priority = 4
+	test CanDeleteASelectedIconOnItemAction {
+		task ("When the user clicks on the plus button in the Item Action") {
+			LexiconEntry.gotoAdd();
+		}
+
+		task ("And user click on the plus button and choose an icon") {
+			LexiconEntry.gotoAdd();
+
+			SelectFrameTop();
+
+			Type(
+				locator1 = "DataSet#MODAL_SEARCH",
+				value1 = "analytics");
+
+			Click.mouseOverClick(
+				key_text = "analytics",
+				locator1 = "Modal#MODAL_ICON");
+		}
+
+		task ("Then user clicks on the recycle bin, the icon is removed from the selection") {
+			Click(
+				key_text = "trash",
+				locator1 = "Icon#ANY");
+		}
+
+		task ("And “No icon selected” is shown in the field") {
+			AssertElementPresent(
+				key_placeHolder = "No Icon Selected",
+				locator1 = "TextInput#ANY_PLACEHOLDER");
+		}
+	}
+
+	@description = "LPS-192149. Verify if the user can change the entry order with drag and drop in the action entries table"
+	@priority = 3
 	test CanDragAndDropActionEntry {
 		task ("And creates two or more item actions") {
 			DataSetAdmin.addActions(
@@ -1154,6 +1793,139 @@ definition {
 			AssertElementPresent(
 				key_position = 2,
 				keyName = "view",
+				locator1 = "DataSet#FIELDS_TABLE");
+		}
+	}
+
+	@description = "LPS-192956 Confirm that user can edit a Modal Item Action"
+	@priority = 4
+	test CanEditAModalItemAction {
+		task ("Given a new data set entry") {
+			DataSetAdmin.goToDataSetAdminPage();
+
+			DataSetAdmin.createDataSetEntryViaAPI(
+				dataSetName = "Country",
+				restApplication = "/headless-admin-address/v1.0",
+				restEndpoint = "/v1.0/countries",
+				restSchema = "Country");
+		}
+
+		task ("And a new view") {
+			DataSetAdmin.createFDSViewViaAPI(
+				dataSetName = "Country",
+				dataSetViewDescription = "FDSViewDescription",
+				key_dataSetViewNameList = "View Test");
+		}
+
+		task ("When the user goes to the view created") {
+			DataSetAdmin.goToSpecificViewPage(
+				dataSetName = "Country",
+				key_viewName = "View Test");
+		}
+
+		task ("When the user goes to the Action tab.") {
+			DataSetAdmin.goToTab(tabName = "Actions");
+		}
+
+		task ("And creates a modal item action and clicks on save button") {
+			DataSetAdmin.addActions(
+				actionName = "Edit",
+				icon = "pencil",
+				title = "Edit item Action",
+				type = "Modal",
+				url = "https://gist.github.com/deborasoliveira/40716d0b03d33ff7e636ca5d366c79c5#file-link-action-url-example",
+				variant = "Small");
+		}
+
+		task ("When the user changes the field values and clicks on Save button") {
+			DataSetAdmin.editActions(
+				newActionName = "update",
+				newHeadlessAction = "update",
+				newIcon = "pencil",
+				newVariant = "Small",
+				oldActionName = "Edit");
+		}
+
+		task ("Then a successful toast message is displayed") {
+			AssertTextEquals.assertPartialText(
+				locator1 = "Message#SUCCESS",
+				value1 = "Your request completed successfully.");
+		}
+
+		task ("And the changes are saved") {
+			AssertTextEquals.assertPartialText(
+				locator1 = "Message#SUCCESS",
+				value1 = "Your request completed successfully.");
+
+			AssertElementPresent(
+				key_position = 1,
+				keyName = "update",
+				locator1 = "DataSet#FIELDS_TABLE");
+		}
+	}
+
+	@description = "LPS-192956 Confirm that when the user modify different fields (variant, label, etc.) the changes are saved"
+	@priority = 4
+	test CanEditASidePanelItemAction {
+		task ("Given a new data set entry") {
+			DataSetAdmin.goToDataSetAdminPage();
+
+			DataSetAdmin.createDataSetEntryViaAPI(
+				dataSetName = "Country",
+				restApplication = "/headless-admin-address/v1.0",
+				restEndpoint = "/v1.0/countries",
+				restSchema = "Country");
+		}
+
+		task ("And a new view") {
+			DataSetAdmin.createFDSViewViaAPI(
+				dataSetName = "Country",
+				dataSetViewDescription = "FDSViewDescription",
+				key_dataSetViewNameList = "View Test");
+		}
+
+		task ("When the user goes to the view created") {
+			DataSetAdmin.goToSpecificViewPage(
+				dataSetName = "Country",
+				key_viewName = "View Test");
+		}
+
+		task ("When the user goes to the Action tab.") {
+			DataSetAdmin.goToTab(tabName = "Actions");
+		}
+
+		task ("And creates a modal item action and clicks on save button and clicks on Save button") {
+			DataSetAdmin.addActions(
+				actionName = "Edit",
+				confirmationMessage = "This is a confirmation message",
+				icon = "pencil",
+				messageType = "Info",
+				title = "Edit side panel",
+				type = "Modal",
+				url = "https://gist.github.com/deborasoliveira/40716d0b03d33ff7e636ca5d366c79c5#file-link-action-url-example");
+		}
+
+		task ("When the user edits the Action created") {
+			DataSetAdmin.editActions(
+				newActionName = "update",
+				newConfirmationMessage = "This is a success message",
+				newHeadlessAction = "update",
+				newIcon = "pencil",
+				newMessageType = "Success",
+				newTitle = "Update Side Panel",
+				oldActionName = "Edit");
+		}
+
+		task ("Then a successful toast message is displayed") {
+			AssertTextEquals.assertPartialText(
+				locator1 = "Message#SUCCESS",
+				value1 = "Your request completed successfully.");
+		}
+
+		task ("And the side panel item action is created") {
+			AssertElementPresent(
+				key_position = 1,
+				keyName = "update",
 				locator1 = "DataSet#FIELDS_TABLE");
 		}
 	}
@@ -1476,7 +2248,7 @@ definition {
 	}
 
 	@description = "LPS-191488. Confirm that is not possible to edit the Type field."
-	@priority = 5
+	@priority = 4
 	test CannotEditTypeField {
 		task ("And creates a new item action") {
 			DataSetAdmin.addActions(
@@ -1675,6 +2447,130 @@ definition {
 
 		task ("And confirm that it is not possible to save the action") {
 			AssertElementPresent(locator1 = "Button#DISABLED_BUTTON");
+		}
+	}
+
+	@description = "LPS-192956 Confirm that the Title field cannot be empty on the Modal Item Action"
+	@priority = 3
+	test CannotLeaveTitleFieldEmptyInModalActionOnItemAction {
+		task ("Given a new data set entry") {
+			DataSetAdmin.goToDataSetAdminPage();
+
+			DataSetAdmin.createDataSetEntryViaAPI(
+				dataSetName = "Country",
+				restApplication = "/headless-admin-address/v1.0",
+				restEndpoint = "/v1.0/countries",
+				restSchema = "Country");
+		}
+
+		task ("And a new view") {
+			DataSetAdmin.createFDSViewViaAPI(
+				dataSetName = "Country",
+				dataSetViewDescription = "FDSViewDescription",
+				key_dataSetViewNameList = "View Test");
+		}
+
+		task ("When the user goes to the view created") {
+			DataSetAdmin.goToSpecificViewPage(
+				dataSetName = "Country",
+				key_viewName = "View Test");
+		}
+
+		task ("When the user goes to the Action tab.") {
+			DataSetAdmin.goToTab(tabName = "Actions");
+		}
+
+		task ("And creates a modal item action and clicks on save button") {
+			DataSetAdmin.addActions(
+				actionName = "Edit",
+				icon = "pencil",
+				title = "Edit item Action",
+				type = "Modal",
+				url = "https://gist.github.com/deborasoliveira/40716d0b03d33ff7e636ca5d366c79c5#file-link-action-url-example",
+				variant = "Small");
+		}
+
+		task ("When the user leaves mandatory fields empty") {
+			DataSetAdmin.editActions(
+				newActionName = "",
+				newIcon = "pencil",
+				newTitle = "",
+				newVariant = "Small",
+				oldActionName = "Edit");
+		}
+
+		task ("Then an error message is displayed") {
+			AssertTextEquals(
+				locator1 = "Message#ERROR_FORM_FIELD_REQUIRED",
+				value1 = "This field is required.");
+		}
+
+		task ("And the changes cannot be saved") {
+			AssertVisible(
+				key_title = "Edit",
+				locator1 = "Header#H2_TITLE");
+		}
+	}
+
+	@description = "LPS-192956 Confirm that the Title field cannot be empty on the Side Panel Item Action"
+	@priority = 3
+	test CannotLeaveTitleFieldEmptyInSidePanelItemAction {
+		task ("Given a new data set entry") {
+			DataSetAdmin.goToDataSetAdminPage();
+
+			DataSetAdmin.createDataSetEntryViaAPI(
+				dataSetName = "Country",
+				restApplication = "/headless-admin-address/v1.0",
+				restEndpoint = "/v1.0/countries",
+				restSchema = "Country");
+		}
+
+		task ("And a new view") {
+			DataSetAdmin.createFDSViewViaAPI(
+				dataSetName = "Country",
+				dataSetViewDescription = "FDSViewDescription",
+				key_dataSetViewNameList = "View Test");
+		}
+
+		task ("When the user goes to the view created") {
+			DataSetAdmin.goToSpecificViewPage(
+				dataSetName = "Country",
+				key_viewName = "View Test");
+		}
+
+		task ("When the user goes to the Action tab.") {
+			DataSetAdmin.goToTab(tabName = "Actions");
+		}
+
+		task ("And creates a modal item action and clicks on save button") {
+			DataSetAdmin.addActions(
+				actionName = "Edit",
+				icon = "pencil",
+				title = "",
+				type = "Side Panel",
+				url = "https://gist.github.com/deborasoliveira/40716d0b03d33ff7e636ca5d366c79c5#file-link-action-url-example");
+		}
+
+		task ("Then an error message is displayed") {
+			Type(
+				key_fieldName = "add-here-the-title-of-the-side-panel",
+				locator1 = "DataSet#PRESELECT_VALUE_INPUT",
+				value1 = "test");
+
+			Type(
+				key_fieldName = "add-here-the-title-of-the-side-panel",
+				locator1 = "DataSet#PRESELECT_VALUE_INPUT",
+				value1 = "");
+
+			AssertTextEquals(
+				locator1 = "Message#ERROR_FORM_FIELD_REQUIRED",
+				value1 = "This field is required.");
+		}
+
+		task ("And the changes cannot be saved") {
+			AssertVisible(
+				key_title = "New Item Action",
+				locator1 = "Header#H2_TITLE");
 		}
 	}
 
@@ -1943,6 +2839,8 @@ definition {
 	@description = "LPS-191488. Confirm that it's possible to save an Action after changing all fields in the Actions tab."
 	@priority = 5
 	test CanSaveAfterChangeAllFields {
+		property portal.acceptance = "true";
+
 		task ("And creates a new item action") {
 			DataSetAdmin.addActions(
 				actionName = "delete",
@@ -2083,7 +2981,7 @@ definition {
 	}
 
 	@description = "LPS-191488. Verify if the user can edit a created Action and see the informations"
-	@priority = 5
+	@priority = 4
 	test CanSeeModalWhenClicksOnEditAction {
 		task ("And creates a new item action") {
 			DataSetAdmin.addActions(
@@ -2107,6 +3005,38 @@ definition {
 			AssertVisible(
 				key_title = "delete",
 				locator1 = "Header#H2_TITLE");
+		}
+	}
+
+	@description = "LPS-196835 Confirm that both change button and delete button are shown in the picker after selection in the Item Action"
+	@priority = 3
+	test CanSeeRecycleAndChangeButtonAfterSelectAIconOnItemAction {
+		task ("When the user clicks on the plus button in the Item Action") {
+			LexiconEntry.gotoAdd();
+		}
+
+		task ("And user click on the plus button and choose an icon") {
+			LexiconEntry.gotoAdd();
+
+			SelectFrameTop();
+
+			Type(
+				locator1 = "DataSet#MODAL_SEARCH",
+				value1 = "analytics");
+
+			Click.mouseOverClick(
+				key_text = "analytics",
+				locator1 = "Modal#MODAL_ICON");
+		}
+
+		task ("Then the Recycle bin button and the Change icon button are displayed next to the icon field") {
+			AssertElementPresent(
+				key_text = "change",
+				locator1 = "Icon#ANY");
+
+			AssertElementPresent(
+				key_text = "trash",
+				locator1 = "Icon#ANY");
 		}
 	}
 
@@ -2185,7 +3115,7 @@ definition {
 	}
 
 	@description = "LPS-192150. Verify if is possible to see the Action icon in the Data Set fragment."
-	@priority = 5
+	@priority = 3
 	test CanViewActionIconInFragment {
 		task ("Given a new Object entity") {
 			ObjectAdmin.addObjectViaAPI(
@@ -2532,7 +3462,7 @@ definition {
 	}
 
 	@description = "LPS-192149. Verify if the Label field is mandatory and localized in Action"
-	@priority = 5
+	@priority = 3
 	test MandatoryAndLocalizedLabelField {
 		task ("And clicks on Create Item Action button") {
 			LexiconEntry.gotoAdd();
@@ -2566,6 +3496,127 @@ definition {
 
 		task ("Then is not possible to save") {
 			AssertElementPresent(locator1 = "Button#DISABLED_BUTTON");
+		}
+	}
+
+	@description = "LPS-192956 Confirm that the mandatory fields cannot be empty after the edition"
+	@priority = 3
+	test MandatoryFieldsCannotBeEmptyEditingSidePanelItemAction {
+		task ("Given a new data set entry") {
+			DataSetAdmin.goToDataSetAdminPage();
+
+			DataSetAdmin.createDataSetEntryViaAPI(
+				dataSetName = "Country",
+				restApplication = "/headless-admin-address/v1.0",
+				restEndpoint = "/v1.0/countries",
+				restSchema = "Country");
+		}
+
+		task ("And a new view") {
+			DataSetAdmin.createFDSViewViaAPI(
+				dataSetName = "Country",
+				dataSetViewDescription = "FDSViewDescription",
+				key_dataSetViewNameList = "View Test");
+		}
+
+		task ("When the user goes to the view created") {
+			DataSetAdmin.goToSpecificViewPage(
+				dataSetName = "Country",
+				key_viewName = "View Test");
+		}
+
+		task ("When the user goes to the Action tab.") {
+			DataSetAdmin.goToTab(tabName = "Actions");
+		}
+
+		task ("And creates a modal item action and clicks on save button and clicks on Save button") {
+			DataSetAdmin.addActions(
+				actionName = "Edit",
+				icon = "pencil",
+				title = "Edit side panel",
+				type = "Side Panel",
+				url = "https://gist.github.com/deborasoliveira/40716d0b03d33ff7e636ca5d366c79c5#file-link-action-url-example");
+		}
+
+		task ("And clicks on the new side panel item action 3 dot menu button and clicks on Edit option") {
+			DataSetAdmin.editActions(
+				newTitle = "",
+				newURL = "",
+				oldActionName = "Edit");
+		}
+
+		task ("Then an error message is displayed") {
+			AssertTextEquals(
+				locator1 = "Message#ERROR_FORM_FIELD_REQUIRED",
+				value1 = "This field is required.");
+		}
+
+		task ("And the changes cannot be saved") {
+			AssertVisible(
+				key_title = "Edit",
+				locator1 = "Header#H2_TITLE");
+		}
+	}
+
+	@description = "LPS-192956 Confirm that the mandatory fields cannot be empty after the edition"
+	@priority = 3
+	test MandatoryFieldsCannotBeEmptyInModalActionOnItemAction {
+		task ("Given a new data set entry") {
+			DataSetAdmin.goToDataSetAdminPage();
+
+			DataSetAdmin.createDataSetEntryViaAPI(
+				dataSetName = "Country",
+				restApplication = "/headless-admin-address/v1.0",
+				restEndpoint = "/v1.0/countries",
+				restSchema = "Country");
+		}
+
+		task ("And a new view") {
+			DataSetAdmin.createFDSViewViaAPI(
+				dataSetName = "Country",
+				dataSetViewDescription = "FDSViewDescription",
+				key_dataSetViewNameList = "View Test");
+		}
+
+		task ("When the user goes to the view created") {
+			DataSetAdmin.goToSpecificViewPage(
+				dataSetName = "Country",
+				key_viewName = "View Test");
+		}
+
+		task ("When the user goes to the Action tab.") {
+			DataSetAdmin.goToTab(tabName = "Actions");
+		}
+
+		task ("And creates a modal item action and clicks on save button") {
+			DataSetAdmin.addActions(
+				actionName = "Edit",
+				icon = "pencil",
+				title = "Edit item Action",
+				type = "Modal",
+				url = "https://gist.github.com/deborasoliveira/40716d0b03d33ff7e636ca5d366c79c5#file-link-action-url-example",
+				variant = "Small");
+		}
+
+		task ("When the user leaves mandatory fields empty") {
+			DataSetAdmin.editActions(
+				newActionName = "",
+				newIcon = "pencil",
+				newTitle = "",
+				newVariant = "Small",
+				oldActionName = "Edit");
+		}
+
+		task ("Then an error message is displayed") {
+			AssertTextEquals(
+				locator1 = "Message#ERROR_FORM_FIELD_REQUIRED",
+				value1 = "This field is required.");
+		}
+
+		task ("And the changes cannot be saved") {
+			AssertVisible(
+				key_title = "Edit",
+				locator1 = "Header#H2_TITLE");
 		}
 	}
 
@@ -2628,6 +3679,38 @@ definition {
 				key_position = 1,
 				keyName = "New Action",
 				locator1 = "DataSet#FIELDS_TABLE");
+		}
+	}
+
+	@description = "LPS-196835 Confirm that the user can use search box and the autocomplete function to choose an icon in the Item Action"
+	@priority = 3
+	test SearchIconFillsAutomaticallyOnItemAction {
+		task ("When the user clicks on the plus button in the Item Action") {
+			LexiconEntry.gotoAdd();
+		}
+
+		task ("And clicks on the plus button in the icon picker") {
+			LexiconEntry.gotoAdd();
+		}
+
+		task ("And the user types incompleted icon name in the search box in the icon picker") {
+			SelectFrameTop();
+
+			Type(
+				locator1 = "DataSet#MODAL_SEARCH",
+				value1 = "analy");
+		}
+
+		task ("Then the autocomplete result shows in the search box") {
+			AssertVisible(
+				key_text = "analytics",
+				locator1 = "Modal#MODAL_ICON");
+		}
+
+		task ("And user can choose the icon") {
+			Click.mouseOverClick(
+				key_text = "analytics",
+				locator1 = "Modal#MODAL_ICON");
 		}
 	}
 
@@ -2758,7 +3841,7 @@ definition {
 				actionName = "Edit",
 				actionTab = "Creation Actions",
 				icon = "pencil",
-				inputText = "Products",
+				title = "Products",
 				type = "Modal",
 				url = "https://gist.github.com/deborasoliveira/40716d0b03d33ff7e636ca5d366c79c5#file-link-action-url-example",
 				variant = "Full Screen");

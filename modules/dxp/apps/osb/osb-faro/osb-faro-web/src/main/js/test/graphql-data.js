@@ -42,11 +42,9 @@ import {
 } from 'event-analysis/queries/EventAnalysisQuery';
 import {EventTypes} from 'event-analysis/utils/types';
 import {
+	EXPERIMENT_DRAFT_QUERY,
 	EXPERIMENT_QUERY,
-	EXPERIMENT_ROOT_QUERY,
-	EXPERIMENT_SESSION_HISTOGRAM_QUERY,
-	EXPERIMENT_SESSION_VARIANTS_HISTOGRAM_QUERY,
-	EXPERIMENT_VARIANTS_HISTOGRAM_QUERY
+	EXPERIMENT_STATUS_QUERY
 } from 'experiments/queries/ExperimentQuery';
 import {getSafeRangeSelectors} from 'shared/util/util';
 import {INTERVAL_KEY_MAP} from 'shared/util/time';
@@ -57,10 +55,10 @@ const METRIC_TYPENAME_MAP = {
 	trend: 'Trend'
 };
 
-export function mockExperimentSessionHistogramReq() {
+export function mockExperimentDraftReq() {
 	return {
 		request: {
-			query: EXPERIMENT_SESSION_HISTOGRAM_QUERY,
+			query: EXPERIMENT_DRAFT_QUERY,
 			variables: {
 				experimentId: '123'
 			}
@@ -69,24 +67,34 @@ export function mockExperimentSessionHistogramReq() {
 			data: {
 				experiment: {
 					__typename: 'Experiment',
+					dxpExperienceName: 'Default',
+					dxpSegmentName: 'Anyone',
+					dxpVariants: [],
+					goal: {
+						__typename: 'Goal',
+						metric: 'CLICK_RATE',
+						target: ''
+					},
 					id: '123',
-					sessionsHistogram: [
-						{
-							__typename: 'HistogramMetric',
-							key: '2020-09-30T00:00',
-							value: 99
-						}
-					]
+					name: 'draw',
+					pageURL: 'https://www.beryl.com/experiment-test',
+					status: 'DRAFT'
 				}
 			}
 		}
 	};
 }
 
-export function mockExperimentSessionVariantsHistogramReq() {
+export function mockExperimentReq({
+	publishable = false,
+	publishedDXPVariantId = null,
+	status = 'RUNNING',
+	type = 'AB',
+	...experiment
+} = {}) {
 	return {
 		request: {
-			query: EXPERIMENT_SESSION_VARIANTS_HISTOGRAM_QUERY,
+			query: EXPERIMENT_QUERY,
 			variables: {
 				experimentId: '123'
 			}
@@ -95,55 +103,84 @@ export function mockExperimentSessionVariantsHistogramReq() {
 			data: {
 				experiment: {
 					__typename: 'Experiment',
+					description: 'This is a description of the experiment',
+					dxpExperienceName: 'Default',
+					dxpSegmentName: 'Anyone',
 					dxpVariants: [
 						{
 							__typename: 'DXPVariant',
+							changes: 0,
 							control: true,
+							dxpVariantId: 'DEFAULT',
 							dxpVariantName: 'Control',
 							sessionsHistogram: [
 								{
 									__typename: 'HistogramMetric',
-									key: '2020-09-30T00:00',
-									value: 47
+									key: '2023-10-02T00:00',
+									value: 84
+								},
+								{
+									__typename: 'HistogramMetric',
+									key: '2023-10-03T00:00',
+									value: 75
 								}
-							]
-						}
-					],
-					id: '123'
-				}
-			}
-		}
-	};
-}
-
-export function mockExperimentVariantsHistogramReq() {
-	return {
-		request: {
-			query: EXPERIMENT_VARIANTS_HISTOGRAM_QUERY,
-			variables: {
-				experimentId: '123'
-			}
-		},
-		result: {
-			data: {
-				experiment: {
-					__typename: 'Experiment',
-					dxpVariants: [
-						{
-							__typename: 'DXPVariant',
-							control: true,
-							dxpVariantId: 'DEFAULT',
-							dxpVariantName: 'Control'
+							],
+							trafficSplit: 50.0,
+							uniqueVisitors: 402
 						},
 						{
 							__typename: 'DXPVariant',
+							changes: 0,
 							control: false,
 							dxpVariantId: '44167',
-							dxpVariantName: 'Red Button'
+							dxpVariantName: 'Red Button',
+							sessionsHistogram: [
+								{
+									__typename: 'HistogramMetric',
+									key: '2023-10-02T00:00',
+									value: 100
+								},
+								{
+									__typename: 'HistogramMetric',
+									key: '2023-10-03T00:00',
+									value: 75
+								}
+							],
+							trafficSplit: 50.0,
+							uniqueVisitors: 394
 						}
 					],
-					goal: {__typename: 'Goal', metric: 'CLICK_RATE'},
+					finishedDate: '2023-10-23T21:52:55.714Z',
+					goal: {
+						__typename: 'Goal',
+						metric: 'CLICK_RATE',
+						target: ''
+					},
 					id: '123',
+					metrics: {
+						__typename: 'ExperimentMetrics',
+						completion: 99.0,
+						elapsedDays: 16,
+						estimatedDaysLeft: 1,
+						variantMetrics: [
+							{
+								__typename: 'VariantMetrics',
+								confidenceInterval: [36.0, 37.0],
+								dxpVariantId: 'DEFAULT',
+								improvement: 0.0,
+								median: 37.0,
+								probabilityToWin: 63.0
+							},
+							{
+								__typename: 'VariantMetrics',
+								confidenceInterval: [28.0, 31.0],
+								dxpVariantId: '44167',
+								improvement: -18.91891891891892,
+								median: 30.0,
+								probabilityToWin: 5070.0
+							}
+						]
+					},
 					metricsHistogram: [
 						{
 							__typename: 'ExperimentMetrics',
@@ -185,95 +222,36 @@ export function mockExperimentVariantsHistogramReq() {
 								}
 							]
 						}
-					]
-				}
-			}
-		}
-	};
-}
-
-export function mockExperimentReq({publishedDXPVariantId = null} = {}) {
-	return {
-		request: {
-			query: EXPERIMENT_QUERY,
-			variables: {
-				experimentId: '123'
-			}
-		},
-		result: {
-			data: {
-				experiment: {
-					__typename: 'Experiment',
-					description: '',
-					dxpExperienceName: 'Default',
-					dxpSegmentName: 'Anyone',
-					dxpVariants: [
-						{
-							__typename: 'DXPVariant',
-							changes: 0,
-							control: true,
-							dxpVariantId: 'DEFAULT',
-							dxpVariantName: 'Control',
-							trafficSplit: 50.0,
-							uniqueVisitors: 402
-						},
-						{
-							__typename: 'DXPVariant',
-							changes: 0,
-							control: false,
-							dxpVariantId: '44167',
-							dxpVariantName: 'Red Button',
-							trafficSplit: 50.0,
-							uniqueVisitors: 394
-						}
 					],
-					finishedDate: null,
-					goal: {__typename: 'Goal', metric: 'CLICK_RATE'},
-					id: '123',
-					metrics: {
-						__typename: 'ExperimentMetrics',
-						completion: 99.0,
-						elapsedDays: 16,
-						estimatedDaysLeft: 1,
-						variantMetrics: [
-							{
-								__typename: 'VariantMetrics',
-								confidenceInterval: [36.0, 37.0],
-								dxpVariantId: 'DEFAULT',
-								improvement: 0.0,
-								median: 37.0,
-								probabilityToWin: 63.0
-							},
-							{
-								__typename: 'VariantMetrics',
-								confidenceInterval: [28.0, 31.0],
-								dxpVariantId: '44167',
-								improvement: -18.91891891891892,
-								median: 30.0,
-								probabilityToWin: 5070.0
-							}
-						]
-					},
-					modifiedDate: '2020-09-30T17:55:45.417Z',
-					name: 'Timezone',
-					pageURL: 'http://localhost:8089/web/guest/home',
+					modifiedDate: '2023-10-24T09:02:38.912Z',
+					name: 'draw',
+					pageURL: 'https://www.beryl.com/experiment-test',
+					publishable,
 					publishedDXPVariantId,
 					sessions: 800,
+					sessionsHistogram: [
+						{
+							__typename: 'HistogramMetric',
+							key: '2020-09-30T00:00',
+							value: 99
+						}
+					],
 					startedDate: '2020-09-30T12:00:00.000Z',
-					status: 'RUNNING',
-					type: 'AB',
-					winnerDXPVariantId: null
+					status,
+					type,
+					winnerDXPVariantId: null,
+					...experiment
 				}
 			}
 		}
 	};
 }
 
-export function mockExperimentRootReq({publishable = false, status}) {
+export function mockExperimentStatusReq({status}) {
 	return {
 		request: {
 			fetchPolicy: 'network-only',
-			query: EXPERIMENT_ROOT_QUERY,
+			query: EXPERIMENT_STATUS_QUERY,
 			variables: {
 				experimentId: '123'
 			}
@@ -282,11 +260,6 @@ export function mockExperimentRootReq({publishable = false, status}) {
 			data: {
 				experiment: {
 					__typename: 'Experiment',
-					channelId: '2000',
-					id: '123',
-					name: 'Experiment Test',
-					pageURL: 'https://www.beryl.com/experiment-test',
-					publishable,
 					status
 				}
 			}

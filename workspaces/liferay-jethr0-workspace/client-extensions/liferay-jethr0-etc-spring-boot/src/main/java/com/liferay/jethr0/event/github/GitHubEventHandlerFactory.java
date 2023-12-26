@@ -24,6 +24,8 @@ public class GitHubEventHandlerFactory extends BaseEventHandlerFactory {
 	public EventHandler newEventHandler(JSONObject messageJSONObject)
 		throws IllegalArgumentException {
 
+		EventHandlerContext eventHandlerContext = getEventHandlerContext();
+
 		String action = messageJSONObject.optString("action");
 
 		if (!StringUtil.isNullOrEmpty(action)) {
@@ -32,22 +34,37 @@ public class GitHubEventHandlerFactory extends BaseEventHandlerFactory {
 					"comment");
 
 				if (commentJSONObject != null) {
-					EventHandlerContext eventHandlerContext =
-						getEventHandlerContext();
-
 					String body = commentJSONObject.getString("body");
 
 					if (body.startsWith("ci:help")) {
-						return new CIHelpGitHubEventHandler(
+						return new HelpGitHubIssueEventHandler(
 							eventHandlerContext, messageJSONObject);
 					}
 					else if (body.startsWith("ci:test")) {
-						return new CITestGitHubEventHandler(
+						return new TestGitHubIssueEventHandler(
 							eventHandlerContext, messageJSONObject);
 					}
 
 					throw new IllegalArgumentException(
 						"Invalid \"body\" from comment JSON");
+				}
+			}
+			else if (action.equals("opened")) {
+				JSONObject pullRequestJSONObject =
+					messageJSONObject.optJSONObject("pull_request");
+
+				if (pullRequestJSONObject != null) {
+					return new OpenGitHubPullRequestEventHandler(
+						eventHandlerContext, messageJSONObject);
+				}
+			}
+			else if (action.equals("synchronize")) {
+				JSONObject pullRequestJSONObject =
+					messageJSONObject.optJSONObject("pull_request");
+
+				if (pullRequestJSONObject != null) {
+					return new SynchronizeGitHubPullRequestEventHandler(
+						eventHandlerContext, messageJSONObject);
 				}
 			}
 
@@ -59,7 +76,7 @@ public class GitHubEventHandlerFactory extends BaseEventHandlerFactory {
 
 		if (pusherJSONObject != null) {
 			return new PusherGitHubEventHandler(
-				getEventHandlerContext(), messageJSONObject);
+				eventHandlerContext, messageJSONObject);
 		}
 
 		throw new IllegalArgumentException("Invalid message JSON");

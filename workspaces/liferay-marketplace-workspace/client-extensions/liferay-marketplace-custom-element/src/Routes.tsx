@@ -8,7 +8,7 @@ import GetAppPage from './pages/GetAppPage/GetAppPage';
 import {NextSteps} from './pages/NextSteps';
 import {AppCreationFlow} from './pages/PublishedAppsDashboard/Apps/AppCreationFlow/AppCreationFlow';
 import PublishedAppsDashboardRouter from './pages/PublishedAppsDashboard/PublishedAppsDashboardRouter';
-import PublisherGateRouter from './pages/PublisherGatePage/PublisheGateRouter';
+import PublisherGateRouter from './pages/PublisherGate/PublisheGateRouter';
 import PurchasedAppsDashboardRouter from './pages/PurchasedAppsDashboard/PurchasedAppsDashboardRouter';
 import PurchasedSolutions from './pages/PurchasedSolutions/PurchasedSolutions';
 
@@ -26,11 +26,11 @@ const Routes = {
 export type RouteType = keyof typeof Routes;
 
 type AppRoutesProps = {
-	route: RouteType;
+	path: RouteType;
 };
 
-export default function AppRoutes({route}: AppRoutesProps) {
-	const Route = Routes[route];
+export default function AppRoutes({path}: AppRoutesProps) {
+	const Route = Routes[path];
 
 	if (!Route) {
 		return <h1>Page not found</h1>;

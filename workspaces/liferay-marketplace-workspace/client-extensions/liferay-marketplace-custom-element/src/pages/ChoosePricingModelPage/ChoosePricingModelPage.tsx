@@ -10,7 +10,7 @@ import {RadioCard} from '../../components/RadioCard/RadioCard';
 import {Section} from '../../components/Section/Section';
 import {
 	createProductSpecification,
-	createSpecification,
+	getSpecification,
 	updateProductSpecification,
 } from '../../utils/api';
 
@@ -109,18 +109,13 @@ export function ChoosePricingModelPage({
 
 								dispatch({
 									payload: {value: 0},
-									type: TYPES.UPDATE_APP_LICENSE_PRICE,
+									type: TYPES.UPDATE_APP_LICENSE_PRICES,
 								});
 							}
 						}
 						else {
-							const dataSpecification = await createSpecification(
-								{
-									body: {
-										key: 'price-model',
-										title: {en_US: 'Price Model'},
-									},
-								}
+							const dataSpecification = await getSpecification(
+								'price-model'
 							);
 
 							const {id} = await createProductSpecification({

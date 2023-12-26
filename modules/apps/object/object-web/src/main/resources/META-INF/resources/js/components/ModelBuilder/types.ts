@@ -93,6 +93,12 @@ export type TAction =
 	  }
 	| {
 			payload: {
+				newDeleteObjectDefinition: DeletedObjectDefinition | null;
+			};
+			type: TYPES.SET_DELETE_OBJECT_DEFINITION;
+	  }
+	| {
+			payload: {
 				newElements: Elements<
 					ObjectDefinitionNodeData | ObjectRelationshipEdgeData
 				>;
@@ -150,6 +156,13 @@ export type TAction =
 	  }
 	| {
 			payload: {
+				objectDefinitionExternalReferenceCode: string;
+				showAllObjectFields: boolean;
+			};
+			type: TYPES.SET_SHOW_ALL_OBJECT_FIELDS;
+	  }
+	| {
+			payload: {
 				updatedShowChangesSaved: boolean;
 			};
 			type: TYPES.SET_SHOW_CHANGES_SAVED;
@@ -181,10 +194,17 @@ export type TAction =
 				updatedObjectField: ObjectField;
 			};
 			type: TYPES.UPDATE_OBJECT_FIELD_NODE_ROW;
+	  }
+	| {
+			payload: {
+				modelBuilderModals: ModelBuilderModals;
+			};
+			type: TYPES.UPDATE_VISIBILITY_MODEL_BUILDER_MODALS;
 	  };
 
 export type TState = {
 	baseResourceURL: string;
+	deleteObjectDefinition: DeletedObjectDefinition | null;
 	editObjectDefinitionURL: string;
 	elements: Elements<ObjectDefinitionNodeData | ObjectRelationshipEdgeData>;
 	filterOperators: TFilterOperators;
@@ -193,6 +213,7 @@ export type TState = {
 	forbiddenNames: string[];
 	isLoadingObjectFolder: boolean;
 	leftSidebarItems: LeftSidebarItem[];
+	modelBuilderModals: ModelBuilderModals;
 	objectDefinitionPermissionsURL: string;
 	objectDefinitions: ObjectDefinition[];
 	objectDefinitionsStorageTypes: LabelValueObject[];
