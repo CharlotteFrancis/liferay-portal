@@ -6894,7 +6894,7 @@ information. Make sure to commit in all format-javadoc results.
 	</target>
 
 	<target name="modules-integration-project-templates-jdk8">
-		<antcall target="modules-unit-jdk8">
+		<antcall target="modules-unit-jdk11_oracle">
 			<param name="project.templates.test" value="true" />
 			<param name="project.templates.test.builds" value="true" />
 		</antcall>
@@ -7042,7 +7042,7 @@ information. Make sure to commit in all format-javadoc results.
 		</run-batch-test>
 	</target>
 
-	<target name="modules-unit-jdk8">
+	<target name="modules-unit-jdk11_oracle">
 		<run-batch-test>
 			<test-action>
 				<print-test-class-group test.class.group.index="${axis.variable}" />
@@ -7097,11 +7097,11 @@ information. Make sure to commit in all format-javadoc results.
 	</target>
 
 	<target name="modules-unit-jdk11_oracle_stable">
-		<antcall target="modules-unit-jdk8" />
+		<antcall target="modules-unit-jdk11_oracle" />
 	</target>
 
 	<target name="modules-unit-project-templates-jdk11_oracle">
-		<antcall target="modules-unit-jdk8">
+		<antcall target="modules-unit-jdk11_oracle">
 			<param name="project.templates.test" value="true" />
 			<param name="project.templates.test.builds" value="false" />
 		</antcall>
@@ -7893,7 +7893,7 @@ ${output.content}</echo>
 		<run-release-osgi-state-lpkg-test />
 	</target>
 
-	<target name="rest-builder-jdk11_ora">
+	<target name="rest-builder-jdk11_oracle">
 		<run-batch-test>
 			<test-action>
 				<if>
@@ -8713,7 +8713,7 @@ ${output.content}</echo>
 		</run-batch-test>
 	</target>
 
-	<target name=" unit-jdk11_oracle_stable">
+	<target name="unit-jdk11_oracle_stable">
 		<antcall target="unit-jdk11_oracle" />
 	</target>
 
