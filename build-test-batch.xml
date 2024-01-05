@@ -3339,7 +3339,7 @@ log.sanitizer.enabled=false</echo>
 		</run-batch-test>
 	</target>
 
-	<target name="build-iw-jdk8">
+	<target name="build-iw-jdk11_oracle">
 		<run-batch-test>
 			<test-action>
 				<record action="start" name="${project.dir}/build.iw.output.txt" />
@@ -3448,7 +3448,7 @@ information. Make sure to commit in all build-lib-versions results.
 		<run-bundle-blacklist-restart-test />
 	</target>
 
-	<target name="central-requirements-jdk8">
+	<target name="central-requirements-jdk11_oracle">
 		<fail message="Please set the property ${central.requirements.tests}." unless="central.requirements.tests" />
 
 		<run-batch-test>
@@ -5174,7 +5174,7 @@ information. Make sure to commit in all format-javadoc results.
 		<run-functional-test app.server.type="tomcat" database.type="mysql" database.version="5.7" test.portal.log.assert="true" />
 	</target>
 
-	<target name="functional-smoke-tomcat90-mysql57-jdk8_stable">
+	<target name="functional-smoke-tomcat90-mysql57-jdk11_oracle_stable">
 		<run-functional-test app.server.type="tomcat" database.type="mysql" database.version="5.7" test.portal.log.assert="true" />
 	</target>
 
@@ -5410,7 +5410,7 @@ information. Make sure to commit in all format-javadoc results.
 		<run-functional-test app.server.type="tomcat" browser.type="chrome" database.type="mysql" database.version="5.7" />
 	</target>
 
-	<target name="functional-tomcat90-mysql57-chrome100-jdk8_stable">
+	<target name="functional-tomcat90-mysql57-chrome100-jdk11_oracle_stable">
 		<run-functional-test app.server.type="tomcat" database.type="mysql" database.version="5.7" />
 	</target>
 
@@ -5618,7 +5618,7 @@ information. Make sure to commit in all format-javadoc results.
 		<run-functional-test app.server.type="tomcat" database.type="mysql" database.version="5.7" />
 	</target>
 
-	<target name="functional-upgrade-tomcat90-mysql57-jdk8_stable">
+	<target name="functional-upgrade-tomcat90-mysql57-jdk11_oracle_stable">
 		<run-functional-test app.server.type="tomcat" database.type="mysql" database.version="5.7" />
 	</target>
 
@@ -6009,7 +6009,7 @@ information. Make sure to commit in all format-javadoc results.
 		</run-batch-test>
 	</target>
 
-	<target name="js-unit-jdk8">
+	<target name="js-unit-jdk11_oracle">
 		<run-batch-test>
 			<test-action>
 				<gradle-execute dir="modules" task="packageRunTest">
@@ -6147,7 +6147,7 @@ information. Make sure to commit in all format-javadoc results.
 		<run-lpkg-startup-test />
 	</target>
 
-	<target name="modules-compile-jdk8">
+	<target name="modules-compile-jdk11_oracle">
 		<run-batch-test>
 			<test-action>
 				<if>
@@ -6833,7 +6833,7 @@ information. Make sure to commit in all format-javadoc results.
 		<run-modules-integration-test database.type="mysql" database.version="5.7" />
 	</target>
 
-	<target name="modules-integration-mysql57-jdk8_stable">
+	<target name="modules-integration-mysql57-jdk11_oracle_stable">
 		<run-modules-integration-test database.type="mysql" database.version="5.7" />
 	</target>
 
@@ -6894,7 +6894,7 @@ information. Make sure to commit in all format-javadoc results.
 	</target>
 
 	<target name="modules-integration-project-templates-jdk8">
-		<antcall target="modules-unit-jdk8">
+		<antcall target="modules-unit-jdk11_oracle">
 			<param name="project.templates.test" value="true" />
 			<param name="project.templates.test.builds" value="true" />
 		</antcall>
@@ -7042,7 +7042,7 @@ information. Make sure to commit in all format-javadoc results.
 		</run-batch-test>
 	</target>
 
-	<target name="modules-unit-jdk8">
+	<target name="modules-unit-jdk11_oracle">
 		<run-batch-test>
 			<test-action>
 				<print-test-class-group test.class.group.index="${axis.variable}" />
@@ -7096,12 +7096,12 @@ information. Make sure to commit in all format-javadoc results.
 		</run-batch-test>
 	</target>
 
-	<target name="modules-unit-jdk8_stable">
-		<antcall target="modules-unit-jdk8" />
+	<target name="modules-unit-jdk11_oracle_stable">
+		<antcall target="modules-unit-jdk11_oracle" />
 	</target>
 
-	<target name="modules-unit-project-templates-jdk8">
-		<antcall target="modules-unit-jdk8">
+	<target name="modules-unit-project-templates-jdk11_oracle">
+		<antcall target="modules-unit-jdk11_oracle">
 			<param name="project.templates.test" value="true" />
 			<param name="project.templates.test.builds" value="false" />
 		</antcall>
@@ -7379,7 +7379,7 @@ ${output.content}</echo>
 		</run-batch-test>
 	</target>
 
-	<target name="pmd-jdk8">
+	<target name="pmd-jdk11_oracle">
 		<local name="pmd.violations.count" />
 
 		<delete dir="pmd-reports" />
@@ -7453,7 +7453,7 @@ ${output.content}</echo>
 		</run-batch-test>
 	</target>
 
-	<target name="portal-license-smoke-mysql57-jdk8">
+	<target name="portal-license-smoke-mysql57-jdk11_oracle">
 		<run-batch-test>
 			<test-action>
 				<database-test-run-test database.type="mysql" stop.app.server="true">
@@ -7893,7 +7893,7 @@ ${output.content}</echo>
 		<run-release-osgi-state-lpkg-test />
 	</target>
 
-	<target name="rest-builder-jdk8">
+	<target name="rest-builder-jdk11_oracle">
 		<run-batch-test>
 			<test-action>
 				<if>
@@ -8135,7 +8135,7 @@ tar --extract --file=liferay-portal-source.tar.gz modules/core/portal-bootstrap/
 		</run-batch-test>
 	</target>
 
-	<target name="service-builder-jdk8">
+	<target name="service-builder-jdk11_oracle">
 		<run-batch-test>
 			<test-action>
 				<if>
@@ -8388,7 +8388,7 @@ information. Make sure to commit in all build services results.
 		<run-modules-integration-test database.type="mysql" database.version="5.7" refreshdependencies="true" subrepository.name="${subrepository.name}" />
 	</target>
 
-	<target name="subrepository-pmd-jdk8">
+	<target name="subrepository-pmd-jdk11_oracle">
 		<fail message="Please set the property ${subrepository.name}." unless="subrepository.name" />
 
 		<get-module-base-dir-from-subrepository-name subrepository.name="${subrepository.name}" />
@@ -8662,7 +8662,7 @@ ${output.content}</echo>
 		</run-batch-test>
 	</target>
 
-	<target name="unit-jdk8">
+	<target name="unit-jdk11_oracle">
 		<run-batch-test>
 			<test-action>
 				<print-test-class-group test.class.group.index="${axis.variable}" />
@@ -8713,14 +8713,14 @@ ${output.content}</echo>
 		</run-batch-test>
 	</target>
 
-	<target name="unit-jdk8_stable">
-		<antcall target="unit-jdk8" />
+	<target name="unit-jdk11_oracle_stable">
+		<antcall target="unit-jdk11_oracle" />
 	</target>
 
-	<target name="workspaces-compile-jdk8">
+	<target name="workspaces-compile-jdk11_oracle">
 		<run-batch-test>
 			<test-action>
-				<for list="${workspaces.names[workspaces-compile-jdk8]}" param="workspace.name">
+				<for list="${workspaces.names[workspaces-compile-jdk11_oracle]}" param="workspace.name">
 					<sequential>
 						<local name="workspace.dir" />
 
