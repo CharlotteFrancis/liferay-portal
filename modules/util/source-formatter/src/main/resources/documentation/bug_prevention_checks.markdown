@@ -41,6 +41,7 @@ GradleDependencyConfigurationCheck | .gradle | Validates the scope of dependenci
 GradleDependencyVersionCheck | .gradle | Checks the version for dependencies in gradle build files. |
 GradleExportedPackageDependenciesCheck | .gradle | Validates dependencies in gradle build files. |
 GradleJavaVersionCheck | .gradle | Checks values of properties `sourceCompatibility` and `targetCompatibility` in gradle build files. |
+GradleMissingDependenciesForUpgradeJava11Check | .gradle | Checks missing dependencies for upgrade Java 11 in gradle build files. |
 GradleMissingJarManifestTaskCheck | .gradle | Finds missing `jarManifest` task when using `jarPatched` task in gradle build files. |
 GradlePropertiesCheck | .gradle | Validates property values in gradle build files. |
 GradleProvidedDependenciesCheck | .gradle | Validates the scope of dependencies in build gradle files. |

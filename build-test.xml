@@ -1106,20 +1106,32 @@ jdbc.default.connectionProperties=oracle.jdbc.ReadTimeout=0;oracle.net.CONNECT_T
 		<attribute default="${ant.java.version}" name="version" />
 
 		<sequential>
+			<echo>charw Inside get-java-jdk-opts </echo>
+
+			<echo>ANT_OPTS ${env.ANT_OPTS} </echo>
+
 			<var name="java.jdk.opts" unset="true" />
 
 			<propertycopy from="java.jdk.opts[@{version}][@{architecture}][@{type}]" property="java.jdk.opts" silent="true" />
 
+			<echo>java.jdk.opts after propertycopy: ${java.jdk.opts}</echo>
+
 			<property name="java.jdk.opts" value="${java.home}" />
+
+			<echo>java.jdk.opts after property value=java.home: ${java.jdk.opts}</echo>
 
 			<if>
 				<not>
 					<available file="${java.jdk.opts}" />
 				</not>
 				<then>
+					<echo>Inside get-java-jdk-opts if block</echo>
+
 					<var name="java.jdk.opts" unset="true" />
 
 					<property name="java.jdk.opts" value="${java.home}" />
+
+					<echo>java.jdk.opts at end of if block: ${java.jdk.opts}</echo>
 				</then>
 			</if>
 		</sequential>

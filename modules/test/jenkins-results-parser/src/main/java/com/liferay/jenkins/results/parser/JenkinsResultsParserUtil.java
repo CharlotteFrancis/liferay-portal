@@ -5784,6 +5784,9 @@ public class JenkinsResultsParserUtil {
 			}
 		}
 
+		System.out.println(
+					"Using " + cacheDirPath + " for cached files");
+
 		return "http://mirrors-no-cache.lax.liferay.com/github.com/liferay";
 	}
 
