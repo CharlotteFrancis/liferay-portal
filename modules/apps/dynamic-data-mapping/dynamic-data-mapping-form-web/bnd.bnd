@@ -3,3 +3,4 @@ Bundle-SymbolicName: com.liferay.dynamic.data.mapping.form.web
 Bundle-Version: 4.0.155
 Web-ContextPath: /dynamic-data-mapping-form-web
 -dsannotations-options: inherit
+-noimportjava: true
