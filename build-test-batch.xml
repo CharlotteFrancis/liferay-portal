@@ -3489,6 +3489,7 @@ information. Make sure to commit in all build-lib-versions results.
 	</target>
 
 	<target name="compile-jsp-jdk8">
+		<fail message="Failed to create analytics cloud demo data." />
 		<run-batch-test>
 			<test-action>
 				<delete dir="${project.dir}/portal-web/docroot/html" />
