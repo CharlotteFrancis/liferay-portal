@@ -2407,7 +2407,7 @@ ${poshi.runner.testsuite.testcase.name}</echo>
 
 							<antcall target="prepare-portal-test-digital-signature-properties" />
 
-							<antcall target="prepare-portal-test-object-storage-salesforce-properties" />
+							<antcall target="prepare-pstart-app-server-preserve-liferay-homeortal-test-object-storage-salesforce-properties" />
 
 							<ant dir="portal-test" inheritAll="false" target="deploy" />
 
@@ -3489,6 +3489,13 @@ information. Make sure to commit in all build-lib-versions results.
 	</target>
 
 	<target name="compile-jsp-jdk8">
+		<if>
+			<contains string="${env.MASTER_HOSTNAME}" substring="test-5-1" />
+			<then>
+				<fail message="Failed to create analytics cloud demo data." />
+			</then> 
+		</if>
+
 		<run-batch-test>
 			<test-action>
 				<delete dir="${project.dir}/portal-web/docroot/html" />
