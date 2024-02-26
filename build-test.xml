@@ -7269,11 +7269,11 @@ org.apache.catalina.startup.ClassLoaderFactory.level=INFO]]>
 		<attribute default="0" name="app.server.bundle.index" />
 		<attribute default="true" name="delete.liferay.home" />
 		<attribute default="" name="testable.portal.started.marker.file" />
-
-		<echo>"charw inside start-app-server" </echo>
-
+		
 		<sequential>
 			<lstopwatch action="start" name="start.app.server.@{app.server.bundle.index}" />
+
+			<echo>"charw inside start-app-server" </echo>
 
 			<start-app-server-cmd
 				app.server.bundle.index="@{app.server.bundle.index}"
@@ -7362,14 +7362,18 @@ org.apache.catalina.startup.ClassLoaderFactory.level=INFO]]>
 
 					<get-operating-system-property property.name="operating.system.docker.image" />
 
+					<echo>"charw operating system docker image: @{operating.system.docker.image}" </echo>
+
 					<parallel>
 						<wait-for-app-server app.server.bin.dir="@{app.server.bin.dir}" app.server.bundle.index="@{app.server.bundle.index}" />
+
+						<echo> "charw after wait-for-app-server, app.server.bin.dir = @{app.server.bin.dir}, app.server.bundle.index = @{app.server.bundle.index}" </echo>
 
 						<daemons>
 							<if>
 								<istrue value="${test.docker.environment}" />
 								<then>
-									<echo>docker run -d -p ${test.app.server.leading.port.number}080:${test.app.server.leading.port.number}080 -v ${app.server.parent.dir}:${app.server.parent.dir} --cidfile=docker.process.pid --network=@{docker.network.name} openjdk:8-alpine ${app.server.bin.dir}/${app.server.start.executable} ${app.server.start.executable.arg.line}</echo>
+									<echo>charw docker run -d -p ${test.app.server.leading.port.number}080:${test.app.server.leading.port.number}080 -v ${app.server.parent.dir}:${app.server.parent.dir} --cidfile=docker.process.pid --network=@{docker.network.name} openjdk:8-alpine ${app.server.bin.dir}/${app.server.start.executable} ${app.server.start.executable.arg.line} --privilaged</echo>
 
 									<exec executable="docker">
 										<arg line="run -d" />
@@ -7380,7 +7384,7 @@ org.apache.catalina.startup.ClassLoaderFactory.level=INFO]]>
 										<arg value="--network=@{docker.network.name}" />
 										<arg value="openjdk:8u191-jdk-alpine3.8" />
 										<arg value="${app.server.bin.dir}/${app.server.start.executable}" />
-										<arg value="${app.server.start.executable.arg.line}" />
+										<arg value="${app.server.start.executable.arg.line} --privilaged" />
 									</exec>
 								</then>
 								<elseif>
@@ -7519,6 +7523,25 @@ org.apache.catalina.startup.ClassLoaderFactory.level=INFO]]>
 
 			<property name="docker.start.script" value="docker_start.sh" />
 
+			<echo> charw inside start-docker-container </echo>
+
+			<echo> charw docker run: 
+					docker run \
+						--detach \
+						--hostname=@{name} \
+						--interactive \
+						--name=@{name} \
+						--tty \
+						${docker.network.run.option} \
+						@{run.options} \
+						\
+						@{image} \
+						\
+						@{options}
+
+					docker ps --filter "name=@{name}" --format "Started container [ID: '{{.ID}}', name: '{{.Names}}'] from image '{{.Image}}'"
+			</echo>
+
 			<echo file="${docker.start.script}">
 				<![CDATA[
 					docker run \
@@ -7598,6 +7621,8 @@ ${docker.start.error}</fail>
 	</macrodef>
 
 	<macrodef name="start-docker-database-cmd">
+		<echo> charw inside start-docker-database-cmd" </echo>
+
 		<sequential>
 			<get-database-property property.name="database.host" />
 			<get-database-property property.name="database.docker.database.options" />
@@ -7629,6 +7654,8 @@ ${docker.start.error}</fail>
 					<var name="database.docker.database.options.new" value="${database.docker.database.options}" />
 				</else>
 			</if>
+
+			<echo> "charw inside start-docker-database-cmd, database docker run options: ${database.docker.run.options}, databse docker database options new: ${database.docker.database.options.new}" </echo>
 
 			<start-docker-container image="${database.docker.image}" name="${database.host}" options="${database.docker.database.options.new}">\
 				${database.docker.run.options} \
