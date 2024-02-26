@@ -7298,9 +7298,8 @@ org.apache.catalina.startup.ClassLoaderFactory.level=INFO]]>
 		<attribute default="false" name="test.docker.environment" />
 		<attribute default="" name="testable.portal.started.marker.file" />
 
-		<echo>"charw inside start-app-server-cmd" </echo>
-
 		<sequential>
+			<echo>"charw inside start-app-server-cmd" </echo>
 			<set-app-server-properties
 				app.server.bin.dir="@{app.server.bin.dir}"
 				app.server.bundle.index="@{app.server.bundle.index}"
@@ -7621,9 +7620,8 @@ ${docker.start.error}</fail>
 	</macrodef>
 
 	<macrodef name="start-docker-database-cmd">
-		<echo> charw inside start-docker-database-cmd" </echo>
-
 		<sequential>
+			<echo> charw inside start-docker-database-cmd" </echo>
 			<get-database-property property.name="database.host" />
 			<get-database-property property.name="database.docker.database.options" />
 			<get-database-property property.name="database.docker.image" />
@@ -16594,7 +16592,7 @@ CATALINA_OPTS="$CATALINA_OPTS -Dcom.sun.management.jmxremote -Dcom.sun.managemen
 
 	<target name="start-app-server-preserve-liferay-home">
 
-	<echo>"charw inside start-app-server-preserve-liferay-home"</echo>
+		<echo>"charw inside start-app-server-preserve-liferay-home"</echo>
 
 		<if>
 			<not>
