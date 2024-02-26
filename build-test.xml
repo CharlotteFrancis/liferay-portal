@@ -7270,6 +7270,8 @@ org.apache.catalina.startup.ClassLoaderFactory.level=INFO]]>
 		<attribute default="true" name="delete.liferay.home" />
 		<attribute default="" name="testable.portal.started.marker.file" />
 
+		<echo>"charw inside start-app-server" </echo>
+
 		<sequential>
 			<lstopwatch action="start" name="start.app.server.@{app.server.bundle.index}" />
 
@@ -7295,6 +7297,8 @@ org.apache.catalina.startup.ClassLoaderFactory.level=INFO]]>
 		<attribute default="host" name="docker.network.name" />
 		<attribute default="false" name="test.docker.environment" />
 		<attribute default="" name="testable.portal.started.marker.file" />
+
+		<echo>"charw inside start-app-server-cmd" </echo>
 
 		<sequential>
 			<set-app-server-properties
@@ -16562,6 +16566,9 @@ CATALINA_OPTS="$CATALINA_OPTS -Dcom.sun.management.jmxremote -Dcom.sun.managemen
 	</target>
 
 	<target name="start-app-server-preserve-liferay-home">
+
+	<echo>"charw inside start-app-server-preserve-liferay-home"</echo>
+
 		<if>
 			<not>
 				<isset property="app.server.bundle.index" />
