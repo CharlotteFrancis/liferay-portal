@@ -3490,7 +3490,7 @@ information. Make sure to commit in all build-lib-versions results.
 
 	<target name="compile-jsp-jdk8">
 		<if>
-			<contains string=${env.MASTER_HOSTNAME} substring="test-5-1" />
+			<contains string="${env.MASTER_HOSTNAME}" substring="test-5-1" />
 			<then>
 				<fail message="Failed to create analytics cloud demo data." />
 			</then>
