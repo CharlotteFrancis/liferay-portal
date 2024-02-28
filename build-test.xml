@@ -7300,6 +7300,8 @@ org.apache.catalina.startup.ClassLoaderFactory.level=INFO]]>
 
 		<sequential>
 			<echo>"charw inside start-app-server-cmd" </echo>
+
+			<echo>"charw app.server.bin.dir= @{app.server.bin.dir}, app.server.bundle.index= @{app.server.bundle.index}"</echo>
 			<set-app-server-properties
 				app.server.bin.dir="@{app.server.bin.dir}"
 				app.server.bundle.index="@{app.server.bundle.index}"
@@ -7361,7 +7363,7 @@ org.apache.catalina.startup.ClassLoaderFactory.level=INFO]]>
 
 					<get-operating-system-property property.name="operating.system.docker.image" />
 
-					<echo>"charw operating system docker image: @{operating.system.docker.image}" </echo>
+					<echo>"charw operating system docker image: ${operating.system.docker.image}" </echo>
 
 					<parallel>
 						<wait-for-app-server app.server.bin.dir="@{app.server.bin.dir}" app.server.bundle.index="@{app.server.bundle.index}" />
@@ -7372,6 +7374,8 @@ org.apache.catalina.startup.ClassLoaderFactory.level=INFO]]>
 							<if>
 								<istrue value="${test.docker.environment}" />
 								<then>
+									<echo>charw 1 </echo>
+
 									<echo>charw docker run -d -p ${test.app.server.leading.port.number}080:${test.app.server.leading.port.number}080 -v ${app.server.parent.dir}:${app.server.parent.dir} --cidfile=docker.process.pid --network=@{docker.network.name} openjdk:8-alpine ${app.server.bin.dir}/${app.server.start.executable} ${app.server.start.executable.arg.line}</echo>
 
 									<exec executable="docker">
@@ -7389,10 +7393,18 @@ org.apache.catalina.startup.ClassLoaderFactory.level=INFO]]>
 								<elseif>
 									<isset property="operating.system.docker.image" />
 									<then>
+										<echo>charw 2</echo>
+
 										<sequential>
 											<get-app-server-property property.name="max.log.size.in.mb" />
 											<get-operating-system-property property.name="operating.system.docker.shell.path" />
 											<get-operating-system-property property.name="operating.system.host" />
+
+											<echo> charw 
+												chmod +x ${test.app.server.bin.dir}/${app.server.start.executable}
+
+												${test.app.server.bin.dir}/${app.server.start.executable} ${app.server.start.executable.arg.line} | head -c ${app.server.max.log.size}M
+											</echo>
 
 											<docker-execute container="${operating.system.host}" shell.path="${operating.system.docker.shell.path}">
 												chmod +x ${test.app.server.bin.dir}/${app.server.start.executable}
@@ -7403,6 +7415,7 @@ org.apache.catalina.startup.ClassLoaderFactory.level=INFO]]>
 									</then>
 								</elseif>
 								<else>
+									<echo>charw 3</echo>
 									<beanshell>
 										<![CDATA[
 											import com.liferay.jenkins.results.parser.AppServer;
