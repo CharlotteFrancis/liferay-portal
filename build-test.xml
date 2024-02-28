@@ -498,6 +498,11 @@ typeSettings=&#91;&quot;friendlyURLMapping=perico&quot;,&quot;instanceable=false
 		<text name="script" />
 
 		<sequential>
+			<echo>charw inside docker-execute </echo>
+			<echo>charw container= ${container} </echo>
+			<echo>charw project.dir = ${project.dir} </echo>
+			<echo>charw script = @{script} </echo>
+
 			<property location="${project.dir}/script.sh" name="script.sh.file" />
 
 			<echo file="${script.sh.file}"><![CDATA[@{script}]]></echo>
@@ -7269,9 +7274,11 @@ org.apache.catalina.startup.ClassLoaderFactory.level=INFO]]>
 		<attribute default="0" name="app.server.bundle.index" />
 		<attribute default="true" name="delete.liferay.home" />
 		<attribute default="" name="testable.portal.started.marker.file" />
-
+		
 		<sequential>
 			<lstopwatch action="start" name="start.app.server.@{app.server.bundle.index}" />
+
+			<echo>"charw inside start-app-server" </echo>
 
 			<start-app-server-cmd
 				app.server.bundle.index="@{app.server.bundle.index}"
@@ -7297,6 +7304,9 @@ org.apache.catalina.startup.ClassLoaderFactory.level=INFO]]>
 		<attribute default="" name="testable.portal.started.marker.file" />
 
 		<sequential>
+			<echo>"charw inside start-app-server-cmd" </echo>
+
+			<echo>"charw app.server.bin.dir= @{app.server.bin.dir}, app.server.bundle.index= @{app.server.bundle.index}"</echo>
 			<set-app-server-properties
 				app.server.bin.dir="@{app.server.bin.dir}"
 				app.server.bundle.index="@{app.server.bundle.index}"
@@ -7358,14 +7368,20 @@ org.apache.catalina.startup.ClassLoaderFactory.level=INFO]]>
 
 					<get-operating-system-property property.name="operating.system.docker.image" />
 
+					<echo>"charw operating system docker image: ${operating.system.docker.image}" </echo>
+
 					<parallel>
 						<wait-for-app-server app.server.bin.dir="@{app.server.bin.dir}" app.server.bundle.index="@{app.server.bundle.index}" />
+
+						<echo> "charw after wait-for-app-server, app.server.bin.dir = @{app.server.bin.dir}, app.server.bundle.index = @{app.server.bundle.index}" </echo>
 
 						<daemons>
 							<if>
 								<istrue value="${test.docker.environment}" />
 								<then>
-									<echo>docker run -d -p ${test.app.server.leading.port.number}080:${test.app.server.leading.port.number}080 -v ${app.server.parent.dir}:${app.server.parent.dir} --cidfile=docker.process.pid --network=@{docker.network.name} openjdk:8-alpine ${app.server.bin.dir}/${app.server.start.executable} ${app.server.start.executable.arg.line}</echo>
+									<echo>charw 1 </echo>
+
+									<echo>charw docker run -d -p ${test.app.server.leading.port.number}080:${test.app.server.leading.port.number}080 -v ${app.server.parent.dir}:${app.server.parent.dir} --cidfile=docker.process.pid --network=@{docker.network.name} openjdk:8-alpine ${app.server.bin.dir}/${app.server.start.executable} ${app.server.start.executable.arg.line}</echo>
 
 									<exec executable="docker">
 										<arg line="run -d" />
@@ -7373,6 +7389,7 @@ org.apache.catalina.startup.ClassLoaderFactory.level=INFO]]>
 										<arg value="-v" />
 										<arg value="${app.server.parent.dir}:${app.server.parent.dir}" />
 										<arg value="--cidfile=docker.process.pid" />
+										<arg value="--privileged" />
 										<arg value="--network=@{docker.network.name}" />
 										<arg value="openjdk:8u191-jdk-alpine3.8" />
 										<arg value="${app.server.bin.dir}/${app.server.start.executable}" />
@@ -7382,10 +7399,18 @@ org.apache.catalina.startup.ClassLoaderFactory.level=INFO]]>
 								<elseif>
 									<isset property="operating.system.docker.image" />
 									<then>
+										<echo>charw 2</echo>
+
 										<sequential>
 											<get-app-server-property property.name="max.log.size.in.mb" />
 											<get-operating-system-property property.name="operating.system.docker.shell.path" />
 											<get-operating-system-property property.name="operating.system.host" />
+
+											<echo> charw 
+												chmod +x ${test.app.server.bin.dir}/${app.server.start.executable}
+
+												${test.app.server.bin.dir}/${app.server.start.executable} ${app.server.start.executable.arg.line} | head -c ${app.server.max.log.size}M
+											</echo>
 
 											<docker-execute container="${operating.system.host}" shell.path="${operating.system.docker.shell.path}">
 												chmod +x ${test.app.server.bin.dir}/${app.server.start.executable}
@@ -7396,6 +7421,7 @@ org.apache.catalina.startup.ClassLoaderFactory.level=INFO]]>
 									</then>
 								</elseif>
 								<else>
+									<echo>charw 3</echo>
 									<beanshell>
 										<![CDATA[
 											import com.liferay.jenkins.results.parser.AppServer;
@@ -7515,8 +7541,9 @@ org.apache.catalina.startup.ClassLoaderFactory.level=INFO]]>
 
 			<property name="docker.start.script" value="docker_start.sh" />
 
-			<echo file="${docker.start.script}">
-				<![CDATA[
+			<echo> charw inside start-docker-container </echo>
+
+			<echo> charw docker run: 
 					docker run \
 						--detach \
 						--hostname=@{name} \
@@ -7531,8 +7558,52 @@ org.apache.catalina.startup.ClassLoaderFactory.level=INFO]]>
 						@{options}
 
 					docker ps --filter "name=@{name}" --format "Started container [ID: '{{.ID}}', name: '{{.Names}}'] from image '{{.Image}}'"
-				]]>
 			</echo>
+
+			<if>
+				<contains string="@{name}" substring="orcllinux" /> 
+				<then>
+					<echo file="${docker.start.script}">
+						<![CDATA[
+							docker run \
+								--detach \
+								--hostname=@{name} \
+								--interactive \
+								--name=@{name} \
+								--tty \
+								--privileged \
+								${docker.network.run.option} \
+								@{run.options} \
+								\
+								@{image} \
+								\
+								@{options}
+
+							docker ps --filter "name=@{name}" --format "Started container [ID: '{{.ID}}', name: '{{.Names}}'] from image '{{.Image}}'"
+						]]>
+					</echo>
+				</then>
+				<else>
+					<echo file="${docker.start.script}">
+						<![CDATA[
+							docker run \
+								--detach \
+								--hostname=@{name} \
+								--interactive \
+								--name=@{name} \
+								--tty \
+								${docker.network.run.option} \
+								@{run.options} \
+								\
+								@{image} \
+								\
+								@{options}
+
+							docker ps --filter "name=@{name}" --format "Started container [ID: '{{.ID}}', name: '{{.Names}}'] from image '{{.Image}}'"
+						]]>
+					</echo>
+				</else>
+			</if>
 
 			<chmod
 				perm="a+x"
@@ -7595,6 +7666,7 @@ ${docker.start.error}</fail>
 
 	<macrodef name="start-docker-database-cmd">
 		<sequential>
+			<echo> charw inside start-docker-database-cmd" </echo>
 			<get-database-property property.name="database.host" />
 			<get-database-property property.name="database.docker.database.options" />
 			<get-database-property property.name="database.docker.image" />
@@ -7625,6 +7697,8 @@ ${docker.start.error}</fail>
 					<var name="database.docker.database.options.new" value="${database.docker.database.options}" />
 				</else>
 			</if>
+
+			<echo> "charw inside start-docker-database-cmd, database docker run options: ${database.docker.run.options}, databse docker database options new: ${database.docker.database.options.new}" </echo>
 
 			<start-docker-container image="${database.docker.image}" name="${database.host}" options="${database.docker.database.options.new}">\
 				${database.docker.run.options} \
@@ -16562,6 +16636,9 @@ CATALINA_OPTS="$CATALINA_OPTS -Dcom.sun.management.jmxremote -Dcom.sun.managemen
 	</target>
 
 	<target name="start-app-server-preserve-liferay-home">
+
+		<echo>"charw inside start-app-server-preserve-liferay-home"</echo>
+
 		<if>
 			<not>
 				<isset property="app.server.bundle.index" />
