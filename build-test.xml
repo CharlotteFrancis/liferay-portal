@@ -7384,6 +7384,7 @@ org.apache.catalina.startup.ClassLoaderFactory.level=INFO]]>
 										<arg value="-v" />
 										<arg value="${app.server.parent.dir}:${app.server.parent.dir}" />
 										<arg value="--cidfile=docker.process.pid" />
+										<arg value="--privileged" />
 										<arg value="--network=@{docker.network.name}" />
 										<arg value="openjdk:8u191-jdk-alpine3.8" />
 										<arg value="${app.server.bin.dir}/${app.server.start.executable}" />
