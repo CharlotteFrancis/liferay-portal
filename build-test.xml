@@ -495,14 +495,14 @@ typeSettings=&#91;&quot;friendlyURLMapping=perico&quot;,&quot;instanceable=false
 		<attribute name="container" />
 		<attribute default="/bin/bash" name="shell.path" />
 
-		<echo>charw inside docker-execute </echo>
-		<echo>charw container= ${container} </echo>
-		<echo>charw project.dir = ${project.dir} </echo>
-		<echo>charw script = @{script} </echo>
-
 		<text name="script" />
 
 		<sequential>
+			<echo>charw inside docker-execute </echo>
+			<echo>charw container= ${container} </echo>
+			<echo>charw project.dir = ${project.dir} </echo>
+			<echo>charw script = @{script} </echo>
+
 			<property location="${project.dir}/script.sh" name="script.sh.file" />
 
 			<echo file="${script.sh.file}"><![CDATA[@{script}]]></echo>
