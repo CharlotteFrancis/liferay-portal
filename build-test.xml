@@ -7656,7 +7656,7 @@ ${docker.start.error}</fail>
 			<echo> "charw inside start-docker-database-cmd, database docker run options: ${database.docker.run.options}, databse docker database options new: ${database.docker.database.options.new}" </echo>
 
 			<start-docker-container image="${database.docker.image}" name="${database.host}" options="${database.docker.database.options.new}">\
-				${database.docker.run.options} --privilaged \
+				${database.docker.run.options} \
 			</start-docker-container>
 
 			<if>
