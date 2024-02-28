@@ -7561,7 +7561,7 @@ org.apache.catalina.startup.ClassLoaderFactory.level=INFO]]>
 			</echo>
 
 			<if>
-				<contains string="@{name}" contains="orcllinux" /> 
+				<contains string="@{name}" substring="orcllinux" /> 
 				<then>
 					<echo file="${docker.start.script}">
 						<![CDATA[
