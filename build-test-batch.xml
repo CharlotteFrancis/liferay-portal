@@ -3488,14 +3488,7 @@ information. Make sure to commit in all build-lib-versions results.
 		</run-batch-test>
 	</target>
 
-	<target name="compile-jsp-jdk8">
-		<if>
-			<contains string="${env.MASTER_HOSTNAME}" substring="test-5-1" />
-			<then>
-				<fail message="Failed to create analytics cloud demo data." />
-			</then>
-		</if>
-	
+	<target name="compile-jsp-jdk8">	
 		<run-batch-test>
 			<test-action>
 				<delete dir="${project.dir}/portal-web/docroot/html" />
@@ -8811,6 +8804,13 @@ junit.jvm.override.version=21</echo>
 	</target>
 
 	<target name="workspaces-compile-jdk8">
+		<if>
+			<contains string="${env.MASTER_HOSTNAME}" substring="test-5-1" />
+			<then>
+				<fail message="Failed to create analytics cloud demo data." />
+			</then> 
+		</if>
+
 		<run-batch-test>
 			<test-action>
 				<for list="${workspaces.names[workspaces-compile-jdk8]}" param="workspace.name">
