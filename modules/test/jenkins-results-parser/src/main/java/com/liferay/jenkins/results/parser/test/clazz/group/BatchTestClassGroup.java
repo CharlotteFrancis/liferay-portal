@@ -690,7 +690,7 @@ public abstract class BatchTestClassGroup extends BaseTestClassGroup {
 		if (jobPropertyValue != null) {
 			Collections.addAll(testBatchNames, jobPropertyValue.split(","));
 		}
-ignore()
+
 		if (testBatchNames.contains(batchName)) {
 			return true;
 		}
