@@ -694,6 +694,18 @@ public abstract class BatchTestClassGroup extends BaseTestClassGroup {
 		return false;
 	}
 
+	protected boolean isQuarterlyReleaseBranch() {
+		String upstreamBranchName = portalGitWorkingDirectory.getUpstreamBranchName();
+
+		Matcher quarterlyReleaseNameMatcher = _quarterlyReleaseNamePattern.matcher(upstreamBranchName);
+
+		if (quarterlyReleaseNameMatcher.find()) {
+			return true;
+		}
+
+		return false;
+	}
+
 	protected void recordJobProperties(List<JobProperty> jobProperties) {
 		for (JobProperty jobProperty : jobProperties) {
 			recordJobProperty(jobProperty);
@@ -1189,6 +1201,9 @@ public abstract class BatchTestClassGroup extends BaseTestClassGroup {
 
 	private static final Pattern _jobNamePattern = Pattern.compile(
 		"(?<jobBaseName>.*)(?<jobVariant>\\([^\\)]+\\))");
+
+	private static final Pattern _quarterlyReleaseNamePattern = Pattern.compile(
+			"(release-\\d{4}.[qQ](.\\d)?)");
 
 	private final Map<String, Long> _averageTestDurations = new HashMap<>();
 	private final Map<String, Long> _averageTestOverheadDurations =
