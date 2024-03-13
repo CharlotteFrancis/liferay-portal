@@ -337,6 +337,8 @@ public class TestClassGroupFactory {
 				}
 			}
 			else if (batchName.startsWith("modules-semantic-versioning-")) {
+				System.out.println("Charw inside modules-semantic-versioning logic");
+
 				if (jsonObject != null) {
 					batchTestClassGroup = new SemVerModulesBatchTestClassGroup(
 						jsonObject, portalTestClassJob);
@@ -428,6 +430,10 @@ public class TestClassGroupFactory {
 			}
 			else if (batchName.startsWith("semantic-versioning")) {
 				if (jsonObject != null) {
+
+					System.out.println("Charw batchName is: " + batchName);
+					System.out.println("Charw inside of semantic-versioning logic");
+
 					batchTestClassGroup = new SemanticVersioningTestClassGroup(
 						jsonObject, portalTestClassJob);
 				}
