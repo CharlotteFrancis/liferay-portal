@@ -31,6 +31,8 @@ public class GenerateTestrayCSVUtil {
 	public static void generate(
 		String projectBuildDir, String projectTestrayBuildId) {
 
+		System.out.println("Generating Testray CSV.");
+
 		StringBuilder sb = new StringBuilder();
 
 		sb.append(
@@ -54,6 +56,8 @@ public class GenerateTestrayCSVUtil {
 			_generate(allTestrayCaseResults, TestrayCaseResult.Type.COMMON));
 
 		try {
+			System.out.println("Setting testray results to: " + sb.toString());
+
 			JenkinsResultsParserUtil.write(
 				new File(projectBuildDir, "testray-results.csv"),
 				sb.toString());
@@ -66,6 +70,10 @@ public class GenerateTestrayCSVUtil {
 	private static String _generate(
 		List<TestrayCaseResult> allTestrayCaseResults,
 		TestrayCaseResult.Type testrayCaseResultType) {
+
+		System.out.println(
+			"Parsing Testray case results for " +
+				testrayCaseResultType.toString() + ".");
 
 		StringBuilder sb = new StringBuilder();
 
@@ -93,6 +101,9 @@ public class GenerateTestrayCSVUtil {
 	private static List<TestrayCaseResult> _getTestrayCaseResults(
 		String projectTestrayBuildId) {
 
+		System.out.println(
+			"Getting Testray case results for " + projectTestrayBuildId + ".");
+
 		List<TestrayCaseResult> testrayCaseResults = new ArrayList<>();
 
 		int currentPage = 1;
@@ -103,6 +114,9 @@ public class GenerateTestrayCSVUtil {
 				"https://testray.liferay.com/home/-/testray",
 				"/case_results.json?cur=", String.valueOf(currentPage),
 				"&testrayBuildId=", projectTestrayBuildId, "&statuses=3");
+
+			System.out.println(
+				"TestrayCaseResultsURL is set to: " + testrayCaseResultsURL);
 
 			JSONObject jsonObject = null;
 
