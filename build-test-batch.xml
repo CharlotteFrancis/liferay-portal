@@ -9101,9 +9101,21 @@ junit.jvm.override.version=21</echo>
 										<echo>##</echo>
 										<echo></echo>
 
-										<execute dir="${workspace.dir}">
-											./gradlew build
-										</execute>
+										<if>
+											<avaliable file="${base.repository.dir}/gradle/wrapper/${gradle.wrapper.bin.file.name}"/>
+											<then>
+												<copy
+													failonerror="false"
+													file="${base.repository.dir}/gradle/wrapper/${gradle.wrapper.bin.file.name}"
+													tofile="${workspace.dir}/gradle/wrapper/${gradle.wrapper.bin.file.name}"
+												/>
+											</then>
+											<else>
+												<execute dir="${workspace.dir}">
+													./gradlew build
+												</execute>
+											</else>
+										</if>
 									</then>
 								</if>
 							</try>
