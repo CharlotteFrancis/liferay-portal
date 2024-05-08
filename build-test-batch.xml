@@ -537,7 +537,8 @@ mariadb.executable=${mariadb.executable}]]></echo>
 		<attribute default="${base.repository.dir}" name="base.dir" />
 
 		<sequential>
-			<echo>charw basedir: @{base.dir}</echo>
+			<echo>charw base.dir: @{base.dir}</echo>
+			<echo>charw base.repository.dir: ${base.repository.dir}</echo>
 			
 			<if>
 				<and>
@@ -9090,6 +9091,7 @@ junit.jvm.override.version=21</echo>
 												/>
 											</then>
 											<else>
+												<echo>charw executing ./gradlew build from base dir</echo>
 												<execute dir="${workspace.dir}">
 													./gradlew build
 												</execute>
