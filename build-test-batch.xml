@@ -540,6 +540,7 @@ mariadb.executable=${mariadb.executable}]]></echo>
 			<echo>charw base.dir: @{base.dir}</echo>
 			<echo>charw base.repository.dir: ${base.repository.dir}</echo>
 			<echo>charw project.dir: ${project.dir}</echo>
+			<echo>charw gradle.wrapper.bin.file.name = ${gradle.wrapper.bin.file.name}</echo>
 			
 			<if>
 				<and>
