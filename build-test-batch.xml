@@ -534,11 +534,12 @@ mariadb.executable=${mariadb.executable}]]></echo>
 	</macrodef>
 
 	<macrodef name="download-gradle-wrapper-binary">
-		<attribute default="${base.repository.dir}" name="base.dir" />
+		<attribute default="${project.dir}" name="base.dir" />
 
 		<sequential>
 			<echo>charw base.dir: @{base.dir}</echo>
 			<echo>charw base.repository.dir: ${base.repository.dir}</echo>
+			<echo>charw project.dir: ${project.dir}</echo>
 			
 			<if>
 				<and>
@@ -9081,13 +9082,13 @@ junit.jvm.override.version=21</echo>
 										<echo></echo>
 
 										<if>
-											<avaliable file="${base.repository.dir}/gradle/wrapper/${gradle.wrapper.bin.file.name}" />
+											<avaliable file="${project.dir}/gradle/wrapper/${gradle.wrapper.bin.file.name}" />
 											<then>
 												<echo>charw copying gradlewrapper from base dir</echo>
 												<copy
 													failonerror="false"
-													file="${base.repository.dir}/gradle/wrapper/${gradle.wrapper.bin.file.name}"
-													tofile="${workspace.dir}/gradle/wrapper/${gradle.wrapper.bin.file.name}"
+													file="${project.dir}/gradle/wrapper/${gradle.wrapper.bin.file.name}"
+													tofile="${project.dir}/gradle/wrapper/${gradle.wrapper.bin.file.name}"
 												/>
 											</then>
 											<else>
