@@ -534,12 +534,14 @@ mariadb.executable=${mariadb.executable}]]></echo>
 	</macrodef>
 
 	<macrodef name="download-gradle-wrapper-binary">
+		<attribute default="${base.repository.dir}" name="base.dir" />
+
 		<sequential>
 			<if>
 				<and>
-					<available file="${analytics.cloud.asah.dir}/gradle/wrapper/gradle-wrapper.properties" />
+					<available file="@{base.dir}/gradle/wrapper/gradle-wrapper.properties" />
 					<not>
-						<available file="${analytics.cloud.asah.dir}/gradle/wrapper/${gradle.wrapper.bin.file.name}" />
+						<available file="@{base.dir}/gradle/wrapper/${gradle.wrapper.bin.file.name}" />
 					</not>
 				</and>
 				<then>
@@ -551,7 +553,7 @@ mariadb.executable=${mariadb.executable}]]></echo>
 							import com.liferay.jenkins.results.parser.JenkinsResultsParserUtil;
 
 							File gradleWrapperPropertiesFile =
-								new File(project.getProperty("analytics.cloud.asah.dir") +
+								new File(project.getProperty("base.repository.dir") +
 									"/gradle/wrapper/gradle-wrapper.properties");
 							Properties gradleWrapperProperties =
 								JenkinsResultsParserUtil.getProperties(new File[] {gradleWrapperPropertiesFile});
@@ -564,7 +566,7 @@ mariadb.executable=${mariadb.executable}]]></echo>
 					</beanshell>
 
 					<mirrors-get
-						dest="${analytics.cloud.asah.dir}/gradle/wrapper/${gradle.wrapper.bin.file.name}"
+						dest="@{base.dir}/gradle/wrapper/${gradle.wrapper.bin.file.name}"
 						src="${gradle.wrapper.bin.file.url}"
 					/>
 
@@ -573,7 +575,7 @@ mariadb.executable=${mariadb.executable}]]></echo>
 							import com.liferay.jenkins.results.parser.JenkinsResultsParserUtil;
 
 							File gradleWrapperPropertiesFile =
-								new File(project.getProperty("analytics.cloud.asah.dir") +
+								new File(project.getProperty("base.repository.dir") +
 									"/gradle/wrapper/gradle-wrapper.properties");
 
 							Properties gradleWrapperProperties =
