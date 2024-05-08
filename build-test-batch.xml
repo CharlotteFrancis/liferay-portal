@@ -553,7 +553,7 @@ mariadb.executable=${mariadb.executable}]]></echo>
 							import com.liferay.jenkins.results.parser.JenkinsResultsParserUtil;
 
 							File gradleWrapperPropertiesFile =
-								new File(project.getProperty("base.repository.dir") +
+								new File(@{base.dir}) +
 									"/gradle/wrapper/gradle-wrapper.properties");
 							Properties gradleWrapperProperties =
 								JenkinsResultsParserUtil.getProperties(new File[] {gradleWrapperPropertiesFile});
@@ -575,7 +575,7 @@ mariadb.executable=${mariadb.executable}]]></echo>
 							import com.liferay.jenkins.results.parser.JenkinsResultsParserUtil;
 
 							File gradleWrapperPropertiesFile =
-								new File(project.getProperty("base.repository.dir") +
+								new File(@{base.dir}) +
 									"/gradle/wrapper/gradle-wrapper.properties");
 
 							Properties gradleWrapperProperties =
