@@ -537,6 +537,8 @@ mariadb.executable=${mariadb.executable}]]></echo>
 		<attribute default="${base.repository.dir}" name="base.dir" />
 
 		<sequential>
+			<echo>charw basedir: @{base.dir}</echo>
+			
 			<if>
 				<and>
 					<available file="@{base.dir}/gradle/wrapper/gradle-wrapper.properties" />
@@ -583,7 +585,7 @@ mariadb.executable=${mariadb.executable}]]></echo>
 
 							gradleWrapperProperties.setProperty(
 								"distributionUrl", "./" + project.getProperty("gradle.wrapper.bin.file.name"));
-								
+
 							JenkinsResultsParserUtil.writePropertiesFile(
 								gradleWrapperPropertiesFile, gradleWrapperProperties, true);
 						]]>
@@ -9078,8 +9080,9 @@ junit.jvm.override.version=21</echo>
 										<echo></echo>
 
 										<if>
-											<avaliable file="${base.repository.dir}/gradle/wrapper/${gradle.wrapper.bin.file.name}"/>
+											<avaliable file="${base.repository.dir}/gradle/wrapper/${gradle.wrapper.bin.file.name}" />
 											<then>
+												<echo>charw copying gradlewrapper from base dir</echo>
 												<copy
 													failonerror="false"
 													file="${base.repository.dir}/gradle/wrapper/${gradle.wrapper.bin.file.name}"
