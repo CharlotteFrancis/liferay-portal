@@ -6420,6 +6420,8 @@ information. Make sure to commit in all format-javadoc results.
 							<arg value="-Dbuild.exclude.dirs=third-party" />
 						</gradle-execute>
 
+						<echo>charw modules.project.paths ${modules.project.paths} @{modules.project.paths}</echo>
+
 						<loadresource property="modules.test.class.group">
 							<filterchain>
 								<linecontainsregexp>
@@ -6432,6 +6434,8 @@ information. Make sure to commit in all format-javadoc results.
 							</filterchain>
 							<propertyresource name="modules.project.paths" />
 						</loadresource>
+
+						<echo>charw modules.test.class.group ${modules.test.class.group} @{modules.test.class.group}</echo>
 					</then>
 				</if>
 
@@ -6445,6 +6449,9 @@ information. Make sure to commit in all format-javadoc results.
 					</filterchain>
 					<propertyresource name="modules.test.class.group" />
 				</loadresource>
+
+				<echo>charw after loadresource modules.compile.task.groups ${modules.compile.task.groups} @{modules.compile.task.groups}</echo>
+				<echo>charw after loadresource modules.test.class.group ${modules.test.class.group} @{modules.test.class.group}</echo>
 
 				<for list="${modules.compile.task.groups}" param="modules.compile.task.group" trim="true">
 					<sequential>
