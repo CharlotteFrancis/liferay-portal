@@ -1617,29 +1617,11 @@ public abstract class BaseBuild implements Build {
 
 		slaveOfflineRuleString = slaveOfflineRuleString.replace("\\", "\\\\");
 
-		StringBuilder sb = new StringBuilder();
+		String message = JenkinsResultsParserUtil.combine(
+			pinnedMessage, slaveOfflineRule.getName(), " failure detected at ",
+			getBuildURL(), ". \n\n", slaveOfflineRuleString, "\n\n\nOffline Slave URL: ",
+			jenkinsSlave.getComputerURL(), "\n");
 
-		sb.append(pinnedMessage);
-
-		sb.append(slaveOfflineRule.getName());
-
-		sb.append(" failure detected at ");
-
-		sb.append(getBuildURL());
-
-		sb.append(". \n\n");
-
-		sb.append(slaveOfflineRuleString);
-
-		sb.append("\n\n\nOffline Slave URL: https://");
-
-		sb.append(jenkinsMaster.getName());
-
-		sb.append(".liferay.com/computer/");
-
-		sb.append(jenkinsSlave.getName());
-
-		sb.append("\n");
 
 		if (slaveOfflineRule.getOfflineSibling() &&
 			(jenkinsMaster.getSlavesPerHost() == 2)) {
@@ -1647,15 +1629,9 @@ public abstract class BaseBuild implements Build {
 			Set<JenkinsSlave> siblingJenkinsSlaves = jenkinsSlave.getSiblings();
 
 			for (JenkinsSlave siblingJenkinsSlave : siblingJenkinsSlaves) {
-				sb.append("\n\n\nOffline Sibling URL: https://");
 
-				sb.append(jenkinsMaster.getName());
-
-				sb.append(".liferay.com/computer/");
-
-				sb.append(siblingJenkinsSlave.getName());
-
-				sb.append("\n");
+				message = JenkinsResultsParserUtil.combine(
+					message, siblingJenkinsSlave.getComputerURL(), "\n");
 
 				String siblingMessage = JenkinsResultsParserUtil.combine(
 					pinnedMessage, "Offline sibling: ", jenkinsSlave.getName(),
@@ -1664,8 +1640,6 @@ public abstract class BaseBuild implements Build {
 					siblingJenkinsSlave.takeSlavesOffline(siblingMessage);
 			}
 		}
-
-		String message = sb.toString();
 
 		System.out.println(message);
 
