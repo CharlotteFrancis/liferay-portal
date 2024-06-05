@@ -283,6 +283,8 @@ public abstract class BaseBuildUpdater implements BuildUpdater {
 	private void _takeSlaveOffline(SlaveOfflineRule slaveOfflineRule) {
 		Build build = getBuild();
 
+		System.out.println("charw inside BaseBuildUpdater");
+
 		if ((slaveOfflineRule == null) || build.isFromArchive()) {
 			return;
 		}
@@ -306,8 +308,14 @@ public abstract class BaseBuildUpdater implements BuildUpdater {
 			build.getBuildURL(), ". \n\n", slaveOfflineRuleString,
 			"\n\n\nOffline Slave URL: ", jenkinsSlave.getComputerURL(), "\n");
 
+
+		System.out.println("charw slaveOfflineRule.getOfflineSibling = " + String.valueOf(slaveOfflineRule.getOfflineSibling()));
+		System.out.println("charw jenkinsMaster.getSlavesPerHost = " + String.valueOf(jenkinsMaster.getSlavesPerHost()));
+
 		if (slaveOfflineRule.getOfflineSibling() &&
 			(jenkinsMaster.getSlavesPerHost() == 2)) {
+
+			System.out.println("charw inside of sibling logic");
 
 			Set<JenkinsSlave> siblingJenkinsSlaves = jenkinsSlave.getSiblings();
 

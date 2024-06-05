@@ -1599,6 +1599,9 @@ public abstract class BaseBuild implements Build {
 
 	@Override
 	public void takeSlaveOffline(SlaveOfflineRule slaveOfflineRule) {
+
+		System.out.println("charw inside BaseBuild");
+
 		if ((slaveOfflineRule == null) || fromArchive) {
 			return;
 		}
