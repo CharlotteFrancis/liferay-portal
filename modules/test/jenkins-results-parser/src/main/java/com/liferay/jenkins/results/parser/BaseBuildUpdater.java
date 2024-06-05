@@ -7,6 +7,7 @@ package com.liferay.jenkins.results.parser;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author Michael Hashimoto
@@ -282,6 +283,8 @@ public abstract class BaseBuildUpdater implements BuildUpdater {
 	private void _takeSlaveOffline(SlaveOfflineRule slaveOfflineRule) {
 		Build build = getBuild();
 
+		System.out.println("charw inside BaseBuildUpdater");
+
 		if ((slaveOfflineRule == null) || build.isFromArchive()) {
 			return;
 		}
@@ -302,10 +305,31 @@ public abstract class BaseBuildUpdater implements BuildUpdater {
 
 		String message = JenkinsResultsParserUtil.combine(
 			pinnedMessage, slaveOfflineRule.getName(), " failure detected at ",
-			build.getBuildURL(), ". ", jenkinsSlave.getName(),
-			" will be taken offline.\n\n", slaveOfflineRuleString,
-			"\n\n\nOffline Slave URL: https://", jenkinsMaster.getName(),
-			".liferay.com/computer/", jenkinsSlave.getName(), "\n");
+			build.getBuildURL(), ". \n\n", slaveOfflineRuleString,
+			"\n\n\nOffline Slave URL: ", jenkinsSlave.getComputerURL(), "\n");
+
+
+		System.out.println("charw slaveOfflineRule.getOfflineSibling = " + String.valueOf(slaveOfflineRule.getOfflineSibling()));
+		System.out.println("charw jenkinsMaster.getSlavesPerHost = " + String.valueOf(jenkinsMaster.getSlavesPerHost()));
+
+		if (slaveOfflineRule.getOfflineSibling() &&
+			(jenkinsMaster.getSlavesPerHost() == 2)) {
+
+			System.out.println("charw inside of sibling logic");
+
+			Set<JenkinsSlave> siblingJenkinsSlaves = jenkinsSlave.getSiblings();
+
+			for (JenkinsSlave siblingJenkinsSlave : siblingJenkinsSlaves) {
+				message = JenkinsResultsParserUtil.combine(
+					message, siblingJenkinsSlave.getComputerURL(), "\n");
+
+				String siblingMessage = JenkinsResultsParserUtil.combine(
+					pinnedMessage, "Offline sibling: ", jenkinsSlave.getName(),
+					" Reason: ", slaveOfflineRule.getName());
+
+				siblingJenkinsSlave.takeSlavesOffline(siblingMessage);
+			}
+		}
 
 		System.out.println(message);
 
