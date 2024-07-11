@@ -241,7 +241,7 @@
 		</condition>
 	</fail>
 
-	<condition else="1.10.14" property="java.ant.version" value="1.9.3">
+	<condition else="1.8" property="java.ant.version" value="1.9.3">
 		<equals arg1="${java.specification.version}" arg2="1.8" />
 	</condition>
 
