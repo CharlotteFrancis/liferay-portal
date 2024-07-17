@@ -533,6 +533,66 @@ mariadb.executable=${mariadb.executable}]]></echo>
 		</sequential>
 	</macrodef>
 
+	<macrodef name="download-gradle-wrapper-binary">
+		<attribute default="${base.repository.dir}" name="base.dir" />
+
+		<sequential>
+			<if>
+				<and>
+					<available file="@{base.dir}/gradle/wrapper/gradle-wrapper.properties" />
+					<not>
+						<available file="@{base.dir}/gradle/wrapper/${gradle.wrapper.bin.file.name}" />
+					</not>
+				</and>
+				<then>
+					<local name="gradle.wrapper.bin.file.name" />
+					<local name="gradle.wrapper.bin.file.url" />
+
+					<beanshell>
+						<![CDATA[
+							import com.liferay.jenkins.results.parser.JenkinsResultsParserUtil;
+
+							File gradleWrapperPropertiesFile =
+								new File(@{base.dir}) +
+									"/gradle/wrapper/gradle-wrapper.properties");
+							Properties gradleWrapperProperties =
+								JenkinsResultsParserUtil.getProperties(new File[] {gradleWrapperPropertiesFile});
+
+							String distributionURL = gradleWrapperProperties.getProperty("distributionUrl");
+
+							project.setProperty("gradle.wrapper.bin.file.name", distributionURL.replaceAll(".*/([^/]+)", "$1"));
+							project.setProperty("gradle.wrapper.bin.file.url", distributionURL);
+						]]>
+					</beanshell>
+
+					<mirrors-get
+						dest="@{base.dir}/gradle/wrapper/${gradle.wrapper.bin.file.name}"
+						src="${gradle.wrapper.bin.file.url}"
+					/>
+
+					<beanshell>
+						<![CDATA[
+							import com.liferay.jenkins.results.parser.JenkinsResultsParserUtil;
+
+							File gradleWrapperPropertiesFile =
+								new File(@{base.dir}) +
+									"/gradle/wrapper/gradle-wrapper.properties");
+
+							Properties gradleWrapperProperties =
+								JenkinsResultsParserUtil.getProperties(new File[] {gradleWrapperPropertiesFile});
+
+							gradleWrapperProperties.setProperty(
+								"distributionUrl", "./" + project.getProperty("gradle.wrapper.bin.file.name"));
+								
+							JenkinsResultsParserUtil.writePropertiesFile(
+								gradleWrapperPropertiesFile, gradleWrapperProperties, true);
+						]]>
+					</beanshell>
+				</then>
+			</if>
+		</sequential>
+	</macrodef>
+
 	<macrodef name="get-release-dependency-modules">
 		<attribute default="false" name="post.startup.modules.only" />
 		<attribute default="false" name="pre.startup.modules.only" />
@@ -9014,6 +9074,8 @@ junit.jvm.override.version=21</echo>
 	</target>
 
 	<target name="workspaces-compile-jdk8">
+		<download-gradle-wrapper-binary />
+
 		<run-batch-test>
 			<test-action>
 				<local name="workspace.names" />
@@ -9039,9 +9101,21 @@ junit.jvm.override.version=21</echo>
 										<echo>##</echo>
 										<echo></echo>
 
-										<execute dir="${workspace.dir}">
-											./gradlew build
-										</execute>
+										<if>
+											<avaliable file="${base.repository.dir}/gradle/wrapper/${gradle.wrapper.bin.file.name}"/>
+											<then>
+												<copy
+													failonerror="false"
+													file="${base.repository.dir}/gradle/wrapper/${gradle.wrapper.bin.file.name}"
+													tofile="${workspace.dir}/gradle/wrapper/${gradle.wrapper.bin.file.name}"
+												/>
+											</then>
+											<else>
+												<execute dir="${workspace.dir}">
+													./gradlew build
+												</execute>
+											</else>
+										</if>
 									</then>
 								</if>
 							</try>
