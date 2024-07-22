@@ -482,7 +482,7 @@ module.framework.properties.osgi.console=11312</echo>
 	</macrodef>
 
 	<macrodef name="download-gradle-wrapper-binary">
-		<attribute workspaceDir="workspace.dir" default="/opt/dev/projects/github/liferay-portal" />
+		<attribute name="workspace.dir" default="/opt/dev/projects/github/liferay-portal" />
 		<sequential>
 			<if>
 				<available file="@{workspace.dir}/gradle/wrapper/gradle-wrapper.properties" />
