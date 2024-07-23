@@ -7282,6 +7282,8 @@ information. Make sure to commit in all format-javadoc results.
 
 						<antcall inheritAll="false" target="compile" />
 
+						<antcall inheritAll="false" target="jar" />
+
 						<antcall inheritAll="false" target="install-portal-snapshots" />
 
 						<echo>tar --extract --file=liferay-portal-source.tar.gz modules/core/portal-bootstrap/build/system.packages.extra.mf --gzip --to-stdout --verbose > modules/core/portal-bootstrap/system.packages.extra.mf</echo>
@@ -8395,6 +8397,8 @@ tar --extract --file=liferay-portal-source.tar.gz modules/core/portal-bootstrap/
 				<echo file="build.${user.name}.properties">baseline.jar.report.level=persist</echo>
 
 				<antcall inheritAll="false" target="compile" />
+
+				<antcall inheritAll="false" target="jar" />
 
 				<prepare-test-bundles unit="false" />
 
