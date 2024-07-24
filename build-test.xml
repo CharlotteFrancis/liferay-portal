@@ -482,28 +482,24 @@ module.framework.properties.osgi.console=11312</echo>
 	</macrodef>
 
 	<macrodef name="download-gradle-wrapper-binary">
-		<attribute workspace.dir="workspace.dir" default="/opt/dev/projects/github/liferay-portal" />
+		<attribute name="workspace.dir" />
 		<sequential>
 			<if>
 				<available file="@{workspace.dir}/gradle/wrapper/gradle-wrapper.properties" />
 				<then>	
-					<echo>## cw Using @{workspace.dir} as workspace.dir.</echo>
-
 					<local name="gradle.wrapper.bin.file.name" />
 					<local name="gradle.wrapper.bin.file.url" />
 
 					<beanshell>
 						<![CDATA[
 							import com.liferay.jenkins.results.parser.JenkinsResultsParserUtil;
-							File gradleWrapperPropertiesFile = new File("@{workspace.dir} + "/gradle/wrapper/gradle-wrapper.properties");
+							File gradleWrapperPropertiesFile = new File("@{workspace.dir}" + "/gradle/wrapper/gradle-wrapper.properties");
 							Properties gradleWrapperProperties = JenkinsResultsParserUtil.getProperties(new File[] {gradleWrapperPropertiesFile});
 							String distributionURL = gradleWrapperProperties.getProperty("distributionUrl");
 							project.setProperty("gradle.wrapper.bin.file.name", distributionURL.replaceAll(".*/([^/]+)", "$1"));
 							project.setProperty("gradle.wrapper.bin.file.url", distributionURL);
 						]]>
 					</beanshell>
-
-					<echo>## cw Using ${gradle.wrapper.bin.file.name} as gradle.wrapper.bin.file.name.</echo>
 
 					<mirrors-get
 						dest="@{workspace.dir}/gradle/wrapper/${gradle.wrapper.bin.file.name}"
