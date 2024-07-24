@@ -482,11 +482,13 @@ module.framework.properties.osgi.console=11312</echo>
 	</macrodef>
 
 	<macrodef name="download-gradle-wrapper-binary">
-		<attribute name="workspace.dir" default="/opt/dev/projects/github/liferay-portal" />
+		<attribute workspace.dir="workspace.dir" default="/opt/dev/projects/github/liferay-portal" />
 		<sequential>
 			<if>
 				<available file="@{workspace.dir}/gradle/wrapper/gradle-wrapper.properties" />
-				<then>
+				<then>	
+					<echo>## cw Using @{workspace.dir} as workspace.dir.</echo>
+
 					<local name="gradle.wrapper.bin.file.name" />
 					<local name="gradle.wrapper.bin.file.url" />
 
@@ -500,6 +502,8 @@ module.framework.properties.osgi.console=11312</echo>
 							project.setProperty("gradle.wrapper.bin.file.url", distributionURL);
 						]]>
 					</beanshell>
+
+					<echo>## cw Using ${gradle.wrapper.bin.file.name} as gradle.wrapper.bin.file.name.</echo>
 
 					<mirrors-get
 						dest="@{workspace.dir}/gradle/wrapper/${gradle.wrapper.bin.file.name}"
