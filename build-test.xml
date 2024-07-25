@@ -501,10 +501,20 @@ module.framework.properties.osgi.console=11312</echo>
 						]]>
 					</beanshell>
 
-					<mirrors-get
-						dest="@{workspace.dir}/gradle/wrapper/${gradle.wrapper.bin.file.name}"
-						src="${gradle.wrapper.bin.file.url}"
-					/>
+					<if>
+						<matches pattern="https?://" string="${gradle.wrapper.bin.file.url}" />
+						<then>
+							<mirrors-get
+								dest="@{workspace.dir}/gradle/wrapper/${gradle.wrapper.bin.file.name}"
+								src="${gradle.wrapper.bin.file.url}"
+							/>
+						</then>
+						<else>
+							<execute>
+								cp @{workspace.dir}/gradle/wrapper/${gradle.wrapper.bin.file.url} @{workspace.dir}/gradle/wrapper/${gradle.wrapper.bin.file.name}
+							</execute>
+						</else>
+					</if>
 
 					<beanshell>
 						<![CDATA[
