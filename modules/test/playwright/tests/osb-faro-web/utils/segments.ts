@@ -3,10 +3,31 @@
  * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
  */
 
-import {Page} from '@playwright/test';
+import {Locator, Page, expect} from '@playwright/test';
 
 import {SegmentConditions} from './selectors';
 import {searchByTerm} from './utils';
+
+export async function addNestedSegmentField({
+	criterionName,
+	criterionType,
+	nestedSegmentField,
+	page,
+}: {
+	criterionName: string;
+	criterionType: string;
+	nestedSegmentField: string;
+	page: Page;
+}) {
+	await page.locator('button.dropdown-toggle.btn-outline-secondary').click();
+	await page.getByRole('menuitem', {name: criterionType}).click();
+
+	await dragAndDropCriteriaItem({
+		nestedSegmentField,
+		page,
+		segmentField: criterionName,
+	});
+}
 
 export async function addSegmentField({
 	criterionName,
@@ -14,7 +35,7 @@ export async function addSegmentField({
 	page,
 }: {
 	criterionName: string;
-	criterionType?: string;
+	criterionType: string;
 	page: Page;
 }) {
 	await page.locator('button.dropdown-toggle.btn-outline-secondary').click();
@@ -79,32 +100,46 @@ export async function deleteSegment({
 }
 
 export async function dragAndDropCriteriaItem({
+	nestedSegmentField,
 	page,
 	segmentField,
 }: {
+	nestedSegmentField?: string;
 	page: Page;
 	segmentField: string;
 }) {
 	const source = page.locator(`[data-testid*="criteria-item-"]`, {
 		hasText: segmentField,
 	});
-	const target = page.locator('div.drop-zone-target').last();
+
+	let target: Locator;
+	if (nestedSegmentField) {
+		target = page.locator('.display-value').getByText(nestedSegmentField);
+	}
+	else {
+		target = page.locator('div.drop-zone-target').last();
+	}
 
 	return await source.dragTo(target);
 }
 
 export async function editCriteriaAttributeValue({
 	attributeValue,
+	index = 0,
 	page,
 }: {
 	attributeValue: string;
+	index?: number;
 	page: Page;
 }) {
 	await page
 		.locator('input[data-testid="attribute-value-string-input"]')
+		.nth(index)
 		.click();
+
 	await page
 		.locator('input[data-testid="attribute-value-string-input"]')
+		.nth(index)
 		.fill(attributeValue);
 }
 
@@ -190,4 +225,32 @@ export async function setSegmentName({
 	}
 
 	await page.getByPlaceholder('Segment').fill(segmentName);
+}
+
+export async function viewSegmentCriteriaCard({
+	criteriaRowIndex,
+	criteriaRowValue,
+	page,
+	parent,
+}: {
+	criteriaRowIndex: number;
+	criteriaRowValue: string;
+	page: Page;
+	parent?: Locator;
+}) {
+	let criteriaRowText;
+
+	if (parent) {
+		criteriaRowText = parent.locator('.criteria-row').nth(criteriaRowIndex);
+	}
+	else {
+		criteriaRowText = page.locator('.criteria-row').nth(criteriaRowIndex);
+	}
+
+	criteriaRowText = await criteriaRowText.textContent();
+	criteriaRowText = criteriaRowText.replace(/\s/g, '');
+
+	criteriaRowValue = criteriaRowValue.replace(/\s/g, '');
+
+	expect(criteriaRowText).toEqual(criteriaRowValue);
 }

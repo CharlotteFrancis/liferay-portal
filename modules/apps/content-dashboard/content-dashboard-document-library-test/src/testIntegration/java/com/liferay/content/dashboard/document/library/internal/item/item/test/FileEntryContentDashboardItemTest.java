@@ -43,7 +43,6 @@ import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.test.util.ServiceContextTestUtil;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
-import com.liferay.portal.kernel.util.ContentTypes;
 import com.liferay.portal.kernel.util.FileUtil;
 import com.liferay.portal.kernel.util.JavaConstants;
 import com.liferay.portal.kernel.util.ListUtil;
@@ -246,8 +245,8 @@ public class FileEntryContentDashboardItemTest {
 			RandomTestUtil.randomString(), TestPropsValues.getUserId(),
 			_group.getGroupId(), DLFolderConstants.DEFAULT_PARENT_FOLDER_ID,
 			RandomTestUtil.randomString() + ".jpg",
-			MimeTypesUtil.getExtensionContentType(ContentTypes.IMAGE_JPEG),
-			new byte[0], null, null, null, _serviceContext);
+			MimeTypesUtil.getExtensionContentType("image/jpg"), new byte[0],
+			null, null, null, _serviceContext);
 
 		VersionableContentDashboardItem<FileEntry>
 			versionableContentDashboardItem =
@@ -289,8 +288,6 @@ public class FileEntryContentDashboardItemTest {
 
 		ContentDashboardItemSubtype contentDashboardItemSubtype =
 			versionableContentDashboardItem.getContentDashboardItemSubtype();
-
-		Assert.assertNotNull(contentDashboardItemSubtype);
 
 		Assert.assertEquals(
 			"Basic Document (Image)",
@@ -452,19 +449,34 @@ public class FileEntryContentDashboardItemTest {
 		ServiceContextThreadLocal.pushServiceContext(_serviceContext);
 
 		_assertSpecificInformationList(
-			null, "jpg", "0 B", _getVersionableContentDashboardItem(1));
+			null, "jpg", null, "0 B", _getVersionableContentDashboardItem(1));
 		_assertSpecificInformationList(
-			_language.get(LocaleUtil.getDefault(), "square"), "jpeg", "7 KB",
-			_getVersionableContentDashboardItem(
-				"dependencies/225x225.jpeg", 1));
+			_language.get(LocaleUtil.getDefault(), "square"), "jpg", "225x225",
+			"7 KB",
+			_getVersionableContentDashboardItem("dependencies/225x225.jpg", 1));
 		_assertSpecificInformationList(
-			_language.get(LocaleUtil.getDefault(), "tall"), "jpeg", "6 KB",
-			_getVersionableContentDashboardItem(
-				"dependencies/183x275.jpeg", 1));
+			_language.get(LocaleUtil.getDefault(), "tall"), "jpg", "183x275",
+			"6 KB",
+			_getVersionableContentDashboardItem("dependencies/183x275.jpg", 1));
 		_assertSpecificInformationList(
-			_language.get(LocaleUtil.getDefault(), "wide"), "jpeg", "8 KB",
+			_language.get(LocaleUtil.getDefault(), "tall"), "jpg", "183x275",
+			"6 KB",
 			_getVersionableContentDashboardItem(
-				"dependencies/277x182.jpeg", 1));
+				"dependencies/small_image.jpg", 1));
+		_assertSpecificInformationList(
+			_language.get(LocaleUtil.getDefault(), "wide"), "jpg", "277x182",
+			"8 KB",
+			_getVersionableContentDashboardItem("dependencies/277x182.jpg", 1));
+		_assertSpecificInformationList(
+			_language.get(LocaleUtil.getDefault(), "wide"), "jpg", "500x333",
+			"42 KB",
+			_getVersionableContentDashboardItem(
+				"dependencies/medium_image.jpg", 1));
+		_assertSpecificInformationList(
+			_language.get(LocaleUtil.getDefault(), "wide"), "jpg", "1920x1080",
+			"281 KB",
+			_getVersionableContentDashboardItem(
+				"dependencies/large_image.jpg", 1));
 	}
 
 	@Test
@@ -516,8 +528,7 @@ public class FileEntryContentDashboardItemTest {
 		FileEntry fileEntry = _dlAppLocalService.addFileEntry(
 			RandomTestUtil.randomString(), TestPropsValues.getUserId(),
 			_group.getGroupId(), DLFolderConstants.DEFAULT_PARENT_FOLDER_ID,
-			"example.jpg",
-			MimeTypesUtil.getExtensionContentType(ContentTypes.IMAGE_JPEG),
+			"example.jpg", MimeTypesUtil.getExtensionContentType("image/jpg"),
 			new byte[0], null, null, null, _serviceContext);
 
 		VersionableContentDashboardItem<FileEntry>
@@ -573,8 +584,7 @@ public class FileEntryContentDashboardItemTest {
 		FileEntry fileEntry = _dlAppLocalService.addFileEntry(
 			RandomTestUtil.randomString(), TestPropsValues.getUserId(),
 			_group.getGroupId(), DLFolderConstants.DEFAULT_PARENT_FOLDER_ID,
-			"example.jpg",
-			MimeTypesUtil.getExtensionContentType(ContentTypes.IMAGE_JPEG),
+			"example.jpg", MimeTypesUtil.getExtensionContentType("image/jpg"),
 			new byte[0], null, null, null, _serviceContext);
 
 		VersionableContentDashboardItem<FileEntry>
@@ -590,7 +600,7 @@ public class FileEntryContentDashboardItemTest {
 
 	private void _assertSpecificInformationList(
 		String expectedAspectRatio, String expectedExtension,
-		String expectedSize,
+		String expectedResolution, String expectedSize,
 		VersionableContentDashboardItem<FileEntry>
 			versionableContentDashboardItem) {
 
@@ -603,9 +613,6 @@ public class FileEntryContentDashboardItemTest {
 			aspectRatioSpecificInformation = _getSpecificInformation(
 				"content-dashboard-aspect-ratio", specificInformationList);
 
-		Assert.assertNotNull(
-			"aspectRatio not found", aspectRatioSpecificInformation);
-
 		Assert.assertEquals(
 			expectedAspectRatio, aspectRatioSpecificInformation.getValue());
 
@@ -613,16 +620,19 @@ public class FileEntryContentDashboardItemTest {
 			extensionSpecificInformation = _getSpecificInformation(
 				"extension", specificInformationList);
 
-		Assert.assertNotNull(
-			"extension not found", extensionSpecificInformation);
-
 		Assert.assertEquals(
 			expectedExtension, extensionSpecificInformation.getValue());
+
+		ContentDashboardItem.SpecificInformation<?>
+			resolutionSpecificInformation = _getSpecificInformation(
+				"resolution", specificInformationList);
+
+		Assert.assertEquals(
+			expectedResolution, resolutionSpecificInformation.getValue());
 
 		ContentDashboardItem.SpecificInformation<?> sizeSpecificInformation =
 			_getSpecificInformation("size", specificInformationList);
 
-		Assert.assertNotNull("size not found", sizeSpecificInformation);
 		Assert.assertEquals(expectedSize, sizeSpecificInformation.getValue());
 
 		Assert.assertTrue(
@@ -636,9 +646,6 @@ public class FileEntryContentDashboardItemTest {
 				(ContentDashboardItem.SpecificInformation<URL>)
 					_getSpecificInformation(
 						"web-dav-url", specificInformationList);
-
-		Assert.assertNotNull(
-			"web-dav-url not found", webDAVSpecificInformation);
 
 		String url = String.valueOf(webDAVSpecificInformation.getValue());
 

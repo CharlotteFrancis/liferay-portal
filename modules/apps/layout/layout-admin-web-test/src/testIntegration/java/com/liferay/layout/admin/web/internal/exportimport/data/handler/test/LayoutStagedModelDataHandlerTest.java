@@ -20,7 +20,7 @@ import com.liferay.exportimport.kernel.lifecycle.ExportImportLifecycleManagerUti
 import com.liferay.exportimport.kernel.lifecycle.constants.ExportImportLifecycleConstants;
 import com.liferay.exportimport.test.util.lar.BaseStagedModelDataHandlerTestCase;
 import com.liferay.friendly.url.model.FriendlyURLEntry;
-import com.liferay.friendly.url.service.FriendlyURLEntryLocalServiceUtil;
+import com.liferay.friendly.url.service.FriendlyURLEntryLocalService;
 import com.liferay.layout.page.template.constants.LayoutPageTemplateEntryTypeConstants;
 import com.liferay.layout.page.template.model.LayoutPageTemplateEntry;
 import com.liferay.layout.page.template.service.LayoutPageTemplateEntryLocalService;
@@ -39,7 +39,7 @@ import com.liferay.portal.kernel.portlet.PortletIdCodec;
 import com.liferay.portal.kernel.portlet.PortletPreferencesFactory;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCPortlet;
 import com.liferay.portal.kernel.repository.model.FileEntry;
-import com.liferay.portal.kernel.security.permission.ResourceActionsUtil;
+import com.liferay.portal.kernel.security.permission.ResourceActions;
 import com.liferay.portal.kernel.service.CompanyLocalService;
 import com.liferay.portal.kernel.service.LayoutFriendlyURLLocalService;
 import com.liferay.portal.kernel.service.LayoutLocalService;
@@ -59,7 +59,6 @@ import com.liferay.portal.kernel.util.HashMapDictionaryBuilder;
 import com.liferay.portal.kernel.util.HttpComponentsUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.Portal;
-import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.UnicodeProperties;
 import com.liferay.portal.kernel.util.UnicodePropertiesBuilder;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
@@ -751,10 +750,10 @@ public class LayoutStagedModelDataHandlerTest
 	}
 
 	private List<FriendlyURLEntry> _getFriendlyURLEntries(Layout layout) {
-		return FriendlyURLEntryLocalServiceUtil.getFriendlyURLEntries(
+		return _friendlyURLEntryLocalService.getFriendlyURLEntries(
 			layout.getGroupId(),
-			PortalUtil.getClassNameId(
-				ResourceActionsUtil.getCompositeModelName(
+			_portal.getClassNameId(
+				_resourceActions.getCompositeModelName(
 					Layout.class.getName(),
 					String.valueOf(layout.isPrivateLayout()))),
 			layout.getPlid());
@@ -913,6 +912,9 @@ public class LayoutStagedModelDataHandlerTest
 	private DLURLHelper _dlURLHelper;
 
 	@Inject
+	private FriendlyURLEntryLocalService _friendlyURLEntryLocalService;
+
+	@Inject
 	private LayoutFriendlyURLLocalService _layoutFriendlyURLLocalService;
 
 	@Inject
@@ -930,6 +932,9 @@ public class LayoutStagedModelDataHandlerTest
 
 	@Inject
 	private PortletPreferencesLocalService _portletPreferencesLocalService;
+
+	@Inject
+	private ResourceActions _resourceActions;
 
 	@Inject
 	private StyleBookEntryLocalService _styleBookEntryLocalService;

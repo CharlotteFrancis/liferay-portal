@@ -24,14 +24,14 @@ import getGlobalSiteId from '../../utils/getGlobalSiteId';
 import getRandomString from '../../utils/getRandomString';
 import {PORTLET_URLS} from '../../utils/portletUrls';
 import {journalPagesTest} from '../journal-web/fixtures/journalPagesTest';
-import {displayPageTemplatesTest} from '../layout-page-template-admin-web/fixtures/displayTemplatePagesTest';
+import {displayPageTemplatesPagesTest} from '../layout-page-template-admin-web/fixtures/displayPageTemplatesPagesTest';
 import getFormContainerDefinition from './utils/getFormContainerDefinition';
 import getFragmentDefinition from './utils/getFragmentDefinition';
 import getPageDefinition from './utils/getPageDefinition';
 
 const test = mergeTests(
 	apiHelpersTest,
-	displayPageTemplatesTest,
+	displayPageTemplatesPagesTest,
 	featureFlagsTest({
 		'LPS-178052': true,
 	}),
@@ -283,7 +283,7 @@ test.describe('Multiselect Fragment', () => {
 
 			const displayPageTemplateName = getRandomString();
 
-			await displayPageTemplatesPage.publishNewTemplate({
+			await displayPageTemplatesPage.createTemplate({
 				contentType: 'Lemon Basket',
 				name: displayPageTemplateName,
 			});
@@ -297,9 +297,13 @@ test.describe('Multiselect Fragment', () => {
 				'Form Container'
 			);
 
-			await page
-				.getByLabel('Content Type')
-				.selectOption('Lemon Basket (Default)');
+			const fragmentId =
+				await pageEditorPage.getFragmentId('Form Container');
+
+			await pageEditorPage.mapFormFragment(
+				fragmentId,
+				'Lemon Basket (Default)'
+			);
 
 			// Preview the page with a created object
 

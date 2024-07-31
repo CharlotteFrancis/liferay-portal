@@ -7,11 +7,15 @@ import {expect, mergeTests} from '@playwright/test';
 
 import {apiHelpersTest} from '../../fixtures/apiHelpersTest';
 import {dataApiHelpersTest} from '../../fixtures/dataApiHelpersTest';
+import {featureFlagsTest} from '../../fixtures/featureFlagsTest';
 import {loginAnalyticsCloudTest} from '../../fixtures/loginAnalyticsCloudTest';
 import {loginTest} from '../../fixtures/loginTest';
+import {liferayConfig} from '../../liferay.config';
 import getRandomString from '../../utils/getRandomString';
-import {createChannel} from './utils/channel';
+import {syncAnalyticsCloud} from '../analytics-settings-web/utils/analyticsSettings';
+import {createChannel, switchChannel} from './utils/channel';
 import {
+	addBreakdownByAttribute,
 	goToDistributionTabAndSelectAttribute,
 	viewBreakdownRechartsData,
 } from './utils/distribution';
@@ -19,8 +23,14 @@ import {changeEventDisplayName} from './utils/event-definitions';
 import {createIndividuals, generateIndividual} from './utils/individuals';
 import {waitForLoading} from './utils/loading';
 import {Nanites, runNanites} from './utils/nanites';
-import {navigateTo, navigateToACSitesPageViaURL} from './utils/navigation';
 import {
+	navigateTo,
+	navigateToACSitesPageViaURL,
+	navigateToACWorkspace,
+} from './utils/navigation';
+import {createSitePage, navigateToSitePage} from './utils/portal';
+import {
+	addNestedSegmentField,
 	addSegmentField,
 	addStaticMember,
 	createDynamicSegment,
@@ -33,6 +43,7 @@ import {
 	selectAsset,
 	selectOperator,
 	setSegmentName,
+	viewSegmentCriteriaCard,
 } from './utils/segments';
 import {SegmentConditions} from './utils/selectors';
 import {
@@ -44,6 +55,9 @@ import {
 export const test = mergeTests(
 	apiHelpersTest,
 	dataApiHelpersTest,
+	featureFlagsTest({
+		'LPS-178052': true,
+	}),
 	loginAnalyticsCloudTest(),
 	loginTest()
 );
@@ -834,7 +848,148 @@ test(
 );
 
 test(
-	'Segment distribution chart can be filtered by date property',
+	'Segment distribution can be filtered by date',
+	{
+		tag: '@Legacy',
+	},
+	async ({apiHelpers, page}) => {
+		const channelName = 'My Property - ' + getRandomString();
+		const {channel, project} = await createChannel({
+			apiHelpers,
+			channelName,
+		});
+
+		const firstIndividualName = 'ac';
+		const secondndividualName = 'dxp';
+		const individuals = [
+			generateIndividual({
+				name: firstIndividualName,
+			}),
+			generateIndividual({
+				name: secondndividualName,
+			}),
+		];
+
+		const birthDateFirstIndividual = '2008-06-11';
+		const updatedIndividuals = [
+			{
+				...individuals[0],
+				birthDate: `${birthDateFirstIndividual}T00:00:00.000Z`,
+			},
+			...individuals.slice(1),
+		];
+
+		await test.step('Create the 2 individuals directly in the AC database', async () => {
+			await createIndividuals({
+				apiHelpers,
+				individuals: updatedIndividuals,
+			});
+		});
+
+		const date = new Date();
+
+		await test.step('Create an event for the individuals to appear in AC', async () => {
+			await apiHelpers.jsonWebServicesOSBAsah.createEvents(
+				updatedIndividuals.map((individual) => ({
+					applicationId: 'Page',
+					canonicalUrl: 'https://www.liferay.com',
+					channelId: channel.id,
+					eventDate: date.toISOString(),
+					eventId: 'pageViewed',
+					title: 'Liferay',
+					userId: individual.id,
+				}))
+			);
+		});
+
+		await test.step('Create a session for the known individuals', async () => {
+			await apiHelpers.jsonWebServicesOSBAsah.createSessions(
+				updatedIndividuals.map((individual) => ({
+					channelId: channel.id,
+					id: individual.id,
+					sessionEnd: date.toISOString(),
+					sessionStart: date.toISOString(),
+					userId: individual.id,
+				}))
+			);
+		});
+
+		await test.step('Go to Analytics Cloud and Switch the property', async () => {
+			await navigateToACSitesPageViaURL({
+				channelID: channel.id,
+				page,
+				projectID: project.groupId,
+			});
+		});
+
+		await test.step('Go to Segments > Create a Static Segment', async () => {
+			await navigateTo({page, pageName: 'Segments'});
+
+			await createStaticSegment(page);
+
+			await setSegmentName({page, segmentName: 'Test Static Segment'});
+
+			await addStaticMember({
+				memberNames: [firstIndividualName, secondndividualName],
+				page,
+			});
+
+			await saveSegment(page);
+		});
+
+		await test.step('Add a new breakdown by birthDate attribute', async () => {
+			await addBreakdownByAttribute({
+				attributeName: 'birthDate',
+				page,
+			});
+		});
+
+		await test.step('Check if the correct results appear (birthDates and maximum counts)', async () => {
+			await viewBreakdownRechartsData({
+				attributeValue: '1970-01-01',
+				maxCount: '1',
+				page,
+			});
+
+			await viewBreakdownRechartsData({
+				attributeValue: birthDateFirstIndividual,
+				maxCount: '1',
+				page,
+			});
+		});
+
+		await test.step('Click on distribution tab and select birthDate attribute', async () => {
+			await goToDistributionTabAndSelectAttribute({
+				attributeName: 'birthDate',
+				page,
+			});
+		});
+
+		await test.step('Check if the correct results appear (birthDates and maximum counts)', async () => {
+			await viewBreakdownRechartsData({
+				attributeValue: '1970-01-01',
+				maxCount: '1',
+				page,
+			});
+
+			await viewBreakdownRechartsData({
+				attributeValue: birthDateFirstIndividual,
+				maxCount: '1',
+				page,
+			});
+		});
+
+		await test.step('delete channel', async () => {
+			await apiHelpers.jsonWebServicesOSBFaro.deleteChannel(
+				`[${channel.id}]`,
+				project.groupId
+			);
+		});
+	}
+);
+
+test(
+	'Segment Overview distribution filtered by text',
 	{
 		tag: '@Legacy',
 	},
@@ -852,7 +1007,7 @@ test(
 			}),
 		];
 
-		await test.step('Create the known individuals directly in the AC database', async () => {
+		await test.step('Create the known individual directly in the AC database', async () => {
 			await createIndividuals({
 				apiHelpers,
 				individuals: knownIndividual,
@@ -903,29 +1058,239 @@ test(
 			await setSegmentName({page, segmentName: 'Test Static Segment'});
 
 			await addStaticMember({
-				memberNames: `${knownIndividualName}@liferay.com`,
+				memberNames: knownIndividualName,
 				page,
 			});
 
 			await saveSegment(page);
 		});
 
-		await test.step('Click on distribution tab and select birthDate attribute', async () => {
-			await goToDistributionTabAndSelectAttribute({
-				attributeName: 'birthDate',
+		await test.step('Add a new breakdown by familyName attribute', async () => {
+			await addBreakdownByAttribute({
+				attributeName: 'familyName',
 				page,
 			});
 		});
 
-		await test.step('Check if the correct results appear (birthdate and maximum count)', async () => {
+		await test.step('Check if the correct results appear (familyName and maximum count)', async () => {
 			await viewBreakdownRechartsData({
-				attributeValue: '1970-01-01',
+				attributeValue: 'smith',
 				maxCount: '1',
 				page,
 			});
 		});
 
 		await test.step('delete channel', async () => {
+			await apiHelpers.jsonWebServicesOSBFaro.deleteChannel(
+				`[${channel.id}]`,
+				project.groupId
+			);
+		});
+	}
+);
+
+test(
+	'Check events criteria shows which data source data came from',
+	{
+		tag: '@LRAC-8233',
+	},
+	async ({apiHelpers, page}) => {
+		const pageTitle = 'AC Page';
+		const sitePage = await createSitePage({
+			apiHelpers,
+			pageTitle,
+		});
+
+		const channelName = 'My Property - ' + getRandomString();
+
+		await test.step('Connect the DXP to AC', async () => {
+			await syncAnalyticsCloud({
+				apiHelpers,
+				channelName,
+				page,
+			});
+		});
+
+		await test.step('Go to AC Page', async () => {
+			await navigateToSitePage({
+				page,
+				pageName: pageTitle,
+			});
+			await page.waitForTimeout(10000);
+		});
+
+		await test.step('Go to Analytics Cloud and Switch the property', async () => {
+			await navigateToACWorkspace({page});
+			await switchChannel({
+				channelName,
+				page,
+			});
+		});
+
+		await test.step('Access the dynamic segment creation page > Add the Viewed Page criteria', async () => {
+			await navigateTo({
+				page,
+				pageName: 'Segments',
+			});
+
+			await createDynamicSegment(page);
+
+			await addSegmentField({
+				criterionName: 'Viewed Page',
+				criterionType: 'Events',
+				page,
+			});
+		});
+
+		await test.step('Click on the Select button of the Viewed Page criteria', async () => {
+			await page.getByRole('button', {name: 'Select'}).click();
+		});
+
+		await test.step('Check that the modal displays the page that was interacted and the data source that originated the data', async () => {
+			await viewNameOnTableList({
+				itemNames: pageTitle,
+				page,
+			});
+
+			await expect(
+				page.locator(
+					`tr:has-text("${pageTitle}"):has-text("Liferay DXP")`
+				)
+			).toBeVisible({
+				timeout: 100 * 1000,
+			});
+		});
+
+		await test.step('Delete page created in DXP during automation execution', async () => {
+			await page.goto(liferayConfig.environment.baseUrl);
+
+			await apiHelpers.jsonWebServicesLayout.deleteLayout(
+				String(sitePage.id)
+			);
+		});
+	}
+);
+
+test(
+	'Segment criterias nest correctly in the criteria card',
+	{
+		tag: '@Legacy',
+	},
+	async ({apiHelpers, page}) => {
+		const channelName = 'My Property - ' + getRandomString();
+		const {channel, project} = await createChannel({
+			apiHelpers,
+			channelName,
+		});
+
+		await test.step('Go to Analytics Cloud and Switch the property', async () => {
+			await navigateToACSitesPageViaURL({
+				channelID: channel.id,
+				page,
+				projectID: project.groupId,
+			});
+		});
+
+		await test.step('Create dynamic segment with a nested criterion', async () => {
+			await navigateTo({
+				page,
+				pageName: 'Segments',
+			});
+
+			await createDynamicSegment(page);
+
+			await test.step('Add email criteria and fill in', async () => {
+				await addSegmentField({
+					criterionName: 'email',
+					criterionType: 'Individual Attributes',
+					page,
+				});
+
+				await selectOperator({
+					operator: 'contains',
+					operatorField: SegmentConditions.criteriaCondition,
+					page,
+				});
+
+				await editCriteriaAttributeValue({
+					attributeValue: '@liferay.com',
+					page,
+				});
+			});
+
+			await test.step('Add jobTitle criteria and fill in', async () => {
+				await addSegmentField({
+					criterionName: 'jobTitle',
+					criterionType: 'Individual Attributes',
+					page,
+				});
+
+				await selectOperator({
+					index: 1,
+					operator: 'does not contain',
+					operatorField: SegmentConditions.criteriaCondition,
+					page,
+				});
+
+				await editCriteriaAttributeValue({
+					attributeValue: 'engineer',
+					index: 1,
+					page,
+				});
+			});
+
+			await test.step('Add the familyName criteria as a nested criteria of the jobTitle and fill in', async () => {
+				await addNestedSegmentField({
+					criterionName: 'familyName',
+					criterionType: 'Individual Attributes',
+					nestedSegmentField: 'jobTitle',
+					page,
+				});
+
+				await editCriteriaAttributeValue({
+					attributeValue: 'Smith',
+					index: 2,
+					page,
+				});
+
+				await editCriteriaConjunction({
+					index: 1,
+					page,
+				});
+			});
+
+			await setSegmentName({
+				page,
+				segmentName: 'Test Dynamic Segment',
+			});
+
+			await saveSegment(page);
+		});
+
+		await test.step('Check the criteria in the Segment Criteria card and verify if two of the criteria are nested', async () => {
+			await viewSegmentCriteriaCard({
+				criteriaRowIndex: 0,
+				criteriaRowValue: 'Individual email contains "@liferay.com"',
+				page,
+			});
+
+			await viewSegmentCriteriaCard({
+				criteriaRowIndex: 0,
+				criteriaRowValue:
+					'Individual jobTitle does not contain "engineer"',
+				page,
+				parent: page.locator('.criteria-group').nth(1),
+			});
+
+			await viewSegmentCriteriaCard({
+				criteriaRowIndex: 1,
+				criteriaRowValue: 'Individual familyName is "Smith"',
+				page,
+				parent: page.locator('.criteria-group').nth(1),
+			});
+		});
+
+		await test.step('Delete channel', async () => {
 			await apiHelpers.jsonWebServicesOSBFaro.deleteChannel(
 				`[${channel.id}]`,
 				project.groupId

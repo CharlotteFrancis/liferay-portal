@@ -62,7 +62,7 @@ const RequiredInformation = ({
 	const hasTouched = !Object.keys(touched).length;
 	const hasError = Object.keys(errors).length;
 
-	const isRenew = state?.id === 'renew' ? true : false;
+	const isRenew = state?.id === 'renew';
 	const renewKey = state?.activationKeys[0];
 
 	const avaliableKeysMaximumCount =
@@ -352,6 +352,7 @@ const RequiredInformation = ({
 			);
 		}
 	};
+
 	const HandleButtonValue = () => {
 		if (isRenew) {
 			return state?.activationKeys.length === 1 ? i18n.sub('renew-x-key', [state?.activationKeys.length]) : i18n.sub('renew-x-keys', [state?.activationKeys.length]);
@@ -406,7 +407,7 @@ const RequiredInformation = ({
 								displayType="primary"
 								isLoading={isLoadingGenerateKey}
 								onClick={() => {
-									if (isRenew) {
+									if (!hasComplimentaryKey && isRenew) {
 										setIsLoadingGenerateKey(true);
 
 										return submitKeyAction.submitKey();
@@ -602,7 +603,7 @@ const RequiredInformation = ({
 								</div>
 							) : (
 								<div className="mx-6">
-									{!isOemOrEnterprise && (
+									{!(isComplimentaryKey && isRenew) && !isOemOrEnterprise && (
 										<div className="cp-input-generate-label">
 											<KeySelect
 												avaliableKeysMaximumCount={
@@ -640,7 +641,7 @@ const RequiredInformation = ({
 };
 
 const RequiredInformationForm = (props) => {
-	const isRenew = props.state?.id === 'renew' ? true : false;
+	const isRenew = props.state?.id === 'renew';
 	const renewKey = props.state?.activationKeys[0];
 
 	const handleDescriptionValue = () => {

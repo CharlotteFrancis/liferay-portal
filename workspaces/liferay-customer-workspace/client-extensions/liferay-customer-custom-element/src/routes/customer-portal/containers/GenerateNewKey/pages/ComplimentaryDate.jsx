@@ -63,7 +63,7 @@ const ComplimentaryDate = ({
 		const startDateFormatted = new Date(timestamp + timezoneOffset);
 		const startDate = new Date(timestamp + timezoneOffset);
 		const endDate = new Date(
-			startDateFormatted.setDate(startDateFormatted.getDate() + 60)
+			startDateFormatted.setDate(startDateFormatted.getDate() + 30)
 		);
 
 		return {
@@ -84,12 +84,13 @@ const ComplimentaryDate = ({
 	}, [selectedSubscription, endDate, startDate]);
 
 	const hasDateLimitExceeded = useMemo(() => {
-		const daysLimit = 59;
-		const StartDateLimit = new Date();
-		StartDateLimit.setDate(StartDateLimit.getDate() - daysLimit);
-		const dateLimitExceeded = startDate < StartDateLimit;
+		const daysLimit = 29;
 
-		return dateLimitExceeded;
+		const startDateLimit = new Date();
+
+		startDateLimit.setDate(startDateLimit.getDate() - daysLimit);
+
+		return startDate < startDateLimit;
 	}, [startDate]);
 
 	const isComplimentaryKeys = state.activationKeys?.map((item) => {
@@ -147,8 +148,13 @@ const ComplimentaryDate = ({
 		setIsLoadingGenerateKey(true);
 
 		try {
+			const updatedActivationKeysItem = state.activationKeys.map(item => ({
+				...item,
+				description: purposeDescription,
+			}));
+
 			if (hasDesiredEntry) {
-				const createKeyPromises = state.activationKeys.map(
+				const createKeyPromises = updatedActivationKeysItem.map(
 					async (item) => {
 						await generateLicenseKey(item);
 					}
@@ -158,10 +164,14 @@ const ComplimentaryDate = ({
 
 				setIsLoadingGenerateKey(false);
 
+				navigate(urlPreviousPage, {
+					state: {isMultipleKeys: state.activationKeys.length > 1, newKeyGeneratedAlert: true},
+				});
+
 				return true;
 			} else {
 				const results = await Promise.all(
-					state.activationKeys.map(async (item) => {
+					updatedActivationKeysItem.map(async (item) => {
 						await generateLicenseKey(item, isComplimentaryKey);
 					})
 				);
@@ -171,7 +181,7 @@ const ComplimentaryDate = ({
 				setIsLoadingGenerateKey(false);
 
 				navigate(urlPreviousPage, {
-					state: {newKeyGeneratedAlert: true},
+					state: {isMultipleKeys: state.activationKeys.length > 1, newKeyGeneratedAlert: true},
 				});
 
 				return true;
@@ -200,6 +210,7 @@ const ComplimentaryDate = ({
 		navigate,
 		provisioningServerAPI,
 		provisioningService,
+		purposeDescription,
 		sessionId,
 		state.activationKeys,
 		startDate,
@@ -247,7 +258,7 @@ const ComplimentaryDate = ({
 								displayType="primary"
 								isLoading={isLoadingGenerateKey}
 								onClick={() => {
-									if (state.id === 'renew') {
+									if (state.activationKeys.length > 1 && state.id === 'renew') {
 										submitKey();
 									} else {
 										setSelectedKeyData(
@@ -261,11 +272,9 @@ const ComplimentaryDate = ({
 									}
 								}}
 							>
-								{state.id === 'renew'
+								{state.activationKeys.length > 1 && state.id === 'renew'
 									? i18n.sub(
-											state.activationKeys.length > 1
-												? 'generate-x-keys'
-												: 'generate-x-key',
+										'generate-x-keys',
 											[state.activationKeys.length]
 									  )
 									: i18n.translate('next')}
@@ -287,7 +296,7 @@ const ComplimentaryDate = ({
 
 					<p>
 						{i18n.translate(
-							'you-can-use-this-option-to-generate-complimentary-activation-keys-with-a-duration-of-60-days'
+							'you-can-use-this-option-to-generate-complimentary-activation-keys-with-a-duration-of-30-days'
 						)}
 					</p>
 
@@ -317,7 +326,7 @@ const ComplimentaryDate = ({
 					{hasDateLimitExceeded && (
 						<p className="text-danger">
 							{i18n.translate(
-								'the-start-date-must-be-less-than-60-days-ago'
+								'the-start-date-must-be-less-than-30-days-ago'
 							)}
 						</p>
 					)}

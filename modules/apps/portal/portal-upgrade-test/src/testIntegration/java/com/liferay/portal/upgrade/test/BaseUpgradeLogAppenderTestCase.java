@@ -253,6 +253,21 @@ public abstract class BaseUpgradeLogAppenderTestCase {
 	}
 
 	@Test
+	public void testGetDLStorageSizeDisabled() throws Exception {
+		_appender.start();
+
+		try (SafeCloseable safeCloseable =
+				_setUpgradeReportDLStorageSizeTimeout(0)) {
+
+			_appender.stop();
+
+			_assertLogContextContains(
+				"upgrade.report.document.library.storage.size", "Disabled");
+			_assertReport("Document library storage size: Disabled");
+		}
+	}
+
+	@Test
 	public void testGetDLStorageSizeInGb() throws Exception {
 		_appender.start();
 

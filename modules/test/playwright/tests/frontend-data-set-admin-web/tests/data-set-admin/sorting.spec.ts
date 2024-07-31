@@ -62,6 +62,160 @@ test.describe('Sorting in Data Set Manager', () => {
 		});
 	});
 
+	test('Delete confirmation message is displayed @LPD-12725', async ({
+		dataSetManagerApiHelpers,
+		page,
+		sortingPage,
+	}) => {
+		await test.step('Create sorting options', async () => {
+			await dataSetManagerApiHelpers.createDataSetSort({
+				dataSetERC,
+				defaultValue: true,
+				fieldName: 'id',
+				label_i18n: {en_US: 'ID'},
+				orderType: 'asc',
+			});
+		});
+
+		await test.step('Navigate to Sorting section', async () => {
+			await sortingPage.goto({
+				dataSetLabel,
+			});
+		});
+
+		await test.step('Click on the delete action', async () => {
+			const tableRow = sortingPage.sortingTable.locator('tr', {
+				has: page.locator('text="ID"'),
+			});
+
+			await tableRow
+				.getByRole('cell', {name: 'Actions'})
+				.getByRole('button')
+				.click();
+
+			await page.getByRole('menuitem', {name: 'Delete'}).click();
+		});
+
+		await test.step('Check that the delete message is displayed', async () => {
+			await expect(page.getByText('Delete Sorting')).toBeVisible();
+
+			await expect(
+				page.getByText(
+					'Are you sure you want to delete this sorting? It will be removed immediately. Fragments using it will be affected. This action cannot be undone.'
+				)
+			).toBeVisible();
+		});
+
+		await test.step('Click on delete button to check that delete button exists and is clickable', async () => {
+			await page.getByRole('button', {name: 'Delete'}).click();
+		});
+
+		await test.step('Wait for success message to be displayed', async () => {
+			await expect(
+				page.getByText('Success:Your request completed successfully.')
+			).toBeVisible();
+		});
+	});
+
+	test('Edit action can be cancelled @LPD-12725', async ({
+		dataSetManagerApiHelpers,
+		page,
+		sortingPage,
+	}) => {
+		await test.step('Create ID sorting', async () => {
+			await dataSetManagerApiHelpers.createDataSetSort({
+				dataSetERC,
+				defaultValue: true,
+				fieldName: 'id',
+				label_i18n: {en_US: 'ID'},
+				orderType: 'asc',
+			});
+		});
+
+		await test.step('Navigate to Sorting section', async () => {
+			await sortingPage.goto({
+				dataSetLabel,
+			});
+		});
+
+		await test.step('Click on the edit action', async () => {
+			const tableRow = sortingPage.sortingTable.locator('tr', {
+				has: page.locator('text="ID"'),
+			});
+
+			await tableRow
+				.getByRole('cell', {name: 'Actions'})
+				.getByRole('button')
+				.click();
+
+			await page.getByRole('menuitem', {name: 'Edit'}).click();
+		});
+
+		await test.step('Change "Label" and "Sort By" inputs to "dateCreated"', async () => {
+			await page.getByLabel('Label').fill('dateCreated');
+			await page.getByLabel('Sort By').selectOption('dateCreated');
+		});
+
+		await test.step('Click cancel', async () => {
+			await page.getByRole('button', {name: 'Cancel'}).click();
+		});
+
+		await test.step('Check that changes are not applied', async () => {
+			const tableRow = sortingPage.sortingTable.locator('tr', {
+				has: page.locator('text="dateCreated"'),
+			});
+
+			expect(tableRow).not.toBeVisible();
+		});
+	});
+
+	test('Delete action can be cancelled @LPD-12725', async ({
+		dataSetManagerApiHelpers,
+		page,
+		sortingPage,
+	}) => {
+		await test.step('Create ID sorting', async () => {
+			await dataSetManagerApiHelpers.createDataSetSort({
+				dataSetERC,
+				defaultValue: true,
+				fieldName: 'id',
+				label_i18n: {en_US: 'ID'},
+				orderType: 'asc',
+			});
+		});
+
+		await test.step('Navigate to Sorting section', async () => {
+			await sortingPage.goto({
+				dataSetLabel,
+			});
+		});
+
+		await test.step('Click on the delete action', async () => {
+			const tableRow = sortingPage.sortingTable.locator('tr', {
+				has: page.locator('text="ID"'),
+			});
+
+			await tableRow
+				.getByRole('cell', {name: 'Actions'})
+				.getByRole('button')
+				.click();
+
+			await page.getByRole('menuitem', {name: 'Delete'}).click();
+		});
+
+		await test.step('Click cancel', async () => {
+			await page.getByRole('button', {name: 'Cancel'}).click();
+		});
+
+		await test.step('Check that ID still exists', async () => {
+			const tableRow = sortingPage.sortingTable.locator('tr', {
+				has: page.locator('text="ID"'),
+			});
+
+			expect(tableRow).toBeVisible();
+		});
+	});
+
 	test('Sorting options can be reordered and changes are persisted @LPD-9468', async ({
 		dataSetManagerApiHelpers,
 		sortingPage,
@@ -135,6 +289,93 @@ test.describe('Sorting in Data Set Manager', () => {
 		});
 	});
 
+	test('The search bar filters the results @LPD-9468', async ({
+		dataSetManagerApiHelpers,
+		page,
+		sortingPage,
+	}) => {
+		await test.step('Create sorting options', async () => {
+			await dataSetManagerApiHelpers.createDataSetSort({
+				dataSetERC,
+				defaultValue: true,
+				fieldName: 'id',
+				label_i18n: {en_US: 'ID'},
+				orderType: 'asc',
+			});
+
+			await dataSetManagerApiHelpers.createDataSetSort({
+				dataSetERC,
+				defaultValue: false,
+				fieldName: 'name',
+				label_i18n: {en_US: 'Name'},
+			});
+		});
+
+		await test.step('Navigate to Sorting section', async () => {
+			await sortingPage.goto({
+				dataSetLabel,
+			});
+		});
+
+		await test.step('Enter in a search term that does not exist', async () => {
+			await page.getByPlaceholder('Search').fill('nothing');
+		});
+
+		await test.step('Check that "No Results Found" is displayed', async () => {
+			await expect(page.getByText('No Results Found')).toBeVisible();
+		});
+
+		await test.step('Enter in a search term to only show ID', async () => {
+			await page.getByPlaceholder('Search').fill('ID');
+		});
+
+		await test.step('Check that only "ID" appears in the table', async () => {
+			const tableLabelCellTexts =
+				await sortingPage.getTableColumnInnerTexts(2);
+
+			expect(tableLabelCellTexts).toEqual(['ID']);
+		});
+	});
+
+	test('In the New Sort modal, the Label and Sort By fields are required', async ({
+		page,
+		sortingPage,
+	}) => {
+		await test.step('Navigate to Sorting section', async () => {
+			await sortingPage.goto({
+				dataSetLabel,
+			});
+		});
+
+		await test.step('Open new sort modal', async () => {
+			await sortingPage.openAddSortingModal();
+		});
+
+		await test.step('Check that save button is disabled when "Sort By" is not selected', async () => {
+			await page.getByLabel('Label').fill('ID');
+			await page.getByLabel('Sort By').selectOption('');
+
+			await expect(
+				page.locator('.liferay-modal').getByRole('button', {
+					exact: true,
+					name: 'Save',
+				})
+			).toBeDisabled();
+		});
+
+		await test.step('Check that save button is disabled when "Label" is empty', async () => {
+			await page.getByLabel('Label').fill('');
+			await page.getByLabel('Sort By').selectOption('id');
+
+			await expect(
+				page.locator('.liferay-modal').getByRole('button', {
+					exact: true,
+					name: 'Save',
+				})
+			).toBeDisabled();
+		});
+	});
+
 	test('In the New Sort modal, the Order Type input only appears when default is checked @LPD-19465', async ({
 		page,
 		sortingPage,
@@ -155,6 +396,14 @@ test.describe('Sorting in Data Set Manager', () => {
 			await page.getByLabel('Use as Default Sorting').check();
 
 			await expect(page.getByLabel('Order Type')).toBeVisible();
+		});
+
+		await test.step('Check the options of the Order Type input are "Ascending" and "Descending"', async () => {
+			const orderTypeInput = await page
+				.getByLabel('Order Type')
+				.textContent();
+
+			expect(orderTypeInput).toEqual('AscendingDescending');
 		});
 	});
 

@@ -31,8 +31,10 @@ import com.liferay.headless.delivery.client.resource.v1_0.NavigationMenuResource
 import com.liferay.journal.constants.JournalFolderConstants;
 import com.liferay.journal.model.JournalArticle;
 import com.liferay.journal.test.util.JournalTestUtil;
+import com.liferay.layout.test.util.LayoutTestUtil;
 import com.liferay.petra.function.transform.TransformUtil;
 import com.liferay.petra.string.StringPool;
+import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.security.permission.ResourceActions;
 import com.liferay.portal.kernel.service.ServiceContext;
@@ -41,6 +43,7 @@ import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.test.util.ServiceContextTestUtil;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.kernel.util.ArrayUtil;
+import com.liferay.portal.kernel.util.FriendlyURLNormalizer;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.LocaleUtil;
@@ -52,7 +55,6 @@ import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PermissionCheckerMethodTestRule;
 import com.liferay.portal.util.PropsValues;
-import com.liferay.site.navigation.menu.item.layout.constants.SiteNavigationMenuItemTypeConstants;
 import com.liferay.site.navigation.model.SiteNavigationMenuItem;
 import com.liferay.site.navigation.service.SiteNavigationMenuItemLocalService;
 
@@ -62,6 +64,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 
@@ -221,7 +224,7 @@ public class NavigationMenuResourceTest
 			JournalArticle.class.getName(), journalArticle.getTitle(),
 			"structuredContent", false);
 
-		_testGetNavigationMenuWithSubmenu();
+		_testGetNavigationMenuWithChildNavigationMenusAndNavigationMenuItems();
 	}
 
 	@Override
@@ -371,16 +374,28 @@ public class NavigationMenuResourceTest
 			testGroup.getGroupId(), _randomNavigationMenu(false));
 	}
 
-	private NavigationMenuResource _buildNavigationMenuResource() {
+	private void _assertNavigationMenuItem(
+		String name, Map<String, String> nameI18nMap,
+		NavigationMenuItem navigationMenuItem, String type,
+		boolean useCustomName) {
+
+		Assert.assertEquals(name, navigationMenuItem.getName());
+		Assert.assertEquals(nameI18nMap, navigationMenuItem.getName_i18n());
+		Assert.assertEquals(type, navigationMenuItem.getType());
+		Assert.assertEquals(
+			useCustomName, navigationMenuItem.getUseCustomName());
+	}
+
+	private NavigationMenuResource _buildNavigationMenuResource(Locale locale) {
 		NavigationMenuResource.Builder builder =
 			NavigationMenuResource.builder();
 
 		return builder.authentication(
 			"test@liferay.com", PropsValues.DEFAULT_ADMIN_PASSWORD
-		).locale(
-			LocaleUtil.getDefault()
 		).header(
 			"X-Accept-All-Languages", "true"
+		).locale(
+			(locale == null) ? LocaleUtil.getDefault() : locale
 		).build();
 	}
 
@@ -524,6 +539,20 @@ public class NavigationMenuResourceTest
 		return navigationMenu;
 	}
 
+	private NavigationMenu _randomNavigationMenu(
+			Layout layout1, Layout layout2, Map<String, String> nameI18nMap1,
+			Map<String, String> nameI18nMap2)
+		throws Exception {
+
+		NavigationMenu navigationMenu = super.randomNavigationMenu();
+
+		navigationMenu.setNavigationMenuItems(
+			_randomNavigationMenuItems(
+				layout1, layout2, nameI18nMap1, nameI18nMap2));
+
+		return navigationMenu;
+	}
+
 	private NavigationMenuItem[] _randomNavigationMenuItems() {
 		return new NavigationMenuItem[] {
 			new NavigationMenuItem() {
@@ -592,6 +621,67 @@ public class NavigationMenuResourceTest
 						}
 					};
 					type = "navigationMenu";
+				}
+			}
+		};
+	}
+
+	private NavigationMenuItem[] _randomNavigationMenuItems(
+		Layout layout1, Layout layout2, Map<String, String> nameI18nMap1,
+		Map<String, String> nameI18nMap2) {
+
+		return new NavigationMenuItem[] {
+			new NavigationMenuItem() {
+				{
+					name_i18n = nameI18nMap1;
+					type = "navigationMenu";
+					useCustomName = false;
+				}
+			},
+			new NavigationMenuItem() {
+				{
+					link = layout1.getFriendlyURL(LocaleUtil.US);
+					link_i18n = HashMapBuilder.put(
+						"en-US", layout1.getFriendlyURL(LocaleUtil.US)
+					).put(
+						"es-ES", layout1.getFriendlyURL(LocaleUtil.SPAIN)
+					).build();
+					name_i18n = nameI18nMap1;
+					type = "page";
+					useCustomName = true;
+				}
+			},
+			new NavigationMenuItem() {
+				{
+					link = layout1.getFriendlyURL(LocaleUtil.US);
+					link_i18n = HashMapBuilder.put(
+						"en-US", layout1.getFriendlyURL(LocaleUtil.US)
+					).build();
+					name_i18n = nameI18nMap2;
+					type = "page";
+					useCustomName = true;
+				}
+			},
+			new NavigationMenuItem() {
+				{
+					link = layout1.getFriendlyURL(LocaleUtil.US);
+					link_i18n = HashMapBuilder.put(
+						"en-US", layout1.getFriendlyURL(LocaleUtil.US)
+					).build();
+					name_i18n = nameI18nMap1;
+					type = "page";
+					useCustomName = false;
+				}
+			},
+			new NavigationMenuItem() {
+				{
+					link = layout2.getFriendlyURL(LocaleUtil.US);
+					link_i18n = HashMapBuilder.put(
+						"en-US", layout2.getFriendlyURL(LocaleUtil.US)
+					).build();
+					name_i18n = nameI18nMap1;
+					type = "page";
+					useCustomName = false;
 				}
 			}
 		};
@@ -667,54 +757,82 @@ public class NavigationMenuResourceTest
 		}
 	}
 
-	private void _testGetNavigationMenuWithSubmenu() throws Exception {
+	private void _testGetNavigationMenuWithChildNavigationMenusAndNavigationMenuItems()
+		throws Exception {
+
+		Map<Locale, String> layoutNameMap1 = HashMapBuilder.put(
+			LocaleUtil.SPAIN, RandomTestUtil.randomString()
+		).put(
+			LocaleUtil.US, RandomTestUtil.randomString()
+		).build();
+
+		Layout layout1 = LayoutTestUtil.addTypePortletLayout(
+			testGroup.getGroupId(), false, layoutNameMap1,
+			HashMapBuilder.put(
+				LocaleUtil.US,
+				_friendlyURLNormalizer.normalizeWithEncoding(
+					StringPool.SLASH + RandomTestUtil.randomString())
+			).build());
+
+		Map<Locale, String> layoutNameMap2 = HashMapBuilder.put(
+			LocaleUtil.US, RandomTestUtil.randomString()
+		).build();
+
+		Layout layout2 = LayoutTestUtil.addTypePortletLayout(
+			testGroup.getGroupId(), false, layoutNameMap2,
+			HashMapBuilder.put(
+				LocaleUtil.US,
+				_friendlyURLNormalizer.normalizeWithEncoding(
+					StringPool.SLASH + RandomTestUtil.randomString())
+			).build());
+
+		Map<String, String> nameI18nMap1 = HashMapBuilder.put(
+			LocaleUtil.SPAIN.toLanguageTag(), RandomTestUtil.randomString()
+		).put(
+			LocaleUtil.US.toLanguageTag(), RandomTestUtil.randomString()
+		).build();
+		Map<String, String> nameI18nMap2 = HashMapBuilder.put(
+			LocaleUtil.US.toLanguageTag(), RandomTestUtil.randomString()
+		).build();
+
 		NavigationMenu postNavigationMenu =
-			testGetNavigationMenu_addNavigationMenu();
-
-		String nameEnUS = RandomTestUtil.randomString();
-		String nameEsES = RandomTestUtil.randomString();
-
-		SiteNavigationMenuItem siteNavigationMenuItem =
-			_siteNavigationMenuItemLocalService.addSiteNavigationMenuItem(
-				null, TestPropsValues.getUserId(), testGroup.getGroupId(),
-				postNavigationMenu.getId(), 0,
-				SiteNavigationMenuItemTypeConstants.NODE,
-				UnicodePropertiesBuilder.create(
-					true
-				).put(
-					"defaultLanguageId", "en_US"
-				).put(
-					"name_en_US", nameEnUS
-				).put(
-					"name_es_ES", nameEsES
-				).buildString(),
-				ServiceContextTestUtil.getServiceContext(
-					testGroup.getGroupId(), TestPropsValues.getUserId()));
+			navigationMenuResource.postSiteNavigationMenu(
+				testGroup.getGroupId(),
+				_randomNavigationMenu(
+					layout1, layout2, nameI18nMap1, nameI18nMap2));
 
 		NavigationMenuResource navigationMenuResource =
-			_buildNavigationMenuResource();
+			_buildNavigationMenuResource(LocaleUtil.SPAIN);
 
 		NavigationMenu getNavigationMenu =
 			navigationMenuResource.getNavigationMenu(
 				postNavigationMenu.getId());
 
-		assertValid(getNavigationMenu);
-
-		NavigationMenuItem navigationMenuItem =
-			getNavigationMenu.getNavigationMenuItems()[0];
-
-		Assert.assertEquals(
-			siteNavigationMenuItem.getSiteNavigationMenuItemId(),
-			GetterUtil.getLong(navigationMenuItem.getId()));
-		Assert.assertEquals(nameEnUS, navigationMenuItem.getName());
-
-		Map<String, String> nameI18nMap = navigationMenuItem.getName_i18n();
-
-		Assert.assertEquals(nameEnUS, nameI18nMap.get("en-US"));
-		Assert.assertEquals(nameEsES, nameI18nMap.get("es-ES"));
-
-		Assert.assertEquals("navigationMenu", navigationMenuItem.getType());
-		Assert.assertFalse(navigationMenuItem.getUseCustomName());
+		_assertNavigationMenuItem(
+			nameI18nMap1.get(LocaleUtil.SPAIN.toLanguageTag()), nameI18nMap1,
+			getNavigationMenu.getNavigationMenuItems()[0], "navigationMenu",
+			false);
+		_assertNavigationMenuItem(
+			nameI18nMap1.get(LocaleUtil.SPAIN.toLanguageTag()), nameI18nMap1,
+			getNavigationMenu.getNavigationMenuItems()[1], "page", true);
+		_assertNavigationMenuItem(
+			nameI18nMap2.get(LocaleUtil.US.toLanguageTag()), nameI18nMap2,
+			getNavigationMenu.getNavigationMenuItems()[2], "page", true);
+		_assertNavigationMenuItem(
+			layoutNameMap1.get(LocaleUtil.SPAIN),
+			HashMapBuilder.put(
+				LocaleUtil.US.toLanguageTag(), layoutNameMap1.get(LocaleUtil.US)
+			).put(
+				LocaleUtil.SPAIN.toLanguageTag(),
+				layoutNameMap1.get(LocaleUtil.SPAIN)
+			).build(),
+			getNavigationMenu.getNavigationMenuItems()[3], "page", false);
+		_assertNavigationMenuItem(
+			layoutNameMap2.get(LocaleUtil.US),
+			HashMapBuilder.put(
+				LocaleUtil.US.toLanguageTag(), layoutNameMap2.get(LocaleUtil.US)
+			).build(),
+			getNavigationMenu.getNavigationMenuItems()[4], "page", false);
 	}
 
 	private void _testGetSiteNavigationMenusPage(
@@ -842,6 +960,9 @@ public class NavigationMenuResourceTest
 
 	@Inject
 	private DepotEntryLocalService _depotEntryLocalService;
+
+	@Inject
+	private FriendlyURLNormalizer _friendlyURLNormalizer;
 
 	@Inject
 	private Portal _portal;

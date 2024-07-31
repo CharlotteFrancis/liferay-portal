@@ -38,16 +38,16 @@ import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
 import com.liferay.portal.kernel.test.util.GroupTestUtil;
+import com.liferay.portal.kernel.test.util.PropsValuesTestUtil;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.test.util.ServiceContextTestUtil;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.kernel.util.ContentTypes;
-import com.liferay.portal.kernel.util.FileUtil;
+import com.liferay.portal.kernel.util.File;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HashMapDictionaryBuilder;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.Portal;
-import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.UnicodeProperties;
@@ -57,6 +57,7 @@ import com.liferay.portal.search.spi.model.index.contributor.ModelDocumentContri
 import com.liferay.portal.test.rule.FeatureFlags;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
+import com.liferay.portal.util.PropsValues;
 
 import java.io.IOException;
 
@@ -113,7 +114,7 @@ public class DLFileEntryModelDocumentContributorTest {
 			Assert.assertNotEquals(
 				"overriden",
 				document.get(
-					PortalUtil.getSiteDefaultLocale(dlFileEntry.getGroupId()),
+					_portal.getSiteDefaultLocale(dlFileEntry.getGroupId()),
 					Field.CONTENT));
 		}
 	}
@@ -144,8 +145,88 @@ public class DLFileEntryModelDocumentContributorTest {
 			Assert.assertEquals(
 				"overriden",
 				document.get(
-					PortalUtil.getSiteDefaultLocale(dlFileEntry.getGroupId()),
+					_portal.getSiteDefaultLocale(dlFileEntry.getGroupId()),
 					Field.CONTENT));
+		}
+	}
+
+	@Test
+	public void testCachedTextExtractionWithDLFileIndexingMaxSizeAndCacheExtraction()
+		throws Exception {
+
+		try (ConfigurationTemporarySwapper configurationTemporarySwapper =
+				_getConfigurationTemporarySwapper(true)) {
+
+			String fileContent = StringUtil.randomString(
+				PropsValues.DL_FILE_INDEXING_MAX_SIZE + 1);
+
+			DLFileEntry dlFileEntry = _addDLFileEntry(
+				ContentTypes.APPLICATION_OCTET_STREAM,
+				fileContent.getBytes(StandardCharsets.UTF_8));
+
+			Document document = new DocumentImpl();
+
+			_dlFileEntryModelDocumentContributor.contribute(
+				document, dlFileEntry);
+
+			String content = _getFileAsString(dlFileEntry);
+
+			Assert.assertEquals(
+				PropsValues.DL_FILE_INDEXING_MAX_SIZE, content.length());
+
+			try (SafeCloseable safeCloseable =
+					PropsValuesTestUtil.swapWithSafeCloseable(
+						"DL_FILE_INDEXING_MAX_SIZE", 100)) {
+
+				_dlFileEntryModelDocumentContributor.contribute(
+					document, dlFileEntry);
+
+				content = _getFileAsString(dlFileEntry);
+
+				Assert.assertEquals(100, content.length());
+			}
+		}
+	}
+
+	@Test
+	public void testCachedTextExtractionWithDLFileIndexingMaxSizeAndNoCacheExtraction()
+		throws Exception {
+
+		try (ConfigurationTemporarySwapper configurationTemporarySwapper =
+				_getConfigurationTemporarySwapper(false)) {
+
+			String fileContent = StringUtil.randomString(
+				PropsValues.DL_FILE_INDEXING_MAX_SIZE + 1);
+
+			DLFileEntry dlFileEntry = _addDLFileEntry(
+				ContentTypes.APPLICATION_OCTET_STREAM,
+				fileContent.getBytes(StandardCharsets.UTF_8));
+
+			Document document = new DocumentImpl();
+
+			_dlFileEntryModelDocumentContributor.contribute(
+				document, dlFileEntry);
+
+			String content = document.get(
+				_portal.getSiteDefaultLocale(dlFileEntry.getGroupId()),
+				Field.CONTENT);
+
+			Assert.assertEquals(
+				PropsValues.DL_FILE_INDEXING_MAX_SIZE, content.length());
+
+			try (SafeCloseable safeCloseable =
+					PropsValuesTestUtil.swapWithSafeCloseable(
+						"DL_FILE_INDEXING_MAX_SIZE", 100)) {
+
+				_dlFileEntryModelDocumentContributor.contribute(
+					document, dlFileEntry);
+
+				content = document.get(
+					_portal.getSiteDefaultLocale(dlFileEntry.getGroupId()),
+					Field.CONTENT);
+
+				Assert.assertEquals(100, content.length());
+			}
 		}
 	}
 
@@ -348,7 +429,7 @@ public class DLFileEntryModelDocumentContributorTest {
 		throws Exception {
 
 		DLFileEntry dlFileEntry = _addDLFileEntry(
-			ContentTypes.IMAGE_PNG, FileUtil.getBytes(getClass(), fileName));
+			ContentTypes.IMAGE_PNG, _file.getBytes(getClass(), fileName));
 
 		FileEntry fileEntry = new LiferayFileEntry(dlFileEntry);
 
@@ -417,6 +498,9 @@ public class DLFileEntryModelDocumentContributorTest {
 
 	@Inject
 	private DLStore _dlStore;
+
+	@Inject
+	private File _file;
 
 	@DeleteAfterTestRun
 	private Group _group;

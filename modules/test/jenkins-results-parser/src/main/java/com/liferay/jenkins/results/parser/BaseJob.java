@@ -138,7 +138,8 @@ public abstract class BaseJob implements Job {
 			Properties buildProperties;
 
 			try {
-				buildProperties = JenkinsResultsParserUtil.getBuildProperties();
+				buildProperties = JenkinsResultsParserUtil.getBuildProperties(
+					false);
 			}
 			catch (IOException ioException) {
 				throw new RuntimeException(
@@ -150,6 +151,8 @@ public abstract class BaseJob implements Job {
 
 			if (relevantEngineEnabled &&
 				Objects.equals(getTestSuiteName(), "relevant")) {
+
+				System.out.println("Relevant engine is enabled");
 
 				_batchTestClassGroups.addAll(
 					getBatchTestClassGroups(getTestBatches()));

@@ -17,6 +17,29 @@
 	window.addEventListener('resize', function() {
 		checkScreenSize();
 	});
+
+	function copyToClipboard(button) {
+		let codeToolbar = button.closest('.code-toolbar');
+
+		let codeText = codeToolbar.querySelector('code.language-bash').innerText;
+
+		if (codeText) {
+			navigator.clipboard.writeText(
+				codeText
+			).then(
+				function() {
+					button.setAttribute('data-copy-state', 'copy-success');
+
+					setTimeout(
+						function() {
+							button.setAttribute('data-copy-state', 'copy');
+						},
+						3000
+					);
+				}
+			)
+		}
+	}
 </script>
 
 <div class="learn-recipe-container">
@@ -159,8 +182,25 @@
 						</div>
 					</#if>
 
-					<#if (currentStep.Step.Resources.Code.getData())??>
-						${currentStep.Step.Resources.Code.getData()}
+					<#if currentStep.Step.Resources.code.getData()?has_content>
+						<div class="code-toolbar">
+							<pre class="language-bash" tabindex="0">
+								<code class="language-bash">${currentStep.Step.Resources.code.getData()}</code>
+							</pre>
+
+							<div class="toolbar">
+								<div class="toolbar-item">
+									<button
+										class="copy-to-clipboard-button"
+										data-copy-state="copy"
+										onclick="copyToClipboard(this)"
+										type="button"
+									>
+										<span>Copy</span>
+									</button>
+								</div>
+							</div>
+						</div>
 					</#if>
 				</#list>
 			</ol>

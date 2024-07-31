@@ -18,12 +18,12 @@ import {blogsPagesTest} from '../blogs-web/fixtures/blogsPagesTest';
 import {journalPagesTest} from '../journal-web/fixtures/journalPagesTest';
 import {JournalEditArticlePage} from '../journal-web/pages/JournalEditArticlePage';
 import {JournalPage} from '../journal-web/pages/JournalPage';
-import {displayPageTemplatesTest} from './fixtures/displayTemplatePagesTest';
+import {displayPageTemplatesPagesTest} from './fixtures/displayPageTemplatesPagesTest';
 
 const test = mergeTests(
 	apiHelpersTest,
 	blogsPagesTest,
-	displayPageTemplatesTest,
+	displayPageTemplatesPagesTest,
 	documentLibraryPagesTest,
 	isolatedSiteTest,
 	journalPagesTest,
@@ -77,7 +77,7 @@ test('Checks that the card checkbox has the correct aria label', async ({
 
 	const displayPageTemplateName = getRandomString();
 
-	await displayPageTemplatesPage.publishNewTemplate({
+	await displayPageTemplatesPage.createTemplate({
 		contentSubtype: 'Basic Web Content',
 		contentType: 'Web Content Article',
 		name: displayPageTemplateName,
@@ -108,7 +108,7 @@ test(
 
 		const displayPageTemplateName = 'basicWebContentDpt' + getRandomInt();
 
-		await displayPageTemplatesPage.publishNewTemplate({
+		await displayPageTemplatesPage.createTemplate({
 			contentSubtype: 'Basic Web Content',
 			contentType: 'Web Content Article',
 			name: displayPageTemplateName,
@@ -174,7 +174,7 @@ test(
 
 		const defaultDisplayPageTemplateName = getRandomString();
 
-		await displayPageTemplatesPage.publishNewTemplate({
+		await displayPageTemplatesPage.createTemplate({
 			contentSubtype: 'Basic Web Content',
 			contentType: 'Web Content Article',
 			name: defaultDisplayPageTemplateName,
@@ -188,7 +188,7 @@ test(
 
 		const displayPageTemplateName = 'basicWebContentDpt' + getRandomInt();
 
-		await displayPageTemplatesPage.publishNewTemplate({
+		await displayPageTemplatesPage.createTemplate({
 			contentSubtype: 'Basic Web Content',
 			contentType: 'Web Content Article',
 			name: displayPageTemplateName,
@@ -254,7 +254,7 @@ test(
 
 		const displayPageTemplateName = getRandomString();
 
-		await displayPageTemplatesPage.publishNewTemplate({
+		await displayPageTemplatesPage.createTemplate({
 			contentSubtype: 'Basic Web Content',
 			contentType: 'Web Content Article',
 			name: displayPageTemplateName,
@@ -326,7 +326,7 @@ test(
 
 		const displayPageTemplateName = getRandomString();
 
-		await displayPageTemplatesPage.publishNewTemplate({
+		await displayPageTemplatesPage.createTemplate({
 			contentType: 'Blogs Entry',
 			name: displayPageTemplateName,
 		});
@@ -382,7 +382,7 @@ test(
 
 		const displayPageTemplateName = getRandomString();
 
-		await displayPageTemplatesPage.publishNewTemplate({
+		await displayPageTemplatesPage.createTemplate({
 			contentSubtype: 'Basic Document',
 			contentType: 'Document',
 			name: displayPageTemplateName,

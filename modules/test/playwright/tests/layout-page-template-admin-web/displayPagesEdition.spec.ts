@@ -12,10 +12,10 @@ import {wemSiteTest} from '../../fixtures/wemSiteTest';
 import {clickAndExpectToBeHidden} from '../../utils/clickAndExpectToBeHidden';
 import {clickAndExpectToBeVisible} from '../../utils/clickAndExpectToBeVisible';
 import getRandomString from '../../utils/getRandomString';
-import {displayPageTemplatesTest} from './fixtures/displayTemplatePagesTest';
+import {displayPageTemplatesPagesTest} from './fixtures/displayPageTemplatesPagesTest';
 
 const test = mergeTests(
-	displayPageTemplatesTest,
+	displayPageTemplatesPagesTest,
 	featureFlagsTest({
 		'LPD-11377': true,
 		'LPD-20213': true,
@@ -38,7 +38,7 @@ test('Allow mapping repeatable fields collection provider', async ({
 
 	const displayPageTemplateName = getRandomString();
 
-	await displayPageTemplatesPage.publishNewTemplate({
+	await displayPageTemplatesPage.createTemplate({
 		contentSubtype: 'Animal',
 		contentType: 'Web Content Article',
 		name: displayPageTemplateName,
@@ -126,7 +126,7 @@ test('Allow mapping editables to fields of related object', async ({
 
 	const displayPageTemplateName = getRandomString();
 
-	await displayPageTemplatesPage.publishNewTemplate({
+	await displayPageTemplatesPage.createTemplate({
 		contentType: 'Lemon',
 		name: displayPageTemplateName,
 	});
