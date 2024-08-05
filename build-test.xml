@@ -1035,8 +1035,8 @@ jdbc.default.connectionProperties=oracle.jdbc.ReadTimeout=0;oracle.net.CONNECT_T
 
 	<macrodef name="get-java-jdk-home">
 		<attribute default="${java.jdk.architecture}" name="architecture" />
-		<attribute default="oracle" name="type" />
-		<attribute default="${ant.java.version}" name="version" />
+		<attribute default="${java.jdk.default.bundle.type}" name="type" />
+		<attribute default="${java.jdk.default.bundle.version}" name="version" />
 
 		<sequential>
 			<var name="java.jdk.home" unset="true" />
