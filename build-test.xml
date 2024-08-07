@@ -1096,37 +1096,37 @@ jdbc.default.connectionProperties=oracle.jdbc.ReadTimeout=0;oracle.net.CONNECT_T
 		<attribute name="type" />
 		<attribute default="${java.jdk.default.runtime.version}" name="version" />
 
-		<if>
-			<var name="type" unset="true" />
-			<then>
-				<if>
-					<equals arg1="version" arg2="jdk8" />
-					<then>
-						<property name="type" value="${java.jdk.default.jdk8.bundle}" />
-					</then>
-				</if>
-				<if>
-					<equals arg1="version" arg2="jdk11" />
-					<then>
-						<property name="type" value="${java.jdk.default.jdk11.bundle}" />
-					</then>
-				</if>
-				<if>
-					<equals arg1="version" arg2="jdk17" />
-					<then>
-						<property name="type" value="${java.jdk.default.jdk17.bundle}" />
-					</then>
-				</if>
-				<if>
-					<equals arg1="version" arg2="jdk21" />
-					<then>
-						<property name="type" value="${java.jdk.default.jdk21.bundle}" />
-					</then>
-				</if>
-			</then>
-		</if>
-
 		<sequential>
+			<if>
+				<var name="type" unset="true" />
+				<then>
+					<if>
+						<equals arg1="version" arg2="jdk8" />
+						<then>
+							<property name="type" value="${java.jdk.default.jdk8.bundle}" />
+						</then>
+					</if>
+					<if>
+						<equals arg1="version" arg2="jdk11" />
+						<then>
+							<property name="type" value="${java.jdk.default.jdk11.bundle}" />
+						</then>
+					</if>
+					<if>
+						<equals arg1="version" arg2="jdk17" />
+						<then>
+							<property name="type" value="${java.jdk.default.jdk17.bundle}" />
+						</then>
+					</if>
+					<if>
+						<equals arg1="version" arg2="jdk21" />
+						<then>
+							<property name="type" value="${java.jdk.default.jdk21.bundle}" />
+						</then>
+					</if>
+				</then>
+			</if>
+			
 			<var name="java.jdk.home" unset="true" />
 
 			<if>
