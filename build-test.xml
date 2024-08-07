@@ -1040,33 +1040,36 @@ jdbc.default.connectionProperties=oracle.jdbc.ReadTimeout=0;oracle.net.CONNECT_T
 
 		<sequential>
 			<if>
-				<equals arg1="type" arg2="" />
+				<equals arg1="@{type}" arg2="" />
 				<then>
 					<if>
-						<equals arg1="version" arg2="jdk8" />
+						<equals arg1="${version}" arg2="jdk8" />
 						<then>
 							<property name="type" value="${java.jdk.default.jdk8.bundle}" />
 						</then>
 					</if>
 					<if>
-						<equals arg1="version" arg2="jdk11" />
+						<equals arg1="@{version}" arg2="jdk11" />
 						<then>
 							<property name="type" value="${java.jdk.default.jdk11.bundle}" />
 						</then>
 					</if>
 					<if>
-						<equals arg1="version" arg2="jdk17" />
+						<equals arg1="@{version}" arg2="jdk17" />
 						<then>
 							<property name="type" value="${java.jdk.default.jdk17.bundle}" />
 						</then>
 					</if>
 					<if>
-						<equals arg1="version" arg2="jdk21" />
+						<equals arg1="@{version}" arg2="jdk21" />
 						<then>
 							<property name="type" value="${java.jdk.default.jdk21.bundle}" />
 						</then>
 					</if>
 				</then>
+				<else>
+					<property name="type" value="@{type}" />
+				</else>
 			</if>
 			
 			<var name="java.jdk.home" unset="true" />
@@ -1077,7 +1080,7 @@ jdbc.default.connectionProperties=oracle.jdbc.ReadTimeout=0;oracle.net.CONNECT_T
 					<property name="java.jdk.home" value="${local.java.jdk.home}" />
 				</then>
 				<else>
-					<propertycopy from="java.jdk.home[@{version}][@{architecture}][@{type}]" property="java.jdk.home" silent="true" />
+					<propertycopy from="java.jdk.home[@{version}][@{architecture}][${type}]" property="java.jdk.home" silent="true" />
 
 					<property name="java.jdk.home" value="${java.home}" />
 
