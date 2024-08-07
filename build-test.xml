@@ -1045,28 +1045,28 @@ jdbc.default.connectionProperties=oracle.jdbc.ReadTimeout=0;oracle.net.CONNECT_T
 				<equals arg1="@{type}" arg2="none" />
 				<then>
 					<if>
-						<equals arg1="${version}" arg2="jdk8" />
+						<equals arg1="${version}" arg2="8" />
 						<then>
 							<var name="type" unset="true" />
 							<property name="type" value="${java.jdk.default.jdk8.bundle}" />
 						</then>
 					</if>
 					<if>
-						<equals arg1="@{version}" arg2="jdk11" />
+						<equals arg1="@{version}" arg2="11" />
 						<then>
 							<var name="type" unset="true" />
 							<property name="type" value="${java.jdk.default.jdk11.bundle}" />
 						</then>
 					</if>
 					<if>
-						<equals arg1="@{version}" arg2="jdk17" />
+						<equals arg1="@{version}" arg2="17" />
 						<then>
 							<var name="type" unset="true" />
 							<property name="type" value="${java.jdk.default.jdk17.bundle}" />
 						</then>
 					</if>
 					<if>
-						<equals arg1="@{version}" arg2="jdk21" />
+						<equals arg1="@{version}" arg2="21" />
 						<then>
 							<var name="type" unset="true" />
 							<property name="type" value="${java.jdk.default.jdk21.bundle}" />
