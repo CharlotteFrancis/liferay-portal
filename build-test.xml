@@ -1035,34 +1035,40 @@ jdbc.default.connectionProperties=oracle.jdbc.ReadTimeout=0;oracle.net.CONNECT_T
 
 	<macrodef name="get-java-jdk-home">
 		<attribute default="${java.jdk.architecture}" name="architecture" />
-		<attribute default="" name="type" />
+		<attribute default="none" name="type" />
 		<attribute default="${java.jdk.default.runtime.version}" name="version" />
 
 		<sequential>
+			<echo> cw @ type is : @{type}, @ version is : @{version} </echo>
+
 			<if>
-				<equals arg1="@{type}" arg2="" />
+				<equals arg1="@{type}" arg2="none" />
 				<then>
 					<if>
 						<equals arg1="${version}" arg2="jdk8" />
 						<then>
+							<var name="type" unset="true" />
 							<property name="type" value="${java.jdk.default.jdk8.bundle}" />
 						</then>
 					</if>
 					<if>
 						<equals arg1="@{version}" arg2="jdk11" />
 						<then>
+							<var name="type" unset="true" />
 							<property name="type" value="${java.jdk.default.jdk11.bundle}" />
 						</then>
 					</if>
 					<if>
 						<equals arg1="@{version}" arg2="jdk17" />
 						<then>
+							<var name="type" unset="true" />
 							<property name="type" value="${java.jdk.default.jdk17.bundle}" />
 						</then>
 					</if>
 					<if>
 						<equals arg1="@{version}" arg2="jdk21" />
 						<then>
+							<var name="type" unset="true" />
 							<property name="type" value="${java.jdk.default.jdk21.bundle}" />
 						</then>
 					</if>
@@ -1097,6 +1103,7 @@ jdbc.default.connectionProperties=oracle.jdbc.ReadTimeout=0;oracle.net.CONNECT_T
 				</else>
 			</if>
 
+			<echo>@@ cw ${type} is $ type, @{type} is @ type,  @{version} is @ version</echo>
 			<echo>## Using ${java.jdk.home} as JAVA_HOME.</echo>
 		</sequential>
 	</macrodef>
