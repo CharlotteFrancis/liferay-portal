@@ -1035,12 +1035,12 @@ jdbc.default.connectionProperties=oracle.jdbc.ReadTimeout=0;oracle.net.CONNECT_T
 
 	<macrodef name="get-java-jdk-home">
 		<attribute default="${java.jdk.architecture}" name="architecture" />
-		<attribute name="type" />
+		<attribute default="" name="type" />
 		<attribute default="${java.jdk.default.runtime.version}" name="version" />
 
 		<sequential>
 			<if>
-				<var name="type" unset="true" />
+				<equals arg1="type" arg2="" />
 				<then>
 					<if>
 						<equals arg1="version" arg2="jdk8" />
