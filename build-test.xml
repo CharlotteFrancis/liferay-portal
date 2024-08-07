@@ -1109,7 +1109,37 @@ jdbc.default.connectionProperties=oracle.jdbc.ReadTimeout=0;oracle.net.CONNECT_T
 	<macrodef name="get-java-jdk-home">
 		<attribute default="${java.jdk.architecture}" name="architecture" />
 		<attribute default="${java.jdk.default.bundle.type}" name="type" />
-		<attribute default="${java.jdk.default.bundle.version}" name="version" />
+		<attribute default="${default.runtime.jdk}" name="version" />
+
+		<if>
+			<var name="type" unset="true" />
+			<then>
+				<if>
+					<equals arg1="version" arg2="jdk8" />
+					<then>
+						<property name="type" value="${java.jdk8.default.bundle}" />
+					</then>
+				</if>
+				<if>
+					<equals arg1="version" arg2="jdk11" />
+					<then>
+						<property name="type" value="java.jdk11.default.bundlee" />
+					</then>
+				</if>
+				<if>
+					<equals arg1="version" arg2="jdk17" />
+					<then>
+						<property name="type" value="java.jdk17.default.bundle" />
+					</then>
+				</if>
+				<if>
+					<equals arg1="version" arg2="jdk21" />
+					<then>
+						<property name="type" value="java.jdk21.default.bundle" />
+					</then>
+				</if>
+			</then>
+		</if>
 
 		<sequential>
 			<var name="java.jdk.home" unset="true" />
