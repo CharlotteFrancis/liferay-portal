@@ -1143,7 +1143,15 @@ jdbc.default.connectionProperties=oracle.jdbc.ReadTimeout=0;oracle.net.CONNECT_T
 					<property name="java.jdk.home" value="${local.java.jdk.home}" />
 				</then>
 				<else>
-					<propertycopy from="java.jdk.home[@{version}][@{architecture}][${type}]" property="java.jdk.home" silent="true" />
+					<if>
+						<isset property="type" />
+						<then>
+							<propertycopy from="java.jdk.home[@{version}][@{architecture}][${type}]" property="java.jdk.home" silent="true" />
+						</then>
+						<else>
+							<propertycopy from="java.jdk.home[@{version}][@{architecture}][@{type}]" property="java.jdk.home" silent="true" />
+						</else>
+					</if>
 
 					<property name="java.jdk.home" value="${java.home}" />
 
