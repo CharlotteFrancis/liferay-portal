@@ -1002,11 +1002,11 @@ jdbc.default.connectionProperties=oracle.jdbc.ReadTimeout=0;oracle.net.CONNECT_T
 				select="\1"
 			/>
 
-			<condition property="java.jdk.bundle.type" value="oracle">
+			<condition property="java.jdk.bundle.type" value="zulu">
 				<matches pattern="-jdk[0-9]+$" string="${test.batch.name}" />
 			</condition>
 
-			<property name="java.jdk.bundle.type" value="oracle" />
+			<property name="java.jdk.bundle.type" value="zulu" />
 		</sequential>
 	</macrodef>
 
@@ -1035,14 +1035,14 @@ jdbc.default.connectionProperties=oracle.jdbc.ReadTimeout=0;oracle.net.CONNECT_T
 
 	<macrodef name="get-java-jdk-home">
 		<attribute default="${java.jdk.architecture}" name="architecture" />
-		<attribute default="none" name="type" />
+		<attribute default="zulu" name="type" />
 		<attribute default="${java.jdk.default.runtime.version}" name="version" />
 
 		<sequential>
 			<echo> cw @ type is : @{type}, @ version is : @{version} </echo>
 
 			<if>
-				<equals arg1="@{type}" arg2="none" />
+				<equals arg1="@{type}" arg2="zulu" />
 				<then>
 					<if>
 						<equals arg1="${version}" arg2="8" />
