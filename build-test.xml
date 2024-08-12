@@ -1060,6 +1060,10 @@ jdbc.default.connectionProperties=oracle.jdbc.ReadTimeout=0;oracle.net.CONNECT_T
 				select="\1"
 			/>
 
+			<condition property="java.jdk.bundle.type" value="open">
+				<matches pattern="-jdk17$" string="${test.batch.name}" />
+			</condition>
+
 			<condition property="java.jdk.bundle.type" value="zulu">
 				<matches pattern="-jdk[0-9]+$" string="${test.batch.name}" />
 			</condition>
