@@ -1138,7 +1138,7 @@ jdbc.default.connectionProperties=oracle.jdbc.ReadTimeout=0;oracle.net.CONNECT_T
 					<property name="type" value="@{type}" />
 				</else>
 			</if>
-			
+
 			<var name="java.jdk.home" unset="true" />
 
 			<if>
