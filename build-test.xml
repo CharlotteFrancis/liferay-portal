@@ -1091,7 +1091,7 @@ jdbc.default.connectionProperties=oracle.jdbc.ReadTimeout=0;oracle.net.CONNECT_T
 				select="\1"
 			/>
 
-			<property name="java.jdk.bundle.version" value="${ant.java.version}" />
+			<property name="java.jdk.bundle.version" value="${java.jdk.default.runtime.version}" />
 		</sequential>
 	</macrodef>
 
