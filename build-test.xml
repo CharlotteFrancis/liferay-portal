@@ -1060,11 +1060,11 @@ jdbc.default.connectionProperties=oracle.jdbc.ReadTimeout=0;oracle.net.CONNECT_T
 				select="\1"
 			/>
 
-			<condition property="java.jdk.bundle.type" value="oracle">
+			<condition property="java.jdk.bundle.type" value="zulu">
 				<matches pattern="-jdk[0-9]+$" string="${test.batch.name}" />
 			</condition>
 
-			<property name="java.jdk.bundle.type" value="oracle" />
+			<property name="java.jdk.bundle.type" value="zulu" />
 		</sequential>
 	</macrodef>
 
@@ -1093,10 +1093,49 @@ jdbc.default.connectionProperties=oracle.jdbc.ReadTimeout=0;oracle.net.CONNECT_T
 
 	<macrodef name="get-java-jdk-home">
 		<attribute default="${java.jdk.architecture}" name="architecture" />
-		<attribute default="oracle" name="type" />
-		<attribute default="${ant.java.version}" name="version" />
+		<attribute default="zulu" name="type" />
+		<attribute default="${java.jdk.default.runtime.version}" name="version" />
 
 		<sequential>
+			<echo> cw @ type is : @{type}, @ version is : @{version} </echo>
+
+			<if>
+				<equals arg1="@{type}" arg2="zulu" />
+				<then>
+					<if>
+						<equals arg1="${version}" arg2="8" />
+						<then>
+							<var name="type" unset="true" />
+							<property name="type" value="${java.jdk.default.jdk8.bundle}" />
+						</then>
+					</if>
+					<if>
+						<equals arg1="@{version}" arg2="11" />
+						<then>
+							<var name="type" unset="true" />
+							<property name="type" value="${java.jdk.default.jdk11.bundle}" />
+						</then>
+					</if>
+					<if>
+						<equals arg1="@{version}" arg2="17" />
+						<then>
+							<var name="type" unset="true" />
+							<property name="type" value="${java.jdk.default.jdk17.bundle}" />
+						</then>
+					</if>
+					<if>
+						<equals arg1="@{version}" arg2="21" />
+						<then>
+							<var name="type" unset="true" />
+							<property name="type" value="${java.jdk.default.jdk21.bundle}" />
+						</then>
+					</if>
+				</then>
+				<else>
+					<property name="type" value="@{type}" />
+				</else>
+			</if>
+			
 			<var name="java.jdk.home" unset="true" />
 
 			<if>
@@ -1105,7 +1144,15 @@ jdbc.default.connectionProperties=oracle.jdbc.ReadTimeout=0;oracle.net.CONNECT_T
 					<property name="java.jdk.home" value="${local.java.jdk.home}" />
 				</then>
 				<else>
-					<propertycopy from="java.jdk.home[@{version}][@{architecture}][@{type}]" property="java.jdk.home" silent="true" />
+					<if>
+						<isset property="type" />
+						<then>
+							<propertycopy from="java.jdk.home[@{version}][@{architecture}][${type}]" property="java.jdk.home" silent="true" />
+						</then>
+						<else>
+							<propertycopy from="java.jdk.home[@{version}][@{architecture}][@{type}]" property="java.jdk.home" silent="true" />
+						</else>
+					</if>
 
 					<property name="java.jdk.home" value="${java.home}" />
 
@@ -1122,6 +1169,7 @@ jdbc.default.connectionProperties=oracle.jdbc.ReadTimeout=0;oracle.net.CONNECT_T
 				</else>
 			</if>
 
+			<echo>@@ cw ${type} is $ type, @{type} is @ type,  @{version} is @ version</echo>
 			<echo>## Using ${java.jdk.home} as JAVA_HOME.</echo>
 		</sequential>
 	</macrodef>
