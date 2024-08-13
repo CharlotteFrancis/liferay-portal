@@ -1069,6 +1069,8 @@ jdbc.default.connectionProperties=oracle.jdbc.ReadTimeout=0;oracle.net.CONNECT_T
 			</condition>
 
 			<property name="java.jdk.bundle.type" value="zulu" />
+
+			<echo>@@ cw java.jdk.bundle.type: ${java.jdk.bundle.type}</echo>
 		</sequential>
 	</macrodef>
 
@@ -1092,6 +1094,8 @@ jdbc.default.connectionProperties=oracle.jdbc.ReadTimeout=0;oracle.net.CONNECT_T
 			/>
 
 			<property name="java.jdk.bundle.version" value="${java.jdk.default.runtime.version}" />
+
+			<echo>@@ cw java.jdk.bundle.version: ${java.jdk.bundle.version}</echo>
 		</sequential>
 	</macrodef>
 
@@ -1100,7 +1104,10 @@ jdbc.default.connectionProperties=oracle.jdbc.ReadTimeout=0;oracle.net.CONNECT_T
 		<attribute default="zulu" name="type" />
 		<attribute default="${java.jdk.default.runtime.version}" name="version" />
 
-		<sequential>
+		<sequential>	
+			<echo>@@ cw type: @{type}</echo>
+			<echo>@@ cw vers: @{version}</echo>
+
 			<if>
 				<equals arg1="@{type}" arg2="zulu" />
 				<then>
