@@ -1097,6 +1097,9 @@ jdbc.default.connectionProperties=oracle.jdbc.ReadTimeout=0;oracle.net.CONNECT_T
 		<attribute default="none" name="version" />
 
 		<sequential>
+			<echo>## cw Using @{type} as type.</echo>
+			<echo>## cw Using @{version} as version.</echo>
+
 			<var name="java.jdk.home" unset="true" />
 
 			<if>
