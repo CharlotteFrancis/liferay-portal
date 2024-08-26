@@ -6383,7 +6383,7 @@ information. Make sure to commit in all format-javadoc results.
 					<propertyresource name="modules.test.class.group" />
 				</loadresource>
 
-				<echo>@@ cw test.module.group.size: ${test.module.groups.size}
+				<echo>@@ cw test.module.group.size: ${test.module.groups.size}</echo>
 
 				<echo>@@ cw modules.test.class.groups 2: ${modules.test.class.groups}</echo>
 				<echo>@@ cw modules.test.class.groups 2: @{modules.test.class.groups}</echo>
