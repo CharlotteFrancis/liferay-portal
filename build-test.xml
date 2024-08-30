@@ -1131,7 +1131,12 @@ jdbc.default.connectionProperties=oracle.jdbc.ReadTimeout=0;oracle.net.CONNECT_T
 						</else>
 					</if>
 
+					<echo>@@ cw java.jdk.home ${java.jdk.home} </echo>
+					<echo>@@ cw java.home ${java.home} </echo>
+
 					<property name="java.jdk.home" value="${java.home}" />
+
+					<echo>@@ cw java.jdk.home ${java.jdk.home} </echo>
 
 					<if>
 						<not>
