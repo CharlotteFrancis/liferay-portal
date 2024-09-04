@@ -6454,6 +6454,9 @@ information. Make sure to commit in all format-javadoc results.
 					]]>
 				</beanshell>
 
+				<echo>@@ cw modules.compile.task.groups: ${modules.compile.task.groups}</echo>
+				<echo>@@ cw modules.compile.processed.task.groups: ${modules.compile.processed.task.groups}</echo>
+
 				<for list="${modules.compile.processed.task.groups}" param="modules.compile.task.group" trim="true">
 					<sequential>
 						<echo>Executing Gradle tasks: @{modules.compile.task.group}.</echo>
