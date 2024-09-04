@@ -1060,11 +1060,12 @@ jdbc.default.connectionProperties=oracle.jdbc.ReadTimeout=0;oracle.net.CONNECT_T
 				select="\1"
 			/>
 
-			<condition property="java.jdk.bundle.type" value="oracle">
-				<matches pattern="-jdk[0-9]+$" string="${test.batch.name}" />
-			</condition>
+			<echo> @@ after regex cw test.batch.name: ${test.batch.name} </echo>
+			<echo> @@ after regex cw java.jdk.bundle.type: ${java.jdk.bundle.type} </echo>
 
 			<property name="java.jdk.bundle.type" value="none" />
+
+			<echo> @@ cw bundle.type: ${java.jdk.bundle.type} </echo>
 		</sequential>
 	</macrodef>
 
@@ -1097,12 +1098,20 @@ jdbc.default.connectionProperties=oracle.jdbc.ReadTimeout=0;oracle.net.CONNECT_T
 		<attribute default="none" name="version" />
 
 		<sequential>
-			<var name="java.jdk.home" unset="true" />
+			<var name="java.jdk.home" unset="true" />	
+
+			<echo> 
+				@@ cw $java.home = ${java.home}
+				@@ cw @java.home = @{java.home}
+				@@ cw $java.jdk.home = ${java.jdk.home}
+				@@ cw @java.jdk.home = @{java.jdk.home}
+			</echo>
 
 			<if>
 				<isset property="local.java.jdk.home" />
 				<then>
 					<property name="java.jdk.home" value="${local.java.jdk.home}" />
+					<echo>@@ cw in local.java.jdk.home set</echo>
 				</then>
 				<else>
 					<if>
@@ -1112,30 +1121,50 @@ jdbc.default.connectionProperties=oracle.jdbc.ReadTimeout=0;oracle.net.CONNECT_T
 						</and>
 						<then>
 							<propertycopy from="java.jdk.default.runtime" property="java.jdk.home" silent="true" />
+							<echo>@@ cw in both none</echo>
 						</then>
 						<elseif>
 							<equals arg1="@{type}" arg2="none" />
 							<then>
 								<propertycopy from="java.jdk[@{version}]" property="java.jdk.home.property.name" silent="true" />
 								<propertycopy from="${java.jdk.home.property.name}" property="java.jdk.home" silent="true" />
+
+								<echo>@@ cw in type none</echo>
 							</then>
 						</elseif>
 						<elseif>
 							<equals arg1="@{version}" arg2="none" />
 							<then>
 								<propertycopy from="java.jdk.default.runtime" property="java.jdk.home" silent="true" />
+								<echo>@@ cw in version none</echo>
 							</then>
 						</elseif>
 						<else>
 							<propertycopy from="java.jdk.home[@{version}][@{architecture}][@{type}]" property="java.jdk.home" silent="true" />
+							<echo>@@ cw in both set </echo>
 						</else>
 					</if>
 
+					<echo> 
+						@@ cw $java.home = ${java.home}
+						@@ cw @java.home = @{java.home}
+						@@ cw $java.jdk.home = ${java.jdk.home}
+						@@ cw @java.jdk.home = @{java.jdk.home}
+					</echo>
+
 					<property name="java.jdk.home" value="${java.home}" />
+
+					<echo> 
+						@@ cw second set: 
+						@@ cw $java.home = ${java.home}
+						@@ cw @java.home = @{java.home}
+						@@ cw $java.jdk.home = ${java.jdk.home}
+						@@ cw @java.jdk.home = @{java.jdk.home}
+					</echo>
 
 					<if>
 						<not>
-							<isset property="${java.jdk.home}" />
+							<isset property="java.jdk.home" />
 						</not>
 						<then>
 							<fail>Unable to get the property "java.jdk.home" for jdk version: @{version} type: @{type}</fail>
