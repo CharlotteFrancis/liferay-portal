@@ -1152,16 +1152,6 @@ jdbc.default.connectionProperties=oracle.jdbc.ReadTimeout=0;oracle.net.CONNECT_T
 						@@ cw @java.jdk.home = @{java.jdk.home}
 					</echo>
 
-					<property name="java.jdk.home" value="${java.home}" />
-
-					<echo> 
-						@@ cw second set: 
-						@@ cw $java.home = ${java.home}
-						@@ cw @java.home = @{java.home}
-						@@ cw $java.jdk.home = ${java.jdk.home}
-						@@ cw @java.jdk.home = @{java.jdk.home}
-					</echo>
-
 					<if>
 						<not>
 							<isset property="java.jdk.home" />
