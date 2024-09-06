@@ -6451,7 +6451,7 @@ information. Make sure to commit in all format-javadoc results.
 
 							File taskPath = new File(taskPathString);
 
-							if (taskPath.isDirectory() && !taskPathFile.exists()); {
+							if (taskPath.isDirectory() && !taskPathFile.exists()) {
 								sb.append(task + " ");
 							}
 						}
