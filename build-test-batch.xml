@@ -6432,7 +6432,7 @@ information. Make sure to commit in all format-javadoc results.
 					<![CDATA[
 						import java.io.File;
 
-						String modulesCompileTaskGroup = project.getProperty("modules.compile.task.groups");
+						String modulesCompileTaskGroup = "${modules.compile.task.groups}";
 
 						String[] modulesCompileTaskGroupList = modulesCompileTaskGroup.split(" ");
 
