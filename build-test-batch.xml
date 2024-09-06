@@ -6439,7 +6439,13 @@ information. Make sure to commit in all format-javadoc results.
 						StringBuilder sb = new StringBuilder();
 
 						for (String task : modulesCompileTaskGroupList) {
-							String taskPathString = "/opt/dev/projects/github/liferay-portal/modules/" + ((task.replace(":assemble", ""))).replace(":", "/");
+							String convertedTaskString = task.replace(":assemble", "");
+
+							convertedTaskString = convertedTaskString.replace(":compileTestIntegrationJava", "");
+
+							convertedTaskString = convertedTaskString.replace(":", "/");
+
+							String taskPathString = "/opt/dev/projects/github/liferay-portal/modules/" + convertedTaskString;
 
 							File taskPathFile = new File(taskPathString + "/" + ".lfrbuild-portal");
 
