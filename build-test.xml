@@ -1117,7 +1117,7 @@ jdbc.default.connectionProperties=oracle.jdbc.ReadTimeout=0;oracle.net.CONNECT_T
 							<equals arg1="@{type}" arg2="none" />
 							<then>
 								<echo>@@ cw version: @{version}  || type: @{type} java.jdk[@{version}] = ${java.jdk[@{version}]}</echo>
-								<propertycopy from="java.jdk[@{version}]" property="java.jdk.home" silent="true" />
+								<property name="java.jdk.home" value="${java.jdk[@{version}]}" />
 							</then>
 						</elseif>
 						<elseif>
