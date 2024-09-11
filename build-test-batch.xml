@@ -2799,6 +2799,18 @@ ${poshi.runner.testsuite.testcase.name}</echo>
 
 		<sequential>
 			<echo>@@ cw in run-playwright-js-test</echo>
+
+			<echo>@@ cw test.batch.name = ${test.batch.name}</echo>
+
+			<get-java-jdk-bundle-version test.batch.name="${test.batch.name}" />
+
+			<get-java-jdk-bundle-type test.batch.name="${test.batch.name}" />
+
+			<echo>@@ cw java.jdk.bundle.type = ${java.jdk.bundle.type}</echo>
+			<echo>@@ cw java.jdk.bundle.version = ${java.jdk.bundle.version}</echo>
+
+			<get-java-jdk-home type="${java.jdk.bundle.type}" version="${java.jdk.bundle.version}" />
+
 			<run-batch-test>
 				<test-action>
 					<database-test-run-test database.type="mysql" stop.app.server="true">
@@ -2817,17 +2829,6 @@ ${poshi.runner.testsuite.testcase.name}</echo>
 
 							<trycatch property="exception.message">
 								<try>
-									<echo>@@ cw test.batch.name = ${test.batch.name}</echo>
-
-									<get-java-jdk-bundle-version test.batch.name="${test.batch.name}" />
-
-									<get-java-jdk-bundle-type test.batch.name="${test.batch.name}" />
-
-									<echo>@@ cw java.jdk.bundle.type = ${java.jdk.bundle.type}</echo>
-									<echo>@@ cw java.jdk.bundle.version = ${java.jdk.bundle.version}</echo>
-
-									<get-java-jdk-home type="${java.jdk.bundle.type}" version="${java.jdk.bundle.version}" />
-
 									<exec executable="/bin/bash">
 										<arg value="modules/test/playwright/env/set_up.sh" />
 										<env key="LIFERAY_HOME" value="${liferay.home}" />
