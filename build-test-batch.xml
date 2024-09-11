@@ -6428,7 +6428,42 @@ information. Make sure to commit in all format-javadoc results.
 					<propertyresource name="modules.test.class.group" />
 				</loadresource>
 
-				<for list="${modules.compile.task.groups}" param="modules.compile.task.group" trim="true">
+				<beanshell>
+					<![CDATA[
+						import java.io.File;
+
+						String modulesCompileTaskGroup = "${modules.compile.task.groups}";
+
+						String[] modulesCompileTaskGroupList = modulesCompileTaskGroup.split(" ");
+
+						StringBuilder sb = new StringBuilder();
+
+						for (String task : modulesCompileTaskGroupList) {
+							String convertedTaskString = task.replace(":assemble", "");
+
+							convertedTaskString = convertedTaskString.replace(":compileTestIntegrationJava", "");
+
+							convertedTaskString = convertedTaskString.replace(":", "/");
+
+							String taskPathString = "/opt/dev/projects/github/liferay-portal/modules/" + convertedTaskString;
+
+							File taskPathFile = new File(taskPathString + "/" + ".lfrbuild-portal");
+
+							File taskPath = new File(taskPathString);
+
+							if (taskPath.isDirectory() && !taskPathFile.exists()) {
+								sb.append(task + " ");
+							}
+						}
+
+						project.setProperty("modules.compile.processed.task.groups", sb.toString());
+					]]>
+				</beanshell>
+
+				<echo>@@ cw modules.compile.task.groups: ${modules.compile.task.groups}</echo>
+				<echo>@@ cw modules.compile.processed.task.groups: ${modules.compile.processed.task.groups}</echo>
+
+				<for list="${modules.compile.processed.task.groups}" param="modules.compile.task.group" trim="true">
 					<sequential>
 						<echo>Executing Gradle tasks: @{modules.compile.task.group}.</echo>
 
