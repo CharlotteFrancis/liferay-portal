@@ -6428,7 +6428,52 @@ information. Make sure to commit in all format-javadoc results.
 					<propertyresource name="modules.test.class.group" />
 				</loadresource>
 
-				<for list="${modules.compile.task.groups}" param="modules.compile.task.group" trim="true">
+				<beanshell>
+					<![CDATA[
+						import java.io.File;
+
+						String modulesCompileTaskGroup = project.getProperty("modules.compile.task.groups");
+
+						System.out.println("@@ cw modulesCompileTaskGroup: " + modulesCompileTaskGroup);
+
+						String[] modulesCompileTaskGroupList = modulesCompileTaskGroup.split(" ");
+
+						StringBuilder sb = new StringBuilder();
+
+						for (String task : modulesCompileTaskGroupList) {
+							System.out.println("@@ cw task: " + task);
+							
+							String convertedTaskString = task.replace(":assemble", "");
+
+							convertedTaskString = convertedTaskString.replace(":compileTestIntegrationJava", "");
+
+							convertedTaskString = convertedTaskString.replace(":", "/");
+
+							String taskPathString = "/opt/dev/projects/github/liferay-portal/modules" + convertedTaskString;
+
+							System.out.println("@@ cw taskPathString: " + taskPathString);
+
+							File taskPathFile = new File(taskPathString + "/" + ".lfrbuild-portal");
+
+							File taskPath = new File(taskPathString);
+
+							if (taskPathFile.exists()) {
+								System.out.println("@@ cw .lfrbuild-exists");
+							}
+
+							if (taskPath.isDirectory() && !taskPathFile.exists()) {
+								System.out.println("@@ cw .lfrbuild-exists DNE and taskpath is directory");
+								sb.append(task + " ");
+							}
+						}
+						project.setProperty("modules.compile.processed.task.groups", sb.toString());
+					]]>
+				</beanshell>
+
+				<echo>@@ cw modules.compile.task.groups: ${modules.compile.task.groups}</echo>
+				<echo>@@ cw modules.compile.processed.task.groups: ${modules.compile.processed.task.groups}</echo>
+
+				<for list="${modules.compile.processed.task.groups}" param="modules.compile.task.group" trim="true">
 					<sequential>
 						<echo>Executing Gradle tasks: @{modules.compile.task.group}.</echo>
 
