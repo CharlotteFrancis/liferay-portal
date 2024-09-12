@@ -67,12 +67,27 @@ public class LoadBalancerUtil {
 			}
 		}
 
-		List<String> goodClockList = _getGoodClockList(properties, verbose);
+		if (goodClockRequired) {
+			List<String> goodClockList = _getGoodClockList(properties, verbose);
+
+			for (JenkinsMaster jenkinsMaster : allJenkinsMasters) {
+				if (blacklist.contains(jenkinsMaster.getName()) ||
+					(goodClockRequired &&
+					 !goodClockList.contains(jenkinsMaster.getName())) ||
+					(jenkinsMaster.getSlaveRAM() < minimumRAM) ||
+					(jenkinsMaster.getSlavesPerHost() > maximumSlavesPerHost)) {
+
+					continue;
+				}
+
+				availableJenkinsMasters.add(jenkinsMaster);
+			}
+
+			return availableJenkinsMasters;
+		}
 
 		for (JenkinsMaster jenkinsMaster : allJenkinsMasters) {
 			if (blacklist.contains(jenkinsMaster.getName()) ||
-				(goodClockRequired &&
-				 !goodClockList.contains(jenkinsMaster.getName())) ||
 				(jenkinsMaster.getSlaveRAM() < minimumRAM) ||
 				(jenkinsMaster.getSlavesPerHost() > maximumSlavesPerHost)) {
 
@@ -104,12 +119,6 @@ public class LoadBalancerUtil {
 	}
 
 	public static String getMostAvailableMasterURL(
-		boolean clock, Properties properties) {
-
-		return getMostAvailableMasterURL(properties, clock, true);
-	}
-
-	public static String getMostAvailableMasterURL(
 			boolean verbose, String... overridePropertiesArray)
 		throws Exception {
 
@@ -118,17 +127,11 @@ public class LoadBalancerUtil {
 	}
 
 	public static String getMostAvailableMasterURL(Properties properties) {
-		return getMostAvailableMasterURL(properties, false, true);
+		return getMostAvailableMasterURL(properties, true);
 	}
 
 	public static String getMostAvailableMasterURL(
 		Properties properties, boolean verbose) {
-
-		return getMostAvailableMasterURL(properties, false, verbose);
-	}
-
-	public static String getMostAvailableMasterURL(
-		Properties properties, boolean clock, boolean verbose) {
 
 		long start = JenkinsResultsParserUtil.getCurrentTimeMillis();
 
@@ -146,6 +149,16 @@ public class LoadBalancerUtil {
 				}
 
 				String blacklistString = properties.getProperty("blacklist");
+
+				Boolean goodClockRequired = false;
+
+				String goodClockRequiredString = properties.getProperty(
+					"good.clock.required");
+
+				if (goodClockRequiredString != null) {
+					goodClockRequired = Boolean.parseBoolean(
+						goodClockRequiredString);
+				}
 
 				Integer minimumRAM = JenkinsMaster.getSlaveRAMMinimumDefault();
 
@@ -171,8 +184,8 @@ public class LoadBalancerUtil {
 				}
 
 				List<JenkinsMaster> jenkinsMasters = getAvailableJenkinsMasters(
-					masterPrefix, blacklistString, clock, minimumRAM,
-					maximumSlavesPerHost, properties, verbose);
+					masterPrefix, blacklistString, goodClockRequired,
+					minimumRAM, maximumSlavesPerHost, properties, verbose);
 
 				long nextUpdateTimestamp = _getNextUpdateTimestamp(
 					masterPrefix);
@@ -276,15 +289,6 @@ public class LoadBalancerUtil {
 			boolean verbose)
 		throws Exception {
 
-		return getMostAvailableMasterURL(
-			propertiesURL, overridePropertiesArray, false, verbose);
-	}
-
-	public static String getMostAvailableMasterURL(
-			String propertiesURL, String[] overridePropertiesArray,
-			boolean clock, boolean verbose)
-		throws Exception {
-
 		Properties properties = new Properties();
 
 		if (propertiesURL == null) {
@@ -317,7 +321,7 @@ public class LoadBalancerUtil {
 			}
 		}
 
-		return getMostAvailableMasterURL(properties, clock, verbose);
+		return getMostAvailableMasterURL(properties, verbose);
 	}
 
 	public static void setUpdateInterval(long interval) {
