@@ -2834,6 +2834,7 @@ ${poshi.runner.testsuite.testcase.name}</echo>
 										<env key="LIFERAY_HOME" value="${liferay.home}" />
 										<env key="LIFERAY_PORTAL_URL" value="http://${env.NODE_NAME}:8080" />
 										<env key="PLAYWRIGHT_PROJECT_NAME" value="${playwright.project.name}" />
+										<env key="JAVA_HOME" value="${JAVA_HOME}" />
 									</exec>
 
 									<start-docker-playwright />
