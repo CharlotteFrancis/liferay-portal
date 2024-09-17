@@ -36,6 +36,8 @@ public class ShieldedContainerServletContainerInitializer
 	public void onStartup(Set<Class<?>> classes, ServletContext servletContext)
 		throws ServletException {
 
+		System.out.println("@@ cw before startup: " + System.getProperty("java.home"));
+
 		ClassLoader shieldedContainerClassLoader =
 			_buildShieldContainerClassLoader(servletContext);
 
