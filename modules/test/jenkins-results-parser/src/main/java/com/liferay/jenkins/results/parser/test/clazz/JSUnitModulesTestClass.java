@@ -41,7 +41,14 @@ public class JSUnitModulesTestClass extends ModulesTestClass {
 		File testPropertiesBaseDir = getTestPropertiesBaseDir(
 			getTestClassFile());
 
+		System.out.println(
+			"@@ cw testPropertiesBaseDir = " +
+				testPropertiesBaseDir.getAbsolutePath());
+
 		if ((testPropertiesBaseDir != null) && testPropertiesBaseDir.exists()) {
+			System.out.println(
+				"@@ cw testPRopertiesBase ir exists and is not null");
+
 			_testPropertiesFile = new File(
 				testPropertiesBaseDir, "test.properties");
 
@@ -63,13 +70,18 @@ public class JSUnitModulesTestClass extends ModulesTestClass {
 		if (jsonObject.has("test_properties_file")) {
 			_testPropertiesFile = new File(
 				jsonObject.getString("test_properties_file"));
+			System.out.println("@@ cw Test properties file exists");
 		}
 		else {
+			System.out.println("@@ cw Test properties file is null");
 			_testPropertiesFile = null;
 		}
 
 		_testrayMainComponentName = jsonObject.optString(
 			"testray_main_component_name");
+
+		System.out.println(
+			"@@ cw testray_main_component_name: " + _testrayMainComponentName);
 	}
 
 	@Override

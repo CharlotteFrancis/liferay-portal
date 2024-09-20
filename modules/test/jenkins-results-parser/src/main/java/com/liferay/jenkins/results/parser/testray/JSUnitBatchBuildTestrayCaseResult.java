@@ -43,7 +43,11 @@ public class JSUnitBatchBuildTestrayCaseResult
 		String componentName =
 			_jsUnitModulesTestClass.getTestrayMainComponentName();
 
+		System.out.println("@@ cw componentName: " + componentName);
+
 		if (JenkinsResultsParserUtil.isNullOrEmpty(componentName)) {
+			System.out.println("@@ cw componentName was null");
+
 			return super.getComponentName();
 		}
 
