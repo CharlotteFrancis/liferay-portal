@@ -72,13 +72,53 @@ public class JSUnitModulesTestClass extends ModulesTestClass {
 				jsonObject.getString("test_properties_file"));
 			System.out.println("@@ cw Test properties file exists");
 		}
+		else if (jsonObject.has("file")) {
+			_testPropertiesFile = new File(
+				jsonObject.getString("file") + "/test.properties");
+			System.out.println(
+				"@@ cw Test properties file exists: " +
+					jsonObject.getString("file"));
+		}
 		else {
 			System.out.println("@@ cw Test properties file is null");
 			_testPropertiesFile = null;
 		}
 
-		_testrayMainComponentName = jsonObject.optString(
-			"testray_main_component_name");
+		if (_testPropertiesFile != null) {
+			String testrayMainComponentName =
+				JenkinsResultsParserUtil.getProperty(
+					JenkinsResultsParserUtil.getProperties(_testPropertiesFile),
+					"testray.main.component.name");
+
+			if (JenkinsResultsParserUtil.isNullOrEmpty(
+					testrayMainComponentName)) {
+
+				String parentFilePath = _testPropertiesFile.getParentFile(
+				).getParentFile(
+				).toString();
+
+				File parentTestPropertiesFile = new File(
+					parentFilePath + "/test.properties");
+
+				testrayMainComponentName = JenkinsResultsParserUtil.getProperty(
+					JenkinsResultsParserUtil.getProperties(
+						parentTestPropertiesFile),
+					"testray.main.component.name");
+			}
+
+			if (JenkinsResultsParserUtil.isNullOrEmpty(
+					testrayMainComponentName)) {
+
+				_testrayMainComponentName = null;
+			}
+			else {
+				_testrayMainComponentName = testrayMainComponentName;
+			}
+		}
+		else {
+			_testrayMainComponentName = jsonObject.optString(
+				"testray_main_component_name");
+		}
 
 		System.out.println(
 			"@@ cw testray_main_component_name: " + _testrayMainComponentName);

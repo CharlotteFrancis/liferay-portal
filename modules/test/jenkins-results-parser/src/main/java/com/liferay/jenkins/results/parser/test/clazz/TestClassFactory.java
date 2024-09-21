@@ -133,6 +133,9 @@ public class TestClassFactory {
 						JSUnitModulesBatchTestClassGroup) {
 
 				if (jsonObject != null) {
+					System.out.println("@@ cw testClassFile: " + testClassFile);
+					System.out.println("@@ cw jsonObject: " + jsonObject);
+
 					return new JSUnitModulesTestClass(
 						batchTestClassGroup, jsonObject);
 				}
