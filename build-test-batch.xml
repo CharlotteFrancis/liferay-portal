@@ -2798,9 +2798,9 @@ ${poshi.runner.testsuite.testcase.name}</echo>
 		<attribute default="" name="test.sql.zip.url" />
 
 		<sequential>
-			<get-java-jdk-bundle-version test.batch.name="${test.batch.name}" />
-
 			<get-java-jdk-bundle-type test.batch.name="${test.batch.name}" />
+
+			<get-java-jdk-bundle-version test.batch.name="${test.batch.name}" />
 
 			<get-java-jdk-home type="${java.jdk.bundle.type}" version="${java.jdk.bundle.version}" />
 
