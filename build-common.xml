@@ -243,7 +243,10 @@
 	</fail>
 
 	<condition else="1.10.14" property="java.ant.version" value="1.9.3">
-		<equals arg1="${java.specification.version}" arg2="1.8" />
+		<or>
+			<isset property="env.JENKINS_HOME" />
+			<equals arg1="${java.specification.version}" arg2="1.8" />
+		</or>
 	</condition>
 
 	<condition property="correct.ant.version">
