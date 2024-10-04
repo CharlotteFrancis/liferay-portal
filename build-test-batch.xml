@@ -3363,6 +3363,8 @@ ${poshi.runner.testsuite.testcase.name}</echo>
 				</then>
 			</if>
 
+			<echo>@@ cw java.version is : ${java.version} </echo>
+
 			<if>
 				<resourcecontains
 					resource="${set.env.file.name}"
