@@ -1139,6 +1139,8 @@ jdbc.default.connectionProperties=oracle.jdbc.ReadTimeout=0;oracle.net.CONNECT_T
 					sb.append(getUpstreamBranchName());
 					sb.append("]");
 
+					System.out.println("@@ cw " + sb.toString());
+
 					project.setProperty("portal.upstream.branch.default.runtime.jdk", sb.toString());
 				]]>
 			</beanshell>
