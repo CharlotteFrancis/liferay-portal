@@ -1114,6 +1114,9 @@ jdbc.default.connectionProperties=oracle.jdbc.ReadTimeout=0;oracle.net.CONNECT_T
 		<attribute default="none" name="version" />
 
 		<sequential>
+			<echo>@@ cw version = @{version}</echo>
+			<echo>@@ cw type = @{type}</echo>
+			
 			<beanshell>
 				<![CDATA[
 					import com.liferay.jenkins.results.parser.JenkinsResultsParserUtil;
@@ -1157,7 +1160,9 @@ jdbc.default.connectionProperties=oracle.jdbc.ReadTimeout=0;oracle.net.CONNECT_T
 							<equals arg1="@{version}" arg2="none" />
 						</and>
 						<then>
+							<echo>@@ cw both none</echo>
 							<propertycopy from="java.jdk.default.runtime" property="java.jdk.home" silent="true" />
+							<echo>@@ cw java.jdk.home = ${java.jdk.home}</echo>
 						</then>
 						<elseif>
 							<or>
