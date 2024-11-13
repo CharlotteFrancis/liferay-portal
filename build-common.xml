@@ -696,6 +696,7 @@ information.
 
 	<macrodef name="generate-backend-batch-junit-report-modules">
 		<attribute name="test.class.name" />
+		<attribute name="test.task.name" />
 
 		<sequential>
 			<generate-backend-batch-junit-report
