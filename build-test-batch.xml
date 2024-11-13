@@ -2777,6 +2777,12 @@ ${poshi.runner.testsuite.testcase.name}</echo>
 							generateJunitReport(baseDir, testClassName, testTaskName);
 
 							addProjectToMap(testProjectName, testName, projectTestMap);
+
+							System.out.println("@@ cw testClass = " + testClass);
+							System.out.println("@@ cw testClassName = " + testClassName);
+							System.out.println("@@ cw testTaskName = " + testTaskName);
+							System.out.println("@@ cw testName = " + testName);
+							System.out.println("@@ cw testProjectName = " + testProjectName);
 						}
 
 						for (Map.Entry projectTestEntry : projectTestMap.entrySet()) {
