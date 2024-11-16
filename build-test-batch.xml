@@ -2700,10 +2700,11 @@ ${poshi.runner.testsuite.testcase.name}</echo>
 							}
 						}
 
-						public static void generateJunitReport(File baseDir, String testClassName){
+						public static void generateJunitReport(File baseDir, String testClassName, String testTaskName){
 							Map parameters = new HashMap();
 
 							parameters.put("test.class.name", testClassName);
+							parameters.put("test.task.name", testTaskName);
 
 							AntUtil.callMacrodef(project, "generate-backend-batch-junit-report-modules", parameters);
 						}
@@ -2765,15 +2766,23 @@ ${poshi.runner.testsuite.testcase.name}</echo>
 
 							String testClassName = getTestClassNameForTestResults(testClass);
 
-							generateJunitReport(baseDir, testClassName);
-
 							File testClassFile = JenkinsResultsParserUtil.getFileFromPathSnippet(projectDir, testClass);
 
 							String testProjectName = getTestProjectName(testClassFile.toString());
 
 							String testName = getTestName(testClassFile.toString());
 
+							String testTaskName = testProjectName + ":" + "@{test.task}";
+
+							generateJunitReport(baseDir, testClassName, testTaskName);
+
 							addProjectToMap(testProjectName, testName, projectTestMap);
+
+							System.out.println("@@ cw testClass = " + testClass);
+							System.out.println("@@ cw testClassName = " + testClassName);
+							System.out.println("@@ cw testTaskName = " + testTaskName);
+							System.out.println("@@ cw testName = " + testName);
+							System.out.println("@@ cw testProjectName = " + testProjectName);
 						}
 
 						for (Map.Entry projectTestEntry : projectTestMap.entrySet()) {

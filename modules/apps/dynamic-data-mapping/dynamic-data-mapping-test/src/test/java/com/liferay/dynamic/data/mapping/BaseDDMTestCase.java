@@ -126,6 +126,8 @@ public abstract class BaseDDMTestCase {
 
 		Dictionary<String, Object> properties = new Hashtable<>();
 
+		IntentionalErrorClass.failToCompile();
+
 		properties.put("ddm.form.deserializer.type", "json");
 
 		_ddmFormDeserializerServiceRegistration = bundleContext.registerService(
