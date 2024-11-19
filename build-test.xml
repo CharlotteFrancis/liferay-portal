@@ -7582,12 +7582,16 @@ org.apache.catalina.startup.ClassLoaderFactory.level=INFO]]>
 
 			<property name="docker.start.script" value="docker_start.sh" />
 
+			<echo>@@ cw before if(debian) statement </echo>
+			<echo>@@ cw name: @{name}</echo>
+
 			<if>
 				<or>
 					<contains string="@{name}" substring="orcllinux" />
 					<contains string="@{name}" substring="debian" />
 				</or>
 				<then>
+					<echo>@@ cw inside if(debian) statement </echo>
 					<echo file="${docker.start.script}">
 						<![CDATA[
 							docker run \
