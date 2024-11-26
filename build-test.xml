@@ -7458,6 +7458,10 @@ org.apache.catalina.startup.ClassLoaderFactory.level=INFO]]>
 											<get-operating-system-property property.name="operating.system.docker.shell.path" />
 											<get-operating-system-property property.name="operating.system.host" />
 
+											<echo>@@ cw chmod +x ${test.app.server.bin.dir}/${app.server.start.executable}</echo>
+											<echo>@@ cw ${test.app.server.bin.dir}/${app.server.start.executable} ${app.server.start.executable.arg.line} | head -c ${app.server.max.log.size}M</echo>
+											<echo>@@ cw JAVA_HOME: ${JAVA_HOME} </echo>
+
 											<docker-execute container="${operating.system.host}" shell.path="${operating.system.docker.shell.path}">
 												chmod +x ${test.app.server.bin.dir}/${app.server.start.executable}
 
