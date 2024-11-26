@@ -16606,6 +16606,8 @@ CATALINA_OPTS="$CATALINA_OPTS -Dcom.sun.management.jmxremote -Dcom.sun.managemen
 			</then>
 		</if>
 
+		<fail message="fail" />
+
 		<start-app-server
 			app.server.bundle.index="${app.server.bundle.index}"
 			delete.liferay.home="false"
