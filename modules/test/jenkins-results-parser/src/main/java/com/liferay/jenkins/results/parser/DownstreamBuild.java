@@ -595,6 +595,7 @@ public class DownstreamBuild extends BaseBuild {
 
 	@Override
 	protected FailureMessageGenerator[] getFailureMessageGenerators() {
+		System.out.println("@@ cw getting failure messages from DownstreamBuild.java");
 		return _FAILURE_MESSAGE_GENERATORS;
 	}
 

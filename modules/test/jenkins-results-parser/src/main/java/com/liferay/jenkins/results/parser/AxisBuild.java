@@ -501,6 +501,7 @@ public class AxisBuild extends BaseBuild {
 
 	@Override
 	protected FailureMessageGenerator[] getFailureMessageGenerators() {
+		System.out.println("@@ cw getting failure messages from AxisBuild.");
 		return _FAILURE_MESSAGE_GENERATORS;
 	}
 

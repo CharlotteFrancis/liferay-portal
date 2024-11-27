@@ -13,6 +13,8 @@
  
      @Override
      public String getMessage(String consoleText) {
+        System.out.println("@@ cw inside of upgrade failure message generator.");
+
         if (!consoleText.contains(_LIFERAY_UPGRADE_ERROR_TEXT)) {
             return null;
         }
