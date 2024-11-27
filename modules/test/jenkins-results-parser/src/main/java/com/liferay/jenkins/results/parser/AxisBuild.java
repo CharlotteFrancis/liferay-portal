@@ -20,6 +20,7 @@ import com.liferay.jenkins.results.parser.failure.message.generator.SemanticVers
 import com.liferay.jenkins.results.parser.failure.message.generator.ServiceBuilderFailureMessageGenerator;
 import com.liferay.jenkins.results.parser.failure.message.generator.SourceFormatFailureMessageGenerator;
 import com.liferay.jenkins.results.parser.failure.message.generator.StartupFailureMessageGenerator;
+import com.liferay.jenkins.results.parser.failure.message.generator.UpgradeFailureMessageGenerator;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -500,6 +501,7 @@ public class AxisBuild extends BaseBuild {
 
 	@Override
 	protected FailureMessageGenerator[] getFailureMessageGenerators() {
+		System.out.println("@@ cw getting failure messages from AxisBuild.");
 		return _FAILURE_MESSAGE_GENERATORS;
 	}
 
@@ -577,6 +579,7 @@ public class AxisBuild extends BaseBuild {
 			new ServiceBuilderFailureMessageGenerator(),
 			new SourceFormatFailureMessageGenerator(),
 			new StartupFailureMessageGenerator(),
+			new UpgradeFailureMessageGenerator(),
 			//
 			new GradleTaskFailureMessageGenerator(),
 			//

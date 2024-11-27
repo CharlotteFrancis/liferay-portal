@@ -21,6 +21,7 @@ import com.liferay.jenkins.results.parser.failure.message.generator.SemanticVers
 import com.liferay.jenkins.results.parser.failure.message.generator.ServiceBuilderFailureMessageGenerator;
 import com.liferay.jenkins.results.parser.failure.message.generator.SourceFormatFailureMessageGenerator;
 import com.liferay.jenkins.results.parser.failure.message.generator.StartupFailureMessageGenerator;
+import com.liferay.jenkins.results.parser.failure.message.generator.UpgradeFailureMessageGenerator;
 import com.liferay.jenkins.results.parser.test.clazz.FunctionalTestClass;
 import com.liferay.jenkins.results.parser.test.clazz.JUnitTestClass;
 import com.liferay.jenkins.results.parser.test.clazz.TestClass;
@@ -594,6 +595,7 @@ public class DownstreamBuild extends BaseBuild {
 
 	@Override
 	protected FailureMessageGenerator[] getFailureMessageGenerators() {
+		System.out.println("@@ cw getting failure messages from DownstreamBuild.java");
 		return _FAILURE_MESSAGE_GENERATORS;
 	}
 
@@ -1016,6 +1018,7 @@ public class DownstreamBuild extends BaseBuild {
 		new ServiceBuilderFailureMessageGenerator(),
 		new SourceFormatFailureMessageGenerator(),
 		new StartupFailureMessageGenerator(),
+		new UpgradeFailureMessageGenerator(),
 		//
 		new GradleTaskFailureMessageGenerator(),
 		new LocalGitMirrorFailureMessageGenerator(),
