@@ -7422,6 +7422,8 @@ org.apache.catalina.startup.ClassLoaderFactory.level=INFO]]>
 
 					<get-operating-system-property property.name="operating.system.docker.image" />
 
+					<echo>@@ cw repose </echo>
+
 					<parallel>
 						<wait-for-app-server app.server.bin.dir="@{app.server.bin.dir}" app.server.bundle.index="@{app.server.bundle.index}" />
 
@@ -7450,6 +7452,10 @@ org.apache.catalina.startup.ClassLoaderFactory.level=INFO]]>
 											<get-app-server-property property.name="max.log.size.in.mb" />
 											<get-operating-system-property property.name="operating.system.docker.shell.path" />
 											<get-operating-system-property property.name="operating.system.host" />
+
+											<echo>@@ cw chmod +x ${test.app.server.bin.dir}/${app.server.start.executable}</echo>
+											<echo>@@ cw ${test.app.server.bin.dir}/${app.server.start.executable} ${app.server.start.executable.arg.line} | head -c ${app.server.max.log.size}M</echo>
+											<echo>@@ cw JAVA_HOME: ${JAVA_HOME} </echo>
 
 											<docker-execute container="${operating.system.host}" shell.path="${operating.system.docker.shell.path}">
 												chmod +x ${test.app.server.bin.dir}/${app.server.start.executable}
@@ -7579,9 +7585,16 @@ org.apache.catalina.startup.ClassLoaderFactory.level=INFO]]>
 
 			<property name="docker.start.script" value="docker_start.sh" />
 
+			<echo>@@ cw before if(debian) statement </echo>
+			<echo>@@ cw name: @{name}</echo>
+
 			<if>
-				<contains string="@{name}" substring="orcllinux" />
+				<or>
+					<contains string="@{name}" substring="orcllinux" />
+					<contains string="@{name}" substring="debian" />
+				</or>
 				<then>
+					<echo>@@ cw inside if(debian) statement </echo>
 					<echo file="${docker.start.script}">
 						<![CDATA[
 							docker run \
