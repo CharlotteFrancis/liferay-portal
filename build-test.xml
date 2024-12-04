@@ -16657,7 +16657,7 @@ CATALINA_OPTS="$CATALINA_OPTS -Dcom.sun.management.jmxremote -Dcom.sun.managemen
 	</target>
 
 	<target name="start-docker-containers">
-		<get-databas-se-property property.name="database.docker.image" />
+		<get-database-property property.name="database.docker.image" />
 
 		<if>
 			<isset property="database.docker.image" />
