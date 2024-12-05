@@ -7832,6 +7832,8 @@ ${docker.start.error}</fail>
 						<arg line="inspect ${operating.system.docker.image}" />
 					</exec>
 
+					<echo>@@ cw docker.inspect.output: ${docker.inspect.output}</echo>
+
 					<beanshell>
 						<![CDATA[
 							import com.liferay.jenkins.results.parser.JenkinsResultsParserUtil;
