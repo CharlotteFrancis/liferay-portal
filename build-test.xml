@@ -7537,8 +7537,11 @@ org.apache.catalina.startup.ClassLoaderFactory.level=INFO]]>
 
 			<if>
 				<or>
-					<contains string="@{name}" substring="orcllinux" />
+					<contains string="@{name}" substring="amazonlinux2022" />
 					<contains string="@{name}" substring="debian" />
+					<contains string="@{name}" substring="orcllinux" />
+					<contains string="@{name}" substring="redhat" />
+					<contains string="@{name}" substring="rockylinux" />
 				</or>
 				<then>
 					<echo file="${docker.start.script}">
@@ -7811,12 +7814,94 @@ ${docker.start.error}</fail>
 				select="\1"
 			/>
 
+			<echo>@@ cw  operating.system.docker.os.options = ${operating.system.docker.os.options}</echo>
+			<echo>@@ cw  operating.system.docker.image = ${operating.system.docker.image}</echo>
+			<echo>@@ cw  operating.system.docker.run.options = ${operating.system.docker.run.options}</echo>
+			<echo>@@ cw  operating.system.host = ${operating.system.host}</echo>
+			<echo>@@ cw  operating.system.host.alias = ${operating.system.host.alias}</echo>
+
 			<get-host-git-dir />
+
+			<get-java-jdk-bundle-version test.batch.name="${test.batch.name}" />
+
+			<get-java-jdk-bundle-type test.batch.name="${test.batch.name}" />
+
+			<get-java-jdk-home type="${java.jdk.bundle.type}" version="${java.jdk.bundle.version}" />
+
+			<if>
+				<isset property="java.jdk.home" />
+				<then>
+					<exec executable="docker" outputproperty="docker.inspect.output">
+						<arg line="inspect ${operating.system.docker.image}" />
+					</exec>
+
+					<echo>@@ cw docker.inspect.output: ${docker.inspect.output}</echo>
+
+					<beanshell>
+						<![CDATA[
+							import com.liferay.jenkins.results.parser.JenkinsResultsParserUtil;
+
+							import org.json.JSONObject;
+							import org.json.JSONArray;
+
+							String dockerInspectOutput = project.getProperty("docker.inspect.output");
+
+							JSONArray dockerJSONArray = new JSONArray(dockerInspectOutput);
+
+							JSONObject dockerJSONObject = dockerJSONArray.getJSONObject(0);
+
+							if (dockerJSONObject.has("Config")) {
+								JSONObject configObject = dockerJSONObject.getJSONObject("Config");
+
+								if (configObject.has("Env")) {
+
+									JSONArray envArray = configObject.getJSONArray("Env");
+
+									String javaHomeString;
+									String pathString;
+
+									for (int i = 0; i < envArray.length(); i++) {
+										System.out.println("@@ cw env array: " + envArray.getString(i));
+
+										if (envArray.getString(i).contains("JAVA_HOME")) {
+											javaHomeString = envArray.getString(i).replace("JAVA_HOME=", "");
+
+										}
+
+										if (envArray.getString(i).contains("PATH")) {
+											pathString = envArray.getString(i).replace("PATH=", "");
+
+										}
+									}
+
+									String javaJDKHome = project.getProperty("java.jdk.home");
+
+									if (!JenkinsResultsParserUtil.isNullOrEmpty(pathString)
+											&& !JenkinsResultsParserUtil.isNullOrEmpty(javaHomeString)) {
+										if (!javaHomeString.equals(javaJDKHome)) {
+											pathString = javaJDKHome + "/bin:" + pathString;
+
+											String dockerJavaRunOptions = " -e PATH=" + pathString + " -e JAVA_HOME=" + javaJDKHome;
+				
+											project.setProperty("docker.java.run.options", dockerJavaRunOptions);
+										}
+									}
+								}
+							}
+						]]>
+					</beanshell>
+				</then>
+			</if>
+
+			<property name="docker.java.run.options" value="" />
+
+			<echo>@@ cw docker.java.run.options: ${docker.java.run.options} </echo>
 
 			<start-docker-container image="${operating.system.docker.image}" name="${operating.system.host}" options="${operating.system.docker.os.options}">\
 				--mount type=bind,source=${host.git.dir}/${portal.dir.name},target=${portal.dir} \
 				--network-alias=${operating.system.host.alias} \
 				${operating.system.docker.run.options} \
+				${docker.java.run.options} \
 			</start-docker-container>
 		</sequential>
 	</macrodef>
