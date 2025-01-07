@@ -870,6 +870,7 @@ mariadb.executable=${mariadb.executable}]]></echo>
 					<contains string="${test.batch.name}" substring="solr" />
 				</or>
 				<then>
+					<echo>@@ cw batch name matches </echo>
 					<if>
 						<contains string="${test.batch.name}" substring="opensearch2" />
 						<then>
@@ -944,6 +945,10 @@ mariadb.executable=${mariadb.executable}]]></echo>
 					</if>
 				</else>
 			</if>
+
+			<echo>@@ cw run.solar.unit.tests: ${run.solr.unit.tests} </echo>
+			<echo>@@ cw run.opensearch2.unit.tests: ${run.opensearch2.unit.tests} </echo>
+			<echo>@@ cw test.batch.name: ${test.batch.name} </echo>
 		</sequential>
 	</macrodef>
 

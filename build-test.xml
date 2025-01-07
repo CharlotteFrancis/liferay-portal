@@ -6983,6 +6983,7 @@ log.sanitizer.enabled=false</echo>
 
 	<macrodef name="set-up-search-engine">
 		<sequential>
+			<echo>@@ cw in set-up-search-engine</echo>
 			<if>
 				<not>
 					<isset property="app.server.name" />
@@ -6999,6 +7000,8 @@ log.sanitizer.enabled=false</echo>
 				<isset property="test.batch.name" />
 			</condition>
 
+			<echo>@@ cw test.batch.name = ${test.batch.name}</echo>
+
 			<if>
 				<or>
 					<contains string="${test.batch.name}" substring="solr" />
@@ -7006,6 +7009,7 @@ log.sanitizer.enabled=false</echo>
 					<contains string="${test.batch.name}" substring="remote-elasticsearch" />
 				</or>
 				<then>
+					<echo>@@ cw in set-up-search-engine where batch name matches</echo>
 					<if>
 						<equals arg1="${test.batch.name}" arg2="solr" />
 						<then>
