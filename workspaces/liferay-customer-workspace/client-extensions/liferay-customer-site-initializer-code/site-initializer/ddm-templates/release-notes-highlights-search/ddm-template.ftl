@@ -182,6 +182,10 @@
 			padding: 0.5rem 1rem 0rem 0.625rem;
 		}
 
+		.search-results .search-results-entry .search-results-entry-title a {
+			color: var(--color-neutral-10, #282934);
+		}
+
 		.search-results .search-results-entry .search-results-entry-title .search-results-entry-content {
 			color: var(--color-neutral-10, #282934);
 			font-size: 1rem;
@@ -210,7 +214,12 @@
 
 				<#if restArticle?has_content>
 					<div class="align-items-stretch pt-2 search-results-entry">
-						<div class="font-weight-bold search-results-entry-title text-decoration-none unstyled">
+						<#assign
+							articleTitle = restArticle.title
+							dashedTitle = restArticle.title?replace(" ", "-")
+						/>
+
+						<div class="font-weight-bold search-results-entry-title text-decoration-none unstyled" id="${dashedTitle}">
 							<div class="product-capabilities">
 								<#list restArticle.taxonomyCategoryBriefs as taxonomyCategoryBrief>
 									<#assign taxonomyVocabularyName = taxonomyCategoryBrief.embeddedTaxonomyCategory.parentTaxonomyVocabulary.name />
@@ -223,7 +232,9 @@
 								</#list>
 							</div>
 
-							${restArticle.title}
+							<a class="text-decoration-none" href="#${dashedTitle}">
+								${articleTitle}
+							</a>
 
 							<div class="description search-results-entry-content">
 								<#list restArticle.contentFields as fieldData>

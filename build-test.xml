@@ -7001,8 +7001,6 @@ log.sanitizer.enabled=false</echo>
 
 	<macrodef name="set-up-search-engine">
 		<sequential>
-			<propertycopy from="search.engine[${env.CI_TEST_SUITE}]" name="suite.search.engine" silent="true" />
-
 			<if>
 				<not>
 					<isset property="app.server.name" />
@@ -7015,32 +7013,65 @@ log.sanitizer.enabled=false</echo>
 			<get-testcase-property property.name="remote.elasticsearch.enabled" />
 			<get-testcase-property property.name="solr.enabled" />
 
-			<propertycopy from="search.engine[${env.CI_TEST_SUITE}]" name="suite.search.engine" silent="true" />
+			<condition else="${env.TEST_BATCH_NAME}" property="test.batch.name" value="${test.batch.name}">
+				<isset property="test.batch.name" />
+			</condition>
 
 			<if>
 				<or>
-					<equals arg1="${solr.enabled}" arg2="true" />
-					<equals arg1="${suite.search.engine}" arg2="solr" />
+					<contains string="${test.batch.name}" substring="opensearch2" />
+					<contains string="${test.batch.name}" substring="remote-elasticsearch" />
+					<contains string="${test.batch.name}" substring="solr" />
 				</or>
 				<then>
-					<ant antfile="build-test-solr.xml" target="start-solr" />
+					<if>
+						<equals arg1="${test.batch.name}" arg2="solr" />
+						<then>
+							<ant antfile="build-test-solr.xml" target="start-solr" />
+						</then>
+						<elseif>
+							<contains string="${test.batch.name}" substring="opensearch2" />
+							<then>
+								<ant antfile="build-test-opensearch2.xml" target="start-opensearch" />
+							</then>
+						</elseif>
+						<elseif>
+							<contains string="${test.batch.name}" substring="remote-elasticsearch" />
+							<then>
+								<ant antfile="build-test-elasticsearch7.xml" target="start-elasticsearch" />
+							</then>
+						</elseif>
+					</if>
 				</then>
-				<elseif>
-					<contains string="${suite.search.engine}" substring="opensearch2" />
-					<then>
-						<ant antfile="build-test-opensearch2.xml" target="start-opensearch" />
-					</then>
-				</elseif>
-				<elseif>
-					<or>
-						<contains string="${suite.search.engine}" substring="remote-elasticsearch" />
-						<equals arg1="${app.server.type}" arg2="websphere" />
-						<istrue value="${remote.elasticsearch.enabled}" />
-					</or>
-					<then>
-						<ant antfile="build-test-elasticsearch7.xml" target="start-elasticsearch" />
-					</then>
-				</elseif>
+				<else>
+					<propertycopy from="search.engine[${env.CI_TEST_SUITE}]" name="suite.search.engine" silent="true" />
+
+					<if>
+						<or>
+							<equals arg1="${solr.enabled}" arg2="true" />
+							<equals arg1="${suite.search.engine}" arg2="solr" />
+						</or>
+						<then>
+							<ant antfile="build-test-solr.xml" target="start-solr" />
+						</then>
+						<elseif>
+							<contains string="${suite.search.engine}" substring="opensearch2" />
+							<then>
+								<ant antfile="build-test-opensearch2.xml" target="start-opensearch" />
+							</then>
+						</elseif>
+						<elseif>
+							<or>
+								<contains string="${suite.search.engine}" substring="remote-elasticsearch" />
+								<equals arg1="${app.server.type}" arg2="websphere" />
+								<istrue value="${remote.elasticsearch.enabled}" />
+							</or>
+							<then>
+								<ant antfile="build-test-elasticsearch7.xml" target="start-elasticsearch" />
+							</then>
+						</elseif>
+					</if>
+				</else>
 			</if>
 
 			<get-testcase-property property.name="delete.sidecar.bundle" />
@@ -7555,8 +7586,11 @@ org.apache.catalina.startup.ClassLoaderFactory.level=INFO]]>
 
 			<if>
 				<or>
-					<contains string="@{name}" substring="orcllinux" />
+					<contains string="@{name}" substring="amazonlinux2022" />
 					<contains string="@{name}" substring="debian" />
+					<contains string="@{name}" substring="orcllinux" />
+					<contains string="@{name}" substring="redhat" />
+					<contains string="@{name}" substring="rockylinux" />
 				</or>
 				<then>
 					<echo file="${docker.start.script}">
@@ -7831,9 +7865,85 @@ ${docker.start.error}</fail>
 
 			<get-host-git-dir />
 
+			<get-java-jdk-bundle-type test.batch.name="${test.batch.name}" />
+			<get-java-jdk-bundle-version test.batch.name="${test.batch.name}" />
+
+			<echo>@@ cw java.jdk.bundle.type: ${java.jdk.bundle.type} | java.jdk.bundle.version: ${java.jdk.bundle.version}</echo>
+
+			<get-java-jdk-home type="${java.jdk.bundle.type}" version="${java.jdk.bundle.version}" />
+
+			<if>
+				<isset property="java.jdk.home" />
+				<then>
+					<exec executable="docker">
+						<arg line="pull ${operating.system.docker.image}" />
+					</exec>
+
+					<exec executable="docker" outputproperty="docker.inspect.output">
+						<arg line="inspect ${operating.system.docker.image}" />
+					</exec>
+
+					<beanshell>
+						<![CDATA[
+							import com.liferay.jenkins.results.parser.JenkinsResultsParserUtil;
+
+							import org.json.JSONArray;
+							import org.json.JSONObject;
+
+							String dockerInspectOutput = project.getProperty("docker.inspect.output");
+
+							JSONArray dockerInspectOutputJSONArray = new JSONArray(dockerInspectOutput);
+
+							JSONObject dockerInspectOutputJSONObject = dockerInspectOutputJSONArray.getJSONObject(0);
+
+							if (dockerInspectOutputJSONObject.has("Config")) {
+								JSONObject configJSONObject = dockerInspectOutputJSONObject.getJSONObject("Config");
+
+								if (configJSONObject.has("Env")) {
+									JSONArray envJSONArray = configJSONObject.getJSONArray("Env");
+
+									String javaHome = null;
+									String path = null;
+
+									for (int i = 0; i < envJSONArray.length(); i++) {
+										String env = envJSONArray.getString(i);
+
+										if (env.contains("JAVA_HOME")) {
+											javaHome = env.replace("JAVA_HOME=", "");
+
+											continue;
+										}
+
+										if (env.contains("PATH")) {
+											path = env.replace("PATH=", "");
+										}
+									}
+
+									String javaJDKHome = project.getProperty("java.jdk.home");
+
+									if (!JenkinsResultsParserUtil.isNullOrEmpty(javaJDKHome) &&
+										!JenkinsResultsParserUtil.isNullOrEmpty(path) &&
+										!javaHome.equals(javaJDKHome)) {
+
+										path = javaJDKHome + "/bin:" + path;
+
+										project.setProperty(
+											"docker.java.run.options",
+											" -e PATH=" + path + " -e JAVA_HOME=" + javaJDKHome);
+									}
+								}
+							}
+						]]>
+					</beanshell>
+				</then>
+			</if>
+
+			<property name="docker.java.run.options" value="" />
+
 			<start-docker-container image="${operating.system.docker.image}" name="${operating.system.host}" options="${operating.system.docker.os.options}">\
 				--mount type=bind,source=${host.git.dir}/${portal.dir.name},target=${portal.dir} \
 				--network-alias=${operating.system.host.alias} \
+				${docker.java.run.options} \
 				${operating.system.docker.run.options} \
 			</start-docker-container>
 		</sequential>

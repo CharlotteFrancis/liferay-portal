@@ -815,6 +815,22 @@
 		},
 		{
 			"properties": {
+				"cpConfigurationListDiscovery": {
+					"title": "Product Configuration Discovery Method",
+					"type": "string"
+				},
+				"pid": {
+					"const": "com.liferay.commerce.product.configuration.CPConfigurationListRelConfiguration",
+					"title": "Product Configurations"
+				}
+			},
+			"required": [
+				"pid"
+			],
+			"title": "Product Configurations"
+		},
+		{
+			"properties": {
 				"pid": {
 					"const": "com.liferay.commerce.product.configuration.CPDefinitionOptionRelConfiguration",
 					"title": "Product Options"
@@ -4042,6 +4058,7 @@
 				"com.liferay.client.extension.type.configuration.CETConfiguration",
 				"com.liferay.commerce.payment.configuration.CommercePaymentEntryAuditConfiguration",
 				"com.liferay.commerce.payment.configuration.CommercePaymentEntryRefundTypeConfiguration",
+				"com.liferay.commerce.product.configuration.CPConfigurationListRelConfiguration",
 				"com.liferay.commerce.product.configuration.CPDefinitionOptionRelConfiguration",
 				"com.liferay.commerce.product.configuration.CPFriendlyURLConfiguration",
 				"com.liferay.commerce.qualifier.configuration.AccountEntryCommerceQualifierConfiguration",

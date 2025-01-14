@@ -16,7 +16,7 @@ import useAccounts from '../ProductPurchase/hooks/useAccounts';
 type Schema = z.infer<typeof zodSchema.installProductSchema>;
 
 const OAuth2AuthorizeOutlet = () => {
-	const resourceResponse = useGetResourceInfo({
+	const {isLoading, resourceRequest} = useGetResourceInfo({
 		selectedProject: undefined,
 		shouldFetch: true,
 	});
@@ -25,8 +25,8 @@ const OAuth2AuthorizeOutlet = () => {
 	const {selectedAccount, setSelectedAccount} = useAccounts();
 
 	const projects = useMemo(
-		() => resourceResponse?.resourceRequest?.userProjects || [],
-		[resourceResponse]
+		() => resourceRequest?.userProjects || [],
+		[resourceRequest]
 	);
 
 	const {setValue, watch} = useForm<Schema>({
@@ -49,6 +49,7 @@ const OAuth2AuthorizeOutlet = () => {
 			<Outlet
 				context={{
 					environment,
+					isLoading,
 					myUserAccount,
 					project,
 					projects,
@@ -66,6 +67,7 @@ const OAuth2AuthorizeOutlet = () => {
 const useOAuth2OutletContext = () =>
 	useOutletContext<{
 		environment: Schema['environment'];
+		isLoading: boolean;
 		myUserAccount: UserAccount;
 		project: ConsoleUserProject;
 		projects: ConsoleUserProject[];

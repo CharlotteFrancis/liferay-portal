@@ -4526,10 +4526,10 @@ public class ObjectEntryLocalServiceImpl
 					objectEntryLocalService,
 					_objectRelationshipLocalServiceSnapshot.get());
 
-			Tree objectEntryTree = objectEntryTreeFactory.create(
+			Tree tree = objectEntryTreeFactory.create(
 				objectEntry.getObjectEntryId());
 
-			Iterator<Node> iterator = objectEntryTree.iterator();
+			Iterator<Node> iterator = tree.iterator();
 
 			while (iterator.hasNext()) {
 				Node objectEntryNode = iterator.next();

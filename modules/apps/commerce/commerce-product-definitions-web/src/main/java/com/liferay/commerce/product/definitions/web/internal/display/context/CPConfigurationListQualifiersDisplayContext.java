@@ -9,8 +9,10 @@ import com.liferay.account.constants.AccountPortletKeys;
 import com.liferay.account.model.AccountEntry;
 import com.liferay.account.model.AccountGroup;
 import com.liferay.commerce.inventory.CPDefinitionInventoryEngineRegistry;
+import com.liferay.commerce.model.CommerceOrderType;
 import com.liferay.commerce.product.display.context.helper.CPRequestHelper;
 import com.liferay.commerce.product.model.CPConfigurationList;
+import com.liferay.commerce.product.model.CommerceChannel;
 import com.liferay.commerce.product.service.CPConfigurationEntryService;
 import com.liferay.commerce.product.service.CPConfigurationListRelService;
 import com.liferay.commerce.product.service.CPConfigurationListService;
@@ -26,6 +28,8 @@ import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.portlet.LiferayPortletResponse;
+import com.liferay.portal.kernel.portlet.PortletProvider;
+import com.liferay.portal.kernel.portlet.PortletProviderUtil;
 import com.liferay.portal.kernel.portlet.url.builder.PortletURLBuilder;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermission;
@@ -95,6 +99,31 @@ public class CPConfigurationListQualifiersDisplayContext
 
 		if (count > 0) {
 			return "accountGroups";
+		}
+
+		return "all";
+	}
+
+	public String getActiveChannelEligibility() throws PortalException {
+		long commerceChannelRelsCount =
+			_commerceChannelRelService.getCommerceChannelRelsCount(
+				CPConfigurationList.class.getName(),
+				getCPConfigurationListId());
+
+		if (commerceChannelRelsCount > 0) {
+			return "channels";
+		}
+
+		return "all";
+	}
+
+	public String getActiveOrderTypeEligibility() throws PortalException {
+		int cpConfigurationListRelsCount =
+			_cpConfigurationListRelService.getCPConfigurationListRelsCount(
+				CommerceOrderType.class.getName(), getCPConfigurationListId());
+
+		if (cpConfigurationListRelsCount > 0) {
+			return "orderTypes";
 		}
 
 		return "all";
@@ -172,6 +201,62 @@ public class CPConfigurationListQualifiersDisplayContext
 			"/o/headless-commerce-admin-catalog/v1.0",
 			"/product-configuration-lists/", getCPConfigurationListId(),
 			"/product-configuration-list-accounts");
+	}
+
+	public List<FDSActionDropdownItem>
+			getCPConfigurationListChannelFDSActionDropdownItems()
+		throws PortalException {
+
+		return getFDSActionDropdownItems(
+			PortletURLBuilder.create(
+				PortletProviderUtil.getPortletURL(
+					httpServletRequest, CommerceChannel.class.getName(),
+					PortletProvider.Action.MANAGE)
+			).setMVCRenderCommandName(
+				"/commerce_channels/edit_commerce_channel"
+			).setRedirect(
+				cpRequestHelper.getCurrentURL()
+			).setParameter(
+				"commerceChannelId", "{channel.id}"
+			).buildString(),
+			false);
+	}
+
+	public String getCPConfigurationListChannelsAPIURL()
+		throws PortalException {
+
+		return StringBundler.concat(
+			"/o/headless-commerce-admin-catalog/v1.0",
+			"/product-configuration-lists/", getCPConfigurationListId(),
+			"/product-configuration-list-channels");
+	}
+
+	public List<FDSActionDropdownItem>
+			getCPConfigurationListOrderTypeFDSActionDropdownItems()
+		throws PortalException {
+
+		return getFDSActionDropdownItems(
+			PortletURLBuilder.create(
+				PortletProviderUtil.getPortletURL(
+					httpServletRequest, CommerceOrderType.class.getName(),
+					PortletProvider.Action.MANAGE)
+			).setMVCRenderCommandName(
+				"/commerce_order_type/edit_commerce_order_type"
+			).setRedirect(
+				cpRequestHelper.getCurrentURL()
+			).setParameter(
+				"commerceOrderTypeId", "{orderType.id}"
+			).buildString(),
+			false);
+	}
+
+	public String getCPConfigurationListOrderTypesAPIURL()
+		throws PortalException {
+
+		return StringBundler.concat(
+			"/o/headless-commerce-admin-catalog/v1.0",
+			"/product-configuration-lists/", getCPConfigurationListId(),
+			"/product-configuration-list-order-types");
 	}
 
 	public PortletURL getPortletCPConfigurationListURL() {

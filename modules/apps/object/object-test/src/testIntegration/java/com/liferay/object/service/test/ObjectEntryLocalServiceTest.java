@@ -195,6 +195,7 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
@@ -2518,7 +2519,7 @@ public class ObjectEntryLocalServiceTest {
 			_objectDefinitionLocalService.getObjectDefinition(
 				TestPropsValues.getCompanyId(), "C_A");
 
-		Tree objectEntryTree1 = TreeTestUtil.createObjectEntryTree(
+		Tree tree1 = TreeTestUtil.createObjectEntryTree(
 			"1", _objectDefinitionLocalService, _objectEntryLocalService,
 			_objectFieldLocalService, _objectRelationshipLocalService,
 			objectDefinitionA.getObjectDefinitionId());
@@ -2535,9 +2536,9 @@ public class ObjectEntryLocalServiceTest {
 			).put(
 				"AAB1", new String[0]
 			).build(),
-			objectEntryTree1, _objectEntryLocalService);
+			tree1, _objectEntryLocalService);
 
-		Tree objectEntryTree2 = TreeTestUtil.createObjectEntryTree(
+		Tree tree2 = TreeTestUtil.createObjectEntryTree(
 			"2", _objectDefinitionLocalService, _objectEntryLocalService,
 			_objectFieldLocalService, _objectRelationshipLocalService,
 			objectDefinitionA.getObjectDefinitionId());
@@ -2554,7 +2555,7 @@ public class ObjectEntryLocalServiceTest {
 			).put(
 				"AAB2", new String[0]
 			).build(),
-			objectEntryTree2, _objectEntryLocalService);
+			tree2, _objectEntryLocalService);
 
 		ObjectDefinition objectDefinitionAA =
 			_objectDefinitionLocalService.fetchObjectDefinition(
@@ -2593,8 +2594,8 @@ public class ObjectEntryLocalServiceTest {
 			new ObjectEntryTreeFactory(
 				_objectEntryLocalService, _objectRelationshipLocalService);
 
-		objectEntryTree1 = objectEntryTreeFactory.create(
-			objectEntryTree1.getRootNode(
+		tree1 = objectEntryTreeFactory.create(
+			tree1.getRootNode(
 			).getPrimaryKey());
 
 		TreeTestUtil.assertObjectEntryTree(
@@ -2603,10 +2604,10 @@ public class ObjectEntryLocalServiceTest {
 			).put(
 				"AB1", new String[0]
 			).build(),
-			objectEntryTree1, _objectEntryLocalService);
+			tree1, _objectEntryLocalService);
 
-		objectEntryTree2 = objectEntryTreeFactory.create(
-			objectEntryTree2.getRootNode(
+		tree2 = objectEntryTreeFactory.create(
+			tree2.getRootNode(
 			).getPrimaryKey());
 
 		TreeTestUtil.assertObjectEntryTree(
@@ -2627,7 +2628,7 @@ public class ObjectEntryLocalServiceTest {
 			).put(
 				"AAB2", new String[0]
 			).build(),
-			objectEntryTree2, _objectEntryLocalService);
+			tree2, _objectEntryLocalService);
 
 		TreeTestUtil.deleteObjectDefinitionHierarchy(
 			_objectDefinitionLocalService,
@@ -2991,6 +2992,59 @@ public class ObjectEntryLocalServiceTest {
 			draftObjectDefinition);
 		_objectDefinitionLocalService.deleteObjectDefinition(
 			publishedObjectDefinition);
+	}
+
+	@Test
+	public void testDeleteObjectEntryWithObjectDefinitionTree()
+		throws Exception {
+
+		TreeTestUtil.createObjectDefinitionTree(
+			_objectDefinitionLocalService, _objectRelationshipLocalService,
+			true,
+			LinkedHashMapBuilder.put(
+				"A", new String[] {"AA", "AB"}
+			).put(
+				"AA", new String[] {"AAA", "AAB"}
+			).put(
+				"AB", new String[0]
+			).put(
+				"AAA", new String[0]
+			).put(
+				"AAB", new String[0]
+			).build());
+
+		ObjectDefinition rootObjectDefinition =
+			_objectDefinitionLocalService.getObjectDefinition(
+				TestPropsValues.getCompanyId(), "C_A");
+
+		Tree tree = TreeTestUtil.createObjectEntryTree(
+			"1", _objectDefinitionLocalService, _objectEntryLocalService,
+			_objectFieldLocalService, _objectRelationshipLocalService,
+			rootObjectDefinition.getObjectDefinitionId());
+
+		ObjectEntry rootObjectEntry = _objectEntryLocalService.getObjectEntry(
+			"A1", rootObjectDefinition.getObjectDefinitionId());
+
+		_objectEntryLocalService.deleteObjectEntry(
+			rootObjectEntry.getObjectEntryId());
+
+		Iterator<Node> iterator = tree.iterator();
+
+		while (iterator.hasNext()) {
+			Node node = iterator.next();
+
+			AssertUtils.assertFailure(
+				NoSuchObjectEntryException.class,
+				"No ObjectEntry exists with the primary key " +
+					node.getPrimaryKey(),
+				() -> _objectEntryLocalService.getObjectEntry(
+					node.getPrimaryKey()));
+		}
+
+		TreeTestUtil.deleteObjectDefinitionHierarchy(
+			_objectDefinitionLocalService,
+			new String[] {"C_A", "C_AA", "C_AB", "C_AAA", "C_AAB"},
+			_objectEntryLocalService, _objectRelationshipLocalService);
 	}
 
 	@Test
