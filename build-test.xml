@@ -7868,6 +7868,8 @@ ${docker.start.error}</fail>
 			<get-java-jdk-bundle-type test.batch.name="${test.batch.name}" />
 			<get-java-jdk-bundle-version test.batch.name="${test.batch.name}" />
 
+			<echo>@@ cw java.jdk.bundle.type: ${java.jdk.bundle.type} | java.jdk.bundle.version: ${java.jdk.bundle.version}</echo>
+
 			<get-java-jdk-home type="${java.jdk.bundle.type}" version="${java.jdk.bundle.version}" />
 
 			<if>
