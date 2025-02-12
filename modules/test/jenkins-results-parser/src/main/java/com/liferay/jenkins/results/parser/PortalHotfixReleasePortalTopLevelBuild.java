@@ -389,6 +389,8 @@ public class PortalHotfixReleasePortalTopLevelBuild
 		"https?://.*liferay-dxp-(?<majorVersion>\\d{4})." +
 			"(?<minorVersion>q\\d+).(?<fixVersion>\\d+)-hotfix-\\d+.(zip|tar." +
 				"gz|lpkg)");
+	private static final Pattern _patcherPortalLegacyVersionPattern =
+		Pattern.compile("fix-pack-(dxp|de)-(?<fixpackVersion>\\d+)-7\\d10");
 	private static final Pattern _patcherPortalVersion62Pattern =
 		Pattern.compile(
 			"(?<majorVersion>6)\\.(?<minorVersion>2)\\." +
