@@ -93,9 +93,7 @@ public class RelevantTestSuite {
 					continue;
 				}
 
-				if (!validTestBatchNames.isEmpty() &&
-					validTestBatchNames.contains(testBatch.getName())) {
-
+				if (!validTestBatchNames.isEmpty()) {
 					testBatches.add(testBatch);
 				}
 			}
