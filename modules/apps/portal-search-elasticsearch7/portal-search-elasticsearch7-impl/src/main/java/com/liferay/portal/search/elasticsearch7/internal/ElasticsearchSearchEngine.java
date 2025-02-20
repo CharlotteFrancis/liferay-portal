@@ -144,11 +144,6 @@ public class ElasticsearchSearchEngine
 	}
 
 	@Override
-	public IndexSearcher getIndexSearcher() {
-		return _indexSearcher;
-	}
-
-	@Override
 	public IndexWriter getIndexWriter() {
 		return _indexWriter;
 	}
@@ -161,6 +156,11 @@ public class ElasticsearchSearchEngine
 	@Override
 	public String getVendor() {
 		return "Elasticsearch";
+	}
+
+	@Override
+	public IndexSearcher getIndexSearcher() {
+		return _indexSearcher;
 	}
 
 	@Override
