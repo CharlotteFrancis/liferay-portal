@@ -137,6 +137,8 @@ public class Test {
 			String hostName)
 		throws Exception {
 
+		System.out.println("@@ cw inside Test downloadSample(4) method.");
+
 		downloadSample(sampleKey, null, buildNumber, jobName, hostName);
 	}
 
@@ -144,6 +146,8 @@ public class Test {
 			String sampleKey, String axisVariable, String buildNumber,
 			String jobName, String hostName)
 		throws Exception {
+
+		System.out.println("@@ cw inside Test downloadSample(5) method.");
 
 		String urlString =
 			"https://${hostName}.liferay.com/job/${jobName}//${buildNumber}/";
@@ -162,17 +166,26 @@ public class Test {
 
 		URL url = JenkinsResultsParserUtil.createURL(urlString);
 
+		System.out.println("@@ cw samplekey: " + sampleKey);
+		System.out.println("@@ cw url: " + url);
+
 		downloadSample(sampleKey, url);
 	}
 
 	protected void downloadSample(String sampleKey, URL url) throws Exception {
+
+		System.out.println("@@ cw in testSample(2)");
+
 		if (testSamples.containsKey(sampleKey)) {
+			System.out.println("@@ cw in testSample(2) if");
 			throw new Exception("Duplicate sample key: '" + sampleKey + "'");
 		}
 
 		TestSample testSample = new TestSample(dependenciesDirs, sampleKey);
 
 		File sampleDir = testSample.getSampleDir();
+
+		System.out.println("@@ cw: File sampleDir: " + sampleDir.toString());
 
 		try {
 			if (!sampleDir.exists()) {
@@ -192,6 +205,8 @@ public class Test {
 
 	protected void downloadSample(TestSample testSample, URL url)
 		throws Exception {
+
+		System.out.println("@@ cw: testSample is not overwritten.");
 	}
 
 	protected void downloadSampleURL(File dir, URL url, String urlSuffix)
