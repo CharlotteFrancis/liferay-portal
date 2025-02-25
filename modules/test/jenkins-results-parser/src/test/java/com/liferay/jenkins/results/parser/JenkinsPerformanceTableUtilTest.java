@@ -24,6 +24,9 @@ public class JenkinsPerformanceTableUtilTest
 	@Before
 	@Override
 	public void setUp() throws Exception {
+
+		System.out.println("@@ cw setup");
+
 		downloadSample(
 			"master-success-1", "1682",
 			"test-portal-acceptance-pullrequest(master)", "test-1-1");
@@ -40,20 +43,36 @@ public class JenkinsPerformanceTableUtilTest
 
 	@Test
 	public void testGenerateHTML() throws Exception {
+
+		System.out.println("@@ cw start of testGenerateHTML");
+
+		System.out.println("@@ cw dependencies.url: ${dependencies.url}");
+
 		expectedMessageGenerator = new ExpectedMessageGenerator() {
 
 			@Override
 			public String getMessage(TestSample testSample) throws Exception {
+				System.out.println("@@ cw test.Sample.getSampleDirName(): " + testSample.getSampleDirName());
+
 				String content = JenkinsResultsParserUtil.toString(
 					JenkinsResultsParserUtil.getLocalURL(
 						"${dependencies.url}" + testSample.getSampleDirName() +
 							"/urls.txt"));
 
+				System.out.println("@@ cw content String resolves");
+
 				if (content.length() == 0) {
+					System.out.println("@@ cw content.lenghth() == 0");
+
 					return "";
 				}
 
+				System.out.println("@@ cw for statement");
+
 				for (String url : content.split("\\|")) {
+
+					System.out.println("@@ cw in the for statement... url = " + url);
+
 					JenkinsPerformanceDataUtil.processPerformanceData(
 						"build", url.trim(), 100);
 				}
@@ -77,7 +96,9 @@ public class JenkinsPerformanceTableUtilTest
 
 	protected void downloadSampleJobMessages(
 			String progressiveTextURL, File sampleDir)
+
 		throws Exception {
+		System.out.println("@@ cw inside exception");
 
 		StringBuilder sb = new StringBuilder();
 
@@ -90,6 +111,8 @@ public class JenkinsPerformanceTableUtilTest
 			content);
 
 		while (progressiveTextMatcher.find()) {
+			System.out.println("@@ cw inside while");
+
 			String fileSuffix = null;
 			String url = progressiveTextMatcher.group("url");
 			String urlSuffix = null;
@@ -102,6 +125,10 @@ public class JenkinsPerformanceTableUtilTest
 				fileSuffix = String.valueOf(count);
 				urlSuffix = "/testReport/api/json";
 			}
+
+			System.out.println("@@ cw " + JenkinsResultsParserUtil.toString(
+					JenkinsResultsParserUtil.getLocalURL(
+							url + urlSuffix + "?pretty")));
 
 			JenkinsResultsParserUtil.write(
 				new File(sampleDir, "job-" + fileSuffix + urlSuffix),
@@ -117,6 +144,8 @@ public class JenkinsPerformanceTableUtilTest
 
 			count++;
 		}
+
+		System.out.println("@@ at the end... sb.toString(): " + sb.toString());
 
 		JenkinsResultsParserUtil.write(
 			new File(sampleDir, "urls.txt"), sb.toString());
