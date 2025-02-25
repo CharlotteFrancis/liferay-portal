@@ -46,20 +46,33 @@ public class JenkinsPerformanceTableUtilTest
 
 		System.out.println("@@ cw start of testGenerateHTML");
 
+		System.out.println("@@ cw dependencies.url: ${dependencies.url}");
+
 		expectedMessageGenerator = new ExpectedMessageGenerator() {
 
 			@Override
 			public String getMessage(TestSample testSample) throws Exception {
+				System.out.println("@@ cw test.Sample.getSampleDirName(): " + testSample.getSampleDirName());
+
 				String content = JenkinsResultsParserUtil.toString(
 					JenkinsResultsParserUtil.getLocalURL(
 						"${dependencies.url}" + testSample.getSampleDirName() +
 							"/urls.txt"));
 
+				System.out.println("@@ cw content String resolves");
+
 				if (content.length() == 0) {
+					System.out.println("@@ cw content.lenghth() == 0");
+
 					return "";
 				}
 
+				System.out.println("@@ cw for statement");
+
 				for (String url : content.split("\\|")) {
+
+					System.out.println("@@ cw in the for statement... url = " + url);
+
 					JenkinsPerformanceDataUtil.processPerformanceData(
 						"build", url.trim(), 100);
 				}
