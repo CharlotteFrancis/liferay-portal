@@ -2440,7 +2440,15 @@ ${poshi.runner.testsuite.testcase.name}</echo>
 
 							<lstopwatch action="start" name="test.execution.duration" />
 
-							<property name="test.junit.args" value="--continue -Dbuild.exclude.ant.plugin=true -Dtest.class.group.index=${axis.variable}" />
+							<condition else="" property="test.arg.opensearch2.unit.tests" value="-Dcom.liferay.portal.search.opensearch2.test.unit.enabled=true">
+								<istrue value="${run.opensearch2.unit.tests}" />
+							</condition>
+
+							<condition else="" property="test.arg.solr.unit.tests" value="-Dcom.liferay.portal.search.solr8.test.unit.started=true">
+								<istrue value="${run.solr.unit.tests}" />
+							</condition>
+
+							<property name="test.junit.args" value="--continue -Dbuild.exclude.ant.plugin=true ${test.arg.opensearch2.unit.tests} ${test.arg.solr.unit.tests} -Dtest.class.group.index=${axis.variable}" />
 
 							<run-modules-junit-test test.class.group="${test.class.group}" test.junit.args="${test.junit.args}" test.task="testIntegration" />
 
