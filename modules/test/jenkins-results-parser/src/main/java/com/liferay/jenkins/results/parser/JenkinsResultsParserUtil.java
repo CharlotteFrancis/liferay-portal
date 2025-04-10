@@ -5318,17 +5318,42 @@ public class JenkinsResultsParserUtil {
 			int retryPeriod, int timeout, HTTPAuthorization httpAuthorization)
 		throws IOException {
 
-		String response = toString(
-			url, checkCache, maxRetries, httpRequestMethod, postContent,
-			retryPeriod, timeout, httpAuthorization, true);
+		Retryable<JSONObject> retryable = new Retryable<JSONObject>(
+			true, maxRetries, retryPeriod, true) {
 
-		if ((response == null) ||
-			response.endsWith("was truncated due to its size.")) {
+			@Override
+			public JSONObject execute() {
+				try {
+					String response = JenkinsResultsParserUtil.toString(url, checkCache, 0, httpRequestMethod, postContent,
+						retryPeriod, timeout, httpAuthorization, true);
 
-			return null;
+					if ((response == null) ||
+						response.endsWith("was truncated due to its size.")) {
+
+						return null;
+					}
+
+					return JenkinsResultsParserUtil.createJSONObject(response);
+				} catch (IOException ioException) {
+					throw new RuntimeException(ioException);
+				}
+			}
+
+			@Override
+			protected String getRetryMessage(int retryCount) {
+				return combine(
+					"Unable to create JSONObject: ",
+					super.getRetryMessage(retryCount));
+			}
+
+		};
+
+		try {
+			return retryable.executeWithRetries();
 		}
-
-		return createJSONObject(response);
+		catch (Exception exception) {
+			throw new RuntimeException("Unable to create JSONObject");
+		}
 	}
 
 	public static JSONObject toJSONObject(
