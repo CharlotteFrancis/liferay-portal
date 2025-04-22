@@ -52,6 +52,7 @@
 
 	<macrodef name="apply-portal-ext-properties">
 		<sequential>
+			<echo>!! DUMMY PR CHANGE !!</echo>
 			<if>
 				<contains string="${app.server.portal.dir}" substring="liferay-portal.war" />
 				<then>
