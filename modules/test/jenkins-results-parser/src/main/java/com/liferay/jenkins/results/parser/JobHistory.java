@@ -27,11 +27,6 @@ public class JobHistory {
 	public BatchHistory getBatchHistory(String batchName) {
 		Matcher matcher = _pattern.matcher(batchName);
 
-		System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
-		System.out.println(
-			"@@@@@@@@@@@@@@@cw in getBatchHistory@@@@@@@@@@@@@@");
-		System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
-
 		if (matcher.find()) {
 			batchName = matcher.group("batchName");
 		}
@@ -134,8 +129,7 @@ public class JobHistory {
 			return new JSONObject(content);
 		}
 		catch (IOException ioException) {
-			System.out.println(
-				"@@@@@@@@@@@@@ cw ioException: " + ioException);
+			System.out.println("@@@@@@@@@@@@@ cw ioException: " + ioException);
 
 			return null;
 		}
