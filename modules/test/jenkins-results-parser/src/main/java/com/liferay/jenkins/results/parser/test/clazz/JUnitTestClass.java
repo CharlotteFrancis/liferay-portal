@@ -332,6 +332,7 @@ public class JUnitTestClass extends BaseTestClass {
 				parentFullClassName);
 
 		if (parentJavaFile == null) {
+			System.out.println("@@ cw Sanity check");
 			System.out.println(
 				"No matching files found for " + parentFullClassName);
 

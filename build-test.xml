@@ -6264,11 +6264,13 @@ ${custom.upgrade.properties}</echo>
 		<attribute default="junit" name="test.type" />
 
 		<sequential>
+			<echo> @@ cw inside macrodef record-test-csv-report </echo>
 			<local name="test.batch.name" />
 
 			<condition else="@{test.type}-test-csv-report" property="test.batch.name" value="${test.batch.name}">
 				<isset property="test.batch.name" />
 			</condition>
+			<echo> @@ cw inside macrodef record-test-csv-report before beanshell</echo>
 
 			<beanshell>
 				<![CDATA[
@@ -6368,13 +6370,21 @@ ${custom.upgrade.properties}</echo>
 						return upstreamBranchName.replace("-private", "");
 					}
 
+					System.out.println("@@@@ CW BEFORE TRY BLOCK");
+
 					try {
 						Job job = JobFactory.newJob(getBuildProfile(), getJobName(), null, getPortalGitWorkingDirectory(), getPortalHotfixRelease(), getUpstreamBranchName(), null, getRepositoryName(), getTestSuiteName(), getUpstreamBranchName());
 
+						System.out.println("@@@@ CW AFTER JOBFACTORY, test.batch.name: " + project.getProperty("test.batch.name"));
+
 						BatchTestClassGroup batchTestClassGroup = TestClassGroupFactory.newBatchTestClassGroup(project.getProperty("test.batch.name"), job);
 
+						System.out.println("@@@@ CW AFTER BATCH TEST CLASS GROUP");
+
 						if (batchTestClassGroup instanceof JUnitBatchTestClassGroup || batchTestClassGroup instanceof NPMTestBatchTestClassGroup) {
+							System.out.println("@@@@ CW INSIDE IF");
 							batchTestClassGroup.writeTestCSVReportFile();
+							System.out.println("@@@@ AFTER WRITE TST CSV REPORT FILE");
 						}
 					}
 					catch (Exception e) {

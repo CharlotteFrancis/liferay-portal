@@ -18,6 +18,10 @@ public class HistoryUtil {
 	public static JobHistory getJobHistory(Job job) {
 		String ciHistoryURL = _getCIHistoryURL(job);
 
+		System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+		System.out.println("@@@@@@@@@@@@@@@cw in getJobHistory@@@@@@@@@@@@@@");
+		System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+
 		if (ciHistoryURL == null) {
 			return null;
 		}
@@ -25,7 +29,14 @@ public class HistoryUtil {
 		JobHistory jobHistory = _jobHistories.get(ciHistoryURL);
 
 		if (jobHistory == null) {
+			System.out.println("@@ cw jobHistory is null");
 			jobHistory = new JobHistory(ciHistoryURL);
+
+			System.out.println("@@ cw jobHistory(ciHistoryURL) is null");
+
+			if (jobHistory == null) {
+				return null;
+			}
 
 			_jobHistories.put(ciHistoryURL, jobHistory);
 		}
@@ -37,6 +48,11 @@ public class HistoryUtil {
 		String jobName = job.getJobName();
 
 		String testSuiteName = null;
+
+		System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+		System.out.println(
+			"@@@@@@@@@@@@@@@cw in _getCIHistoryURL@@@@@@@@@@@@@@");
+		System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
 
 		if (job instanceof TestSuiteJob) {
 			TestSuiteJob testSuiteJob = (TestSuiteJob)job;

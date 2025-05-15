@@ -1268,7 +1268,7 @@ public class JenkinsResultsParserUtil {
 	public static String getBuildDirPath() {
 		StringBuilder sb = new StringBuilder();
 
-		sb.append("/opt/dev/projects/github/.tmp/jenkins/");
+		sb.append("/home/me/dev/projects/.tmp/jenkins/");
 
 		String topLevelBuildURL = System.getenv("TOP_LEVEL_BUILD_URL");
 
@@ -1304,7 +1304,7 @@ public class JenkinsResultsParserUtil {
 
 		StringBuilder sb = new StringBuilder();
 
-		sb.append("/opt/dev/projects/github/.tmp/jenkins/");
+		sb.append("/home/me/dev/projects/.tmp/jenkins/");
 
 		if (!isCINode() || isNullOrEmpty(buildNumber) ||
 			isNullOrEmpty(jobName) || isNullOrEmpty(masterHostname)) {
@@ -6287,7 +6287,7 @@ public class JenkinsResultsParserUtil {
 		if ((cacheDirPath == null) &&
 			(System.getenv("JENKINS_GITHUB_URL") != null)) {
 
-			cacheDirPath = "/opt/dev/projects/github";
+			cacheDirPath = "/home/me/dev/projects";
 		}
 
 		if (cacheDirPath != null) {
