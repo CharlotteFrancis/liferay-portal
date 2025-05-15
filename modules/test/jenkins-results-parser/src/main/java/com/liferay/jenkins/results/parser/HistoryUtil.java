@@ -43,7 +43,8 @@ public class HistoryUtil {
 		String testSuiteName = null;
 
 		System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
-		System.out.println("@@@@@@@@@@@@@@@cw in _getCIHistoryURL@@@@@@@@@@@@@@");
+		System.out.println(
+			"@@@@@@@@@@@@@@@cw in _getCIHistoryURL@@@@@@@@@@@@@@");
 		System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
 
 		if (job instanceof TestSuiteJob) {
