@@ -27,6 +27,10 @@ public class JobHistory {
 	public BatchHistory getBatchHistory(String batchName) {
 		Matcher matcher = _pattern.matcher(batchName);
 
+		System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+		System.out.println("@@@@@@@@@@@@@@@cw in getBatchHistory@@@@@@@@@@@@@@");
+		System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+
 		if (matcher.find()) {
 			batchName = matcher.group("batchName");
 		}
@@ -44,6 +48,10 @@ public class JobHistory {
 
 	protected JobHistory(String ciHistoryURL) {
 		JSONObject ciHistoryJSONObject = _getCIHistoryJSONObject(ciHistoryURL);
+
+		System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+		System.out.println("@@@@@@@@@@@@@@@cw in JobHistory@@@@@@@@@@@@@@");
+		System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
 
 		if (ciHistoryJSONObject == null) {
 			_testrayURL = null;
@@ -84,6 +92,11 @@ public class JobHistory {
 	}
 
 	private JSONObject _getCIHistoryJSONObject(String ciHistoryURL) {
+
+		System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+		System.out.println("@@@@@@@@@@@@@@@cw in _getCIHistoryJSONObject@@@@@@@@@@@@@@");
+		System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+
 		if (ciHistoryURL == null) {
 			return null;
 		}
@@ -92,7 +105,8 @@ public class JobHistory {
 			System.getenv("WORKSPACE"),
 			JenkinsResultsParserUtil.getDistinctTimeStamp() + ".gz");
 
-		try {
+		try {			
+			System.out.println("@@@@@@@@@@@@@ cw am i here");
 			if (ciHistoryURL.startsWith(
 					CloudBucketUtil.GCP_BUCKET_PATH_JENKINS_CI_DATA) ||
 				ciHistoryURL.startsWith(
@@ -118,6 +132,8 @@ public class JobHistory {
 			return new JSONObject(content);
 		}
 		catch (IOException ioException) {
+
+			System.out.println("@@@@@@@@@@@@@ cw is this null or what " + ioException);
 			return null;
 		}
 		finally {
