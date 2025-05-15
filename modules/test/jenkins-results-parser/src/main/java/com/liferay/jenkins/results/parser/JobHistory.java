@@ -27,8 +27,16 @@ public class JobHistory {
 	public BatchHistory getBatchHistory(String batchName) {
 		Matcher matcher = _pattern.matcher(batchName);
 
+		System.out.println("@@ cw in getBatchHIstory");
+		
 		if (matcher.find()) {
 			batchName = matcher.group("batchName");
+		}
+
+		System.out.println("@@ cw in getBatchHIstory, batchName = " + batchName);
+
+		if (batchName == null) {
+			return null;
 		}
 
 		return _batchHistories.get(batchName);
@@ -50,6 +58,7 @@ public class JobHistory {
 		System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
 
 		if (ciHistoryJSONObject == null) {
+			System.out.println("@@ cw ciHistoryJSONObject is null");
 			_testrayURL = null;
 			_upstreamBranchName = null;
 

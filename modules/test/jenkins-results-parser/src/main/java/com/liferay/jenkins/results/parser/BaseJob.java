@@ -440,8 +440,16 @@ public abstract class BaseJob implements Job {
 			return _jobHistory;
 		}
 
+		System.out.println("@@ cw in BaseJob.java");
+		
 		_jobHistory = HistoryUtil.getJobHistory(this);
 
+		if (_jobHistory == null) {
+
+			System.out.println("@@ cw in BaseJob, _jobHistory is null");
+		}
+
+		
 		return _jobHistory;
 	}
 

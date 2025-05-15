@@ -29,7 +29,14 @@ public class HistoryUtil {
 		JobHistory jobHistory = _jobHistories.get(ciHistoryURL);
 
 		if (jobHistory == null) {
+			System.out.println("@@ cw jobHistory is null");
 			jobHistory = new JobHistory(ciHistoryURL);
+
+			System.out.println("@@ cw jobHistory(ciHistoryURL) is null");
+
+			if (jobHistory == null) {
+				return null;
+			}
 
 			_jobHistories.put(ciHistoryURL, jobHistory);
 		}
