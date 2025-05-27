@@ -404,7 +404,7 @@ public class PortalWorkspace extends BaseWorkspace {
 			"git-commit-portals-pluto", "portals-pluto");
 	}
 
-	private void _configurePortletAPIKGitRepository() {
+	private void _configurePortletAPIGitRepository() {
 		_updateWorkspaceGitRepository(
 			"git-commit-portlet-api", "portlet-api");
 	}
