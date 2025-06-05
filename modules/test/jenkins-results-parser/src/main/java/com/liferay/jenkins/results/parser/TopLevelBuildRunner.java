@@ -274,7 +274,7 @@ public abstract class TopLevelBuildRunner<T extends TopLevelBuildData>
 
 			int failed = _topLevelBuild.getDownstreamBuildCountByResult("FAILURE");
 
-			if (failed > 1000) {
+			if (failed > 3) {
 				failBuildRunner("Aborting due to abnormal amount of test failures (>1000).");
 
 				break;
