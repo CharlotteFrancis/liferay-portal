@@ -7494,6 +7494,7 @@ org.apache.catalina.startup.ClassLoaderFactory.level=INFO]]>
 		<attribute default="" name="testable.portal.started.marker.file" />
 
 		<sequential>
+			<fail>@@ cw intentional fail </fail> 
 			<lstopwatch action="start" name="start.app.server.@{app.server.bundle.index}" />
 
 			<start-app-server-cmd
