@@ -50,9 +50,8 @@ public class TestrayAttachmentRecorder {
 		JenkinsResultsParserUtil.delete(getRecordedFilesBaseDir());
 
 		try {
-			_recordJenkinsConsole();
-
 			if (_build instanceof TopLevelBuild) {
+				recordJenkinsConsole();
 				_recordBuildDatabase();
 				_recordJobSummary();
 				_recordJenkinsReport();
@@ -78,6 +77,19 @@ public class TestrayAttachmentRecorder {
 		}
 
 		_recorded = true;
+	}
+
+	public void recordJenkinsConsole() {
+		File jenkinsConsoleFile = new File(
+			_getRecordedFilesBuildDir(), "jenkins-console.txt");
+
+		try {
+			JenkinsResultsParserUtil.write(
+				jenkinsConsoleFile, _build.getConsoleText());
+		}
+		catch (IOException ioException) {
+			throw new RuntimeException(ioException);
+		}
 	}
 
 	protected TestrayAttachmentRecorder(Build build) {
@@ -583,19 +595,6 @@ public class TestrayAttachmentRecorder {
 			JenkinsResultsParserUtil.copy(
 				gradlePluginsFile,
 				new File(_getRecordedFilesBuildDir(), "gradle_plugins.tar"));
-		}
-		catch (IOException ioException) {
-			throw new RuntimeException(ioException);
-		}
-	}
-
-	private void _recordJenkinsConsole() {
-		File jenkinsConsoleFile = new File(
-			_getRecordedFilesBuildDir(), "jenkins-console.txt");
-
-		try {
-			JenkinsResultsParserUtil.write(
-				jenkinsConsoleFile, _build.getConsoleText());
 		}
 		catch (IOException ioException) {
 			throw new RuntimeException(ioException);
