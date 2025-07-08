@@ -146,7 +146,7 @@ public class RelevantTestSuite {
 		_modifiedFiles = modifiedFiles;
 	}
 
-	protected boolean useLatestBundle() {
+	public boolean useLatestBundle() {
 		File baseTestPropertiesFile = new File(
 			_relevantRuleEngine.getBaseDir(), "test.properties");
 
