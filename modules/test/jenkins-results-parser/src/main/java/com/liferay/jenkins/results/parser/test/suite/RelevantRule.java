@@ -241,6 +241,11 @@ public class RelevantRule implements Comparable<RelevantRule> {
 		return JenkinsResultsParserUtil.getCanonicalPath(file.getParentFile());
 	}
 
+	private Boolean getUserExistingBundle() {
+		return _useExistingBundle;
+	}
+
+	private Boolean _useExistingBundle;
 	private final String _filePath;
 	private final Job _job;
 	private List<PathMatcher> _modifiedFilesExcludesPathMatchers;
