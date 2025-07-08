@@ -146,6 +146,56 @@ public class RelevantTestSuite {
 		_modifiedFiles = modifiedFiles;
 	}
 
+	protected boolean useLatestBundle() {
+		File baseTestPropertiesFile = new File(
+			_relevantRuleEngine.getBaseDir(), "test.properties");
+
+		String testBatchNamesPropertyValue =
+			JenkinsResultsParserUtil.getProperty(
+				JenkinsResultsParserUtil.getProperties(baseTestPropertiesFile),
+				"relevant.batch.names.whitelist");
+
+		if (testBatchNamesPropertyValue == null) {
+			testBatchNamesPropertyValue = JenkinsResultsParserUtil.getProperty(
+				JenkinsResultsParserUtil.getProperties(baseTestPropertiesFile),
+				"test.batch.names[relevant]");
+
+			if (testBatchNamesPropertyValue == null) {
+				throw new RuntimeException(
+					"Please set relevant.batch.names.whitelist or " +
+						"test.batch.names[relevant] in " +
+							baseTestPropertiesFile);
+			}
+		}
+
+		List<RelevantRule> relevantRules =
+			_relevantRuleEngine.getMatchingRelevantRules(_modifiedFiles);
+
+		Collections.sort(relevantRules);
+
+		try {
+			if (validateAllRules) {
+				RelevantRuleValidation.validate(
+					_portalGitWorkingDirectory.getGitRepositoryName(),
+					_portalGitWorkingDirectory.getUpstreamBranchName());
+			}
+			else {
+				RelevantRuleValidation.validate(relevantRules);
+			}
+		}
+		catch (IOException ioException) {
+			throw new RuntimeException(ioException);
+		}
+	
+		for (RelevantRule relevantRule : relevantRules) {
+			if (!relevantRule.useLatestBundle()) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
 	private List<File> _modifiedFiles;
 	private final PortalGitWorkingDirectory _portalGitWorkingDirectory;
 	private final RelevantRuleEngine _relevantRuleEngine;
