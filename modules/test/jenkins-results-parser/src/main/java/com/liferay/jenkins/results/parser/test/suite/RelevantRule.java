@@ -31,10 +31,17 @@ public class RelevantRule implements Comparable<RelevantRule> {
 	public RelevantRule(
 		String filePath, Job job, String name, Properties properties) {
 
+		return RelevantRule(filePath, job, name, properties, false);
+	}
+
+	public RelevantRule(
+		String filePath, Job job, String name, Properties properties, Boolean useExistingBundle) {
+
 		_filePath = filePath;
-		_job = job;
+		_job = job;	
 		_name = name;
 		_properties = properties;
+		_useExistingBundle = useExistingBundle;
 	}
 
 	@Override
@@ -122,6 +129,14 @@ public class RelevantRule implements Comparable<RelevantRule> {
 
 	public String getName() {
 		return _name;
+	}
+
+	public Boolean getUseExistingBundle() {
+		if (_useExistingBundle != null) {
+			return useExistingBundle;
+		}
+
+		return false;
 	}
 
 	public Properties getProperties() {
@@ -239,10 +254,6 @@ public class RelevantRule implements Comparable<RelevantRule> {
 		File file = new File(_filePath);
 
 		return JenkinsResultsParserUtil.getCanonicalPath(file.getParentFile());
-	}
-
-	private Boolean getUserExistingBundle() {
-		return _useExistingBundle;
 	}
 
 	private Boolean _useExistingBundle;
