@@ -272,6 +272,14 @@ public abstract class TopLevelBuildRunner<T extends TopLevelBuildData>
 
 			System.out.println(_topLevelBuild.getStatusSummary());
 
+			int failed = _topLevelBuild.getDownstreamBuildCount("FAILURE");
+
+			if (failed > 3) {
+				failBuildRunner("Aborting due to abnormal amount of test failures (>1000).");
+
+				break;
+			}
+
 			int completed = _topLevelBuild.getDownstreamBuildCount("completed");
 			int total = _topLevelBuild.getDownstreamBuildCount(null);
 
