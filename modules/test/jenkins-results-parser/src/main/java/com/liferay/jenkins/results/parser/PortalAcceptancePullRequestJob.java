@@ -120,8 +120,15 @@ public class PortalAcceptancePullRequestJob
 
 		if (relevantTestSuite.useLatestBundle()) {
 
+			// need branches json object?
+
+			// GitWorkingDirectory gitWorkingDirectory = getGitWorkingDirectory();
+
+			// String sha = gitWorkingDirectory.getLatestCommitSHA();
+
 			// current job json object
-			JSONObject branchJSONObject = jsonObject.getJSONObject(branch);
+
+			JSONObject branchJSONObject = getJSONObject();
 
 			String sha = branchJSONObject.getString("upstream_branch_sha");
 
@@ -133,21 +140,15 @@ public class PortalAcceptancePullRequestJob
 			for (JSONObject build : buildJSONArray) {
 
 				String buildNumber = build.get("number");
-
+				
 				String buildSHA = JenkinsResultsParserUtil.toString("https://test-1-0.liferay.com/userContent/bundles/test-portal-testsuite-upstream(master)/" + buildNumber + "/git-hash/");
-
+				
 				System.out.println(buildSHA);
 				
 				if (buildSHA == sha) {
 					String buildURL = build.get("url");
 
-					try {
-						new URL(buildURL);
-
-						return buildURL;
-					} catch (MalformedURLException malformedURLException) {
-						System.out.println(buildURL + "is not a valid URL: " + malformedURLException);
-					}
+					return buildURL;
 
 					break;
 				}
