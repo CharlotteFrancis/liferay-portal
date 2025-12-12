@@ -721,46 +721,57 @@ public abstract class BaseWorkspaceGitRepository
 		List<GitRemote> gitHubDevGitRemotes =
 			GitHubDevSyncUtil.getGitHubDevGitRemotes(gitWorkingDirectory);
 
-		for (int i = 0; i < 3; i++) {
-			if (gitHubDevGitRemotes.isEmpty()) {
-				break;
-			}
+		Retryable<Object> retryable = new Retryable<Object>(true, 3, 5, true) {
 
-			GitRemote randomGitRemote =
-				JenkinsResultsParserUtil.getRandomListItem(gitHubDevGitRemotes);
+			@Override
+			public Object execute() {
+				try {
+					if (gitHubDevGitRemotes.isEmpty()) {
+						throw new RuntimeException(
+							"GitHub dev remotes are empty");
+					}
 
-			gitHubDevGitRemotes.remove(randomGitRemote);
+					GitRemote randomGitRemote =
+						JenkinsResultsParserUtil.getRandomListItem(
+							gitHubDevGitRemotes);
 
-			String remoteGitBranchSHA = null;
+					gitHubDevGitRemotes.remove(randomGitRemote);
 
-			try {
-				RemoteGitBranch remoteGitBranch =
-					gitWorkingDirectory.getRemoteGitBranch(
-						getGitHubDevBranchName(), randomGitRemote);
+					RemoteGitBranch remoteGitBranch =
+						gitWorkingDirectory.getRemoteGitBranch(
+							getGitHubDevBranchName(), randomGitRemote);
 
-				if (remoteGitBranch == null) {
-					continue;
+					if (remoteGitBranch == null) {
+						throw new RuntimeException("Remote git branch is null");
+					}
+
+					String remoteGitBranchSHA = remoteGitBranch.getSHA();
+
+					gitWorkingDirectory.fetch(remoteGitBranch);
+
+					if (JenkinsResultsParserUtil.isNullOrEmpty(
+							remoteGitBranchSHA) ||
+						!gitWorkingDirectory.localSHAExists(
+							remoteGitBranchSHA)) {
+
+						throw new runtimeException(
+							"Remote git branch SHA is invalid");
+					}
+
+					return gitWorkingDirectory.createLocalGitBranch(
+						getBranchName(), true, remoteGitBranchSHA);
 				}
-
-				remoteGitBranchSHA = remoteGitBranch.getSHA();
-
-				gitWorkingDirectory.fetch(remoteGitBranch);
-			}
-			catch (Exception exception) {
-				exception.printStackTrace();
-
-				continue;
+				catch (Exception exception) {
+					throw new RuntimeException(
+						"SHA: " + remoteGitBranchSHA +
+							" does not exist within " +
+								getGitHubDevBranchName() + exception);
+				}
 			}
 
-			if (JenkinsResultsParserUtil.isNullOrEmpty(remoteGitBranchSHA) ||
-				!gitWorkingDirectory.localSHAExists(remoteGitBranchSHA)) {
+		};
 
-				continue;
-			}
-
-			return gitWorkingDirectory.createLocalGitBranch(
-				getBranchName(), true, remoteGitBranchSHA);
-		}
+		return retryable.executeWithRetries();
 
 		String senderBranchSHA = getSenderBranchSHA();
 
