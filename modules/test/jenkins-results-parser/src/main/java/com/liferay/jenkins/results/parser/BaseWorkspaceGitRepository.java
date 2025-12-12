@@ -755,7 +755,8 @@ public abstract class BaseWorkspaceGitRepository
 			if (JenkinsResultsParserUtil.isNullOrEmpty(remoteGitBranchSHA) ||
 				!gitWorkingDirectory.localSHAExists(remoteGitBranchSHA)) {
 
-				continue;
+				throw new RuntimeException(
+					"SHA: " + remoteGitBranchSHA + " does not exist within " + getGitHubDevBranchName());
 			}
 
 			return gitWorkingDirectory.createLocalGitBranch(
