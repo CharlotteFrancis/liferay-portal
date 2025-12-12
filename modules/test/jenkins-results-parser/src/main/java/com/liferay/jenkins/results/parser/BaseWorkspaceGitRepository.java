@@ -756,7 +756,8 @@ public abstract class BaseWorkspaceGitRepository
 				!gitWorkingDirectory.localSHAExists(remoteGitBranchSHA)) {
 
 				throw new RuntimeException(
-					"SHA: " + remoteGitBranchSHA + " does not exist within " + getGitHubDevBranchName());
+					"SHA: " + remoteGitBranchSHA + " does not exist within " +
+						getGitHubDevBranchName());
 			}
 
 			return gitWorkingDirectory.createLocalGitBranch(
