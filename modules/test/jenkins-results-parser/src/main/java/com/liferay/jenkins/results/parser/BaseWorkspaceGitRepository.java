@@ -168,7 +168,7 @@ public abstract class BaseWorkspaceGitRepository
 	public GitWorkingDirectory getGitWorkingDirectory() {
 		if (_snapshot && !_isDotGitDirArchiveRequired()) {
 			throw new RuntimeException(
-				"Using Git archive, unable to get Git working directory");
+				"test Using Git archive, unable to get Git working directory");
 		}
 
 		return super.getGitWorkingDirectory();
