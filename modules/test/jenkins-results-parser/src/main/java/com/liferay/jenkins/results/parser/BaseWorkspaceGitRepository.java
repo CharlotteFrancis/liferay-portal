@@ -557,12 +557,25 @@ public abstract class BaseWorkspaceGitRepository
 
 			System.out.println("@@ cw is pull request");
 
-			_localGitBranch = _createPullRequestLocalGitBranch();
+			try {
+				_localGitBranch = _createPullRequestLocalGitBranch();
+			}
+			catch (Exception exception) {
+				System.out.println("@@ cw failed to create pull request branch");
+				System.out.println(exception);
+			}
 		}
 		else {
 			System.out.println("@@ cw is not pull request");
-			
-			_localGitBranch = _createRemoteGitRefLocalGitBranch();
+
+			try {
+				_localGitBranch = _createRemoteGitRefLocalGitBranch();
+			}
+			catch (Exception exception) {
+				System.out.println(
+					"@@ cw failed to create remote git ref branch");
+				System.out.println(exception);
+			}
 		}
 
 		return _localGitBranch;
