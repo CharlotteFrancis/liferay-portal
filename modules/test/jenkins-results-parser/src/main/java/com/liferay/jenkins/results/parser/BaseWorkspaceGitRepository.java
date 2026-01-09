@@ -556,14 +556,14 @@ public abstract class BaseWorkspaceGitRepository
 		}
 
 		if (_isPullRequest()) {
-
 			System.out.println("@@ cw is pull request");
 
 			try {
 				_localGitBranch = _createPullRequestLocalGitBranch();
 			}
 			catch (Exception exception) {
-				System.out.println("@@ cw failed to create pull request branch");
+				System.out.println(
+					"@@ cw failed to create pull request branch");
 				System.out.println(exception);
 			}
 		}
@@ -576,7 +576,10 @@ public abstract class BaseWorkspaceGitRepository
 			catch (Exception exception) {
 				System.out.println(
 					"@@ cw failed to create remote git ref branch");
-				System.out.println(exception);
+
+				throw new RuntimeException(
+					exception +
+						"failed to create local git branch, check parameters");
 			}
 		}
 
@@ -774,8 +777,6 @@ public abstract class BaseWorkspaceGitRepository
 
 			if (JenkinsResultsParserUtil.isNullOrEmpty(remoteGitBranchSHA) ||
 				!gitWorkingDirectory.localSHAExists(remoteGitBranchSHA)) {
-
-
 
 				continue;
 			}
