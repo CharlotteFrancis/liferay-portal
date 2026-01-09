@@ -556,9 +556,14 @@ public abstract class BaseWorkspaceGitRepository
 		}
 
 		if (_isPullRequest()) {
+
+			System.out.println("@@ cw is pull request");
+
 			_localGitBranch = _createPullRequestLocalGitBranch();
 		}
 		else {
+			System.out.println("@@ cw is not pull request");
+			
 			_localGitBranch = _createRemoteGitRefLocalGitBranch();
 		}
 
@@ -756,6 +761,8 @@ public abstract class BaseWorkspaceGitRepository
 
 			if (JenkinsResultsParserUtil.isNullOrEmpty(remoteGitBranchSHA) ||
 				!gitWorkingDirectory.localSHAExists(remoteGitBranchSHA)) {
+
+
 
 				continue;
 			}
