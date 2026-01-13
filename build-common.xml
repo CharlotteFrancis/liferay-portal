@@ -65,7 +65,6 @@
 	</path>
 
 	<path id="lib.pre.classpath">
-		<echo>hello world </echo>
 		<fileset
 			dir="${project.dir}/tmp/lib-pre"
 			erroronmissingdir="false"
@@ -273,7 +272,7 @@
 
 Properties "microsoft.translator.client.id" and
 "microsoft.translator.client.secret" are deprecated. Please remove these
-properties, or set "microsoft.translator.subscription.key" instead, then rerun
+properties, or set "microsoft.translator.subscription.key" instead, then reruns
 your task.
 
 Subscription to the Translator Text Translation API on Microsoft Cognitive
