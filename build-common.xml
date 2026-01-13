@@ -65,6 +65,7 @@
 	</path>
 
 	<path id="lib.pre.classpath">
+		<echo>hello world </echo>
 		<fileset
 			dir="${project.dir}/tmp/lib-pre"
 			erroronmissingdir="false"
