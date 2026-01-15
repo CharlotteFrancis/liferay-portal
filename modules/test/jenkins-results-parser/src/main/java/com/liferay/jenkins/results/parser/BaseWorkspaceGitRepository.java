@@ -399,13 +399,14 @@ public abstract class BaseWorkspaceGitRepository
 		}
 
 		// @@ cw pass in string here
+
 		if (checkSHA) {
 			String gitHubURL = getGitHubURL();
 
 			System.out.println(
 				"@@ cw checking SHA for " + gitHubURL + " in workspace setup");
 		}
-	
+
 		if (!_snapshot) {
 			_prepareGitWorkingDirectory();
 		}
