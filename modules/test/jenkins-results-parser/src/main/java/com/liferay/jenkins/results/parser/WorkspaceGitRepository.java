@@ -53,8 +53,6 @@ public interface WorkspaceGitRepository extends LocalGitRepository {
 
 	public void setUp();
 
-	public void setUp(boolean checkSHA);
-
 	public void storeCommitHistory(List<String> commitSHAs);
 
 	public void synchronizeToGitHubDev();
