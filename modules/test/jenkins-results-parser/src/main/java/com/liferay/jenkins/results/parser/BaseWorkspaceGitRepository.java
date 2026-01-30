@@ -393,35 +393,6 @@ public abstract class BaseWorkspaceGitRepository
 	}
 
 	@Override
-	public synchronized void setUp(boolean checkSHA) {
-		if (_setUp) {
-			return;
-		}
-
-		// @@ cw pass in string here
-
-		if (checkSHA) {
-			String gitHubURL = getGitHubURL();
-
-			System.out.println(
-				"@@ cw checking SHA for " + gitHubURL + " in workspace setup");
-		}
-
-		if (!_snapshot) {
-			_prepareGitWorkingDirectory();
-		}
-
-		try {
-			_prepareGitArchive();
-		}
-		catch (IOException ioException) {
-			throw new RuntimeException(ioException);
-		}
-
-		_setUp = true;
-	}
-
-	@Override
 	public void storeCommitHistory(List<String> commitSHAs) {
 		List<LocalGitCommit> historicalLocalGitCommits =
 			getHistoricalLocalGitCommits();
