@@ -783,22 +783,33 @@ public class PullRequest {
 	public boolean isUpdateEnabled() {
 		Properties buildProperties = null;
 
+		System.out.println("@@ cw isUpdateEnabled");
+
 		try {
+			System.out.println("@@ cw getting build properties");
 			buildProperties = JenkinsResultsParserUtil.getBuildProperties();
 		}
 		catch (IOException ioException) {
 			throw new RuntimeException(ioException);
 		}
 
+		System.out.println("@@ cw got build properties");
+
 		String githubPullRequestUpdateEnabled =
 			JenkinsResultsParserUtil.getProperty(
 				buildProperties, "github.pull.request.update.enabled");
+
+		System.out.println(
+			"@@ cw github.pull.request.update.enabled: " +
+				githubPullRequestUpdateEnabled);
 
 		if (JenkinsResultsParserUtil.isNullOrEmpty(
 				githubPullRequestUpdateEnabled)) {
 
 			return true;
 		}
+
+		System.out.println("@@ cw parsing boolean");
 
 		return Boolean.parseBoolean(githubPullRequestUpdateEnabled);
 	}
