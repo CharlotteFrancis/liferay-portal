@@ -34,6 +34,8 @@ public class BuildFactory {
 		String buildURL, DownstreamBuildReport cachedDownstreamBuildReport,
 		String jobVariant, Build parentBuild) {
 
+		System.out.println("@@ cw in BuildFactory.newBuild: " + buildURL);
+
 		buildURL = JenkinsResultsParserUtil.getLocalURL(buildURL);
 
 		Matcher matcher = _buildURLMultiPattern.find(buildURL);
@@ -78,6 +80,8 @@ public class BuildFactory {
 		}
 
 		String jobName = matcher.group("jobName");
+
+		System.out.println("@@ cw in BuildFactory.newBuild: jobName=" + jobName);
 
 		if (jobName.contains("-controller")) {
 			return new ControllerTopLevelBuild(
@@ -174,6 +178,9 @@ public class BuildFactory {
 		}
 
 		if (jobName.equals("sanitize-language")) {
+			
+			System.out.println("@@ cw in sanitize-language");
+
 			return new SanitizeLanguageTopLevelBuild(
 				buildURL, (TopLevelBuild)parentBuild);
 		}
