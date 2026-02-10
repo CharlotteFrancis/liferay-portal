@@ -81,7 +81,8 @@ public class BuildFactory {
 
 		String jobName = matcher.group("jobName");
 
-		System.out.println("@@ cw in BuildFactory.newBuild: jobName=" + jobName);
+		System.out.println(
+			"@@ cw in BuildFactory.newBuild: jobName=" + jobName);
 
 		if (jobName.contains("-controller")) {
 			return new ControllerTopLevelBuild(
@@ -178,7 +179,6 @@ public class BuildFactory {
 		}
 
 		if (jobName.equals("sanitize-language")) {
-			
 			System.out.println("@@ cw in sanitize-language");
 
 			return new SanitizeLanguageTopLevelBuild(
