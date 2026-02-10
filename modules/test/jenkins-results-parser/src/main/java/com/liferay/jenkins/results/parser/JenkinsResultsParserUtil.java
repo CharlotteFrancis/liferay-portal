@@ -2047,9 +2047,13 @@ public class JenkinsResultsParserUtil {
 	public static String getGitDirectoryName(
 		String repositoryName, String upstreamBranchName) {
 
+		System.out.println("@@ cw in getGitDirectoryName: repositoryName=" + repositoryName);
+
 		String targetGitDirectoryName = _getGitDirectoryName(
 			repositoryName, upstreamBranchName,
 			_getGitWorkingDirectoriesJSONArray());
+
+		System.out.println("@@ cw in getGitDirectoryName: targetGitDirectoryName=" + targetGitDirectoryName);
 
 		if (targetGitDirectoryName == null) {
 			targetGitDirectoryName = _getGitDirectoryName(
