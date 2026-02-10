@@ -62,13 +62,16 @@ public class SanitizeLanguageTopLevelBuild
 
 	@Override
 	public Workspace getWorkspace() {
-		System.out.println("@@ cw in getWorkspace() in SanitizeLanguageTopLevelBuild");
+		System.out.println(
+			"@@ cw in getWorkspace() in SanitizeLanguageTopLevelBuild");
 
 		PullRequest pullRequest = getPullRequest();
 
 		System.out.println("@@ cw pullRequest gotten");
 
-		System.out.println("@@ cw UPSTREAM_BRANCH_NAME: " + getParameterValue("UPSTREAM_BRANCH_NAME"));
+		System.out.println(
+			"@@ cw UPSTREAM_BRANCH_NAME: " +
+				getParameterValue("UPSTREAM_BRANCH_NAME"));
 
 		Workspace workspace = WorkspaceFactory.newWorkspace(
 			"liferay-portal", getParameterValue("UPSTREAM_BRANCH_NAME"),

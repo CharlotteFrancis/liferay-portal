@@ -297,11 +297,25 @@ public abstract class BaseWorkspace implements Workspace {
 		String primaryRepositoryName, String upstreamBranchName,
 		String jobName) {
 
+		System.out.println("@@ cw in BaseWorkspace constructor");
+
 		_primaryWorkspaceGitRepository =
 			GitRepositoryFactory.getWorkspaceGitRepository(
 				primaryRepositoryName, upstreamBranchName);
 
+		System.out.println("@@ cw primaryWorkspaceGitRepository gotten");
+
 		jsonObject = new JSONObject();
+
+		System.out.println(
+			"@@ cw primary_repository_dir_name " + ": " +
+				_primaryWorkspaceGitRepository.getDirectoryName());
+		System.out.println(
+			"@@ cw primary_repository_name " + ": " +
+				_primaryWorkspaceGitRepository.getName());
+		System.out.println(
+			"@@ cw primary_upstream_branch_name " + ": " +
+				_primaryWorkspaceGitRepository.getUpstreamBranchName());
 
 		jsonObject.put(
 			"primary_repository_dir_name",
@@ -328,6 +342,8 @@ public abstract class BaseWorkspace implements Workspace {
 		catch (IOException ioException) {
 			throw new RuntimeException(ioException);
 		}
+
+		System.out.println("@@ cw before validateKeys()");
 
 		_validateKeys();
 	}
