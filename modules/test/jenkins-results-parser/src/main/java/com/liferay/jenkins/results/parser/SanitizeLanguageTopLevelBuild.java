@@ -8,7 +8,6 @@ package com.liferay.jenkins.results.parser;
 /**
  * @author Charlotte Wong
  */
-
 public class SanitizeLanguageTopLevelBuild
 	extends DefaultTopLevelBuild implements PortalWorkspaceBuild {
 
@@ -20,7 +19,7 @@ public class SanitizeLanguageTopLevelBuild
 		StringBuilder sb = new StringBuilder();
 
 		sb.append("https://github.com/");
-		sb.append(getParameterValue("GITHUB_RECEIVER_USERNAME"));
+		sb.append(getParameterValue("GITHUB_RECIEVER_USERNAME"));
 		sb.append("/liferay-portal");
 
 		sb.append("/pull/");
