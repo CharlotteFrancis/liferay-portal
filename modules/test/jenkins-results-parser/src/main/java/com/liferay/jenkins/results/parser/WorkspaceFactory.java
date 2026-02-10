@@ -73,6 +73,8 @@ public class WorkspaceFactory {
 
 		BuildDatabase buildDatabase = BuildDatabaseUtil.getBuildDatabase();
 
+		System.out.println("@@ cw in newWorkspace() in WorkspaceFactory after buildDatabase gotten");
+
 		synchronized (_workspaces) {
 			Workspace workspace = _workspaces.get(gitDirectoryName);
 
@@ -99,7 +101,8 @@ public class WorkspaceFactory {
 					repositoryName, upstreamBranchName, jobName);
 			}
 			else if (repositoryName.matches("liferay-portal(-ee)?")) {
-				System.out.println("@@ cw repositoryName matches liferay-portal(-ee)?");
+				System.out.println(
+					"@@ cw repositoryName matches liferay-portal(-ee)?");
 				workspace = new PortalWorkspace(
 					repositoryName, upstreamBranchName, jobName);
 			}

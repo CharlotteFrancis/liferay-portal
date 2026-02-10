@@ -308,13 +308,13 @@ public abstract class BaseWorkspace implements Workspace {
 		jsonObject = new JSONObject();
 
 		System.out.println(
-			"@@ cw primary_repository_dir_name " + ": " +
+			"@@ cw primary_repository_dir_name: " +
 				_primaryWorkspaceGitRepository.getDirectoryName());
 		System.out.println(
-			"@@ cw primary_repository_name " + ": " +
+			"@@ cw primary_repository_name: " +
 				_primaryWorkspaceGitRepository.getName());
 		System.out.println(
-			"@@ cw primary_upstream_branch_name " + ": " +
+			"@@ cw primary_upstream_branch_name: " +
 				_primaryWorkspaceGitRepository.getUpstreamBranchName());
 
 		jsonObject.put(
