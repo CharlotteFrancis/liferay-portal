@@ -62,32 +62,54 @@ public class SanitizeLanguageTopLevelBuild
 
 	@Override
 	public Workspace getWorkspace() {
+		System.out.println("@@ cw in getWorkspace() in SanitizeLanguageTopLevelBuild");
+
 		PullRequest pullRequest = getPullRequest();
+
+		System.out.println("@@ cw pullRequest gotten");
+
+		System.out.println("@@ cw UPSTREAM_BRANCH_NAME: " + getParameterValue("UPSTREAM_BRANCH_NAME"));
 
 		Workspace workspace = WorkspaceFactory.newWorkspace(
 			"liferay-portal", getParameterValue("UPSTREAM_BRANCH_NAME"),
 			"sanitize-language");
 
+		System.out.println("@@ cw workspace created");
+
 		if (workspace instanceof PortalWorkspace) {
+			System.out.println("@@ cw workspace instanceof PortalWorkspace");
+
 			PortalWorkspace portalWorkspace = (PortalWorkspace)workspace;
 
 			portalWorkspace.setBuildProfile(getBuildProfile());
 		}
 
+		System.out.println("@@ cw workspace build profile set");
+
 		WorkspaceGitRepository workspaceGitRepository =
 			workspace.getPrimaryWorkspaceGitRepository();
 
+		System.out.println("@@ cw workspaceGitRepository gotten");
+
 		workspaceGitRepository.setGitHubURL(pullRequest.getHtmlURL());
+
+		System.out.println("@@ cw workspaceGitRepository GitHubURL set");
 
 		String senderBranchSHA = _getSenderBranchSHA();
 
+		System.out.println("@@ cw senderBranchSHA: " + senderBranchSHA);
+
 		if (JenkinsResultsParserUtil.isSHA(senderBranchSHA)) {
+			System.out.println("@@ cw senderBranchSHA is SHA");
 			workspaceGitRepository.setSenderBranchSHA(senderBranchSHA);
 		}
 
 		String upstreamBranchSHA = _getUpstreamBranchSHA();
 
+		System.out.println("@@ cw upstreamBranchSHA: " + upstreamBranchSHA);
+
 		if (JenkinsResultsParserUtil.isSHA(upstreamBranchSHA)) {
+			System.out.println("@@ cw upstreamBranchSHA is SHA");
 			workspaceGitRepository.setBaseBranchSHA(upstreamBranchSHA);
 		}
 
