@@ -84,7 +84,10 @@ public class SanitizeLanguageTopLevelBuild
 
 			PortalWorkspace portalWorkspace = (PortalWorkspace)workspace;
 
-			portalWorkspace.setBuildProfile(getBuildProfile());
+			System.out.println(
+				"@@ cw in SanitizeLanguageTopLevelBuild aftr portalWorkspace");
+
+			portalWorkspace.setBuildProfile(Job.BuildProfile.DXP);
 		}
 
 		System.out.println("@@ cw workspace build profile set");

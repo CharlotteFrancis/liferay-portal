@@ -73,7 +73,8 @@ public class WorkspaceFactory {
 
 		BuildDatabase buildDatabase = BuildDatabaseUtil.getBuildDatabase();
 
-		System.out.println("@@ cw in newWorkspace() in WorkspaceFactory after buildDatabase gotten");
+		System.out.println(
+			"@@ cw in newWorkspace() in WorkspaceFactory after buildDatabase");
 
 		synchronized (_workspaces) {
 			Workspace workspace = _workspaces.get(gitDirectoryName);
