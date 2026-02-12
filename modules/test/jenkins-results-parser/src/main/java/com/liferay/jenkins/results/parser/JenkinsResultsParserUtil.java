@@ -2047,9 +2047,17 @@ public class JenkinsResultsParserUtil {
 	public static String getGitDirectoryName(
 		String repositoryName, String upstreamBranchName) {
 
+		System.out.println(
+			"@@ cw in JRP getGitDirectoryName: repositoryName=" +
+				repositoryName + "\n upstreamBranchName=" + upstreamBranchName);
+
 		String targetGitDirectoryName = _getGitDirectoryName(
 			repositoryName, upstreamBranchName,
 			_getGitWorkingDirectoriesJSONArray());
+
+		System.out.println(
+			"@@ cw in JRP getGitDirectoryName: targetGitDirectoryName=" +
+				targetGitDirectoryName);
 
 		if (targetGitDirectoryName == null) {
 			targetGitDirectoryName = _getGitDirectoryName(
@@ -6890,6 +6898,10 @@ public class JenkinsResultsParserUtil {
 		String repositoryName, String upstreamBranchName,
 		JSONArray gitDirectoriesJSONArray) {
 
+		System.out.println(
+			"@@ cw in JRP _getGitDirectoryName, repositoryName: " +
+				repositoryName);
+
 		for (int i = 0; i < gitDirectoriesJSONArray.length(); i++) {
 			JSONObject gitDirectoryJSONObject =
 				gitDirectoriesJSONArray.getJSONObject(i);
@@ -6902,6 +6914,10 @@ public class JenkinsResultsParserUtil {
 
 				continue;
 			}
+
+			System.out.println(
+				"@@ cw in JRP _getGitDirectoryName, found match: " +
+					gitDirectoryJSONObject.getString("name"));
 
 			return gitDirectoryJSONObject.getString("name");
 		}
