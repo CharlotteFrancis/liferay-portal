@@ -64,10 +64,17 @@ public class WorkspaceFactory {
 	public static Workspace newWorkspace(
 		String repositoryName, String upstreamBranchName, String jobName) {
 
+		System.out.println("@@ cw in newWorkspace() in WorkspaceFactory");
+
 		String gitDirectoryName = JenkinsResultsParserUtil.getGitDirectoryName(
 			repositoryName, upstreamBranchName);
 
+		System.out.println("@@ cw gitDirectoryName: " + gitDirectoryName);
+
 		BuildDatabase buildDatabase = BuildDatabaseUtil.getBuildDatabase();
+
+		System.out.println(
+			"@@ cw in newWorkspace() in WorkspaceFactory after buildDatabase");
 
 		synchronized (_workspaces) {
 			Workspace workspace = _workspaces.get(gitDirectoryName);
@@ -95,6 +102,8 @@ public class WorkspaceFactory {
 					repositoryName, upstreamBranchName, jobName);
 			}
 			else if (repositoryName.matches("liferay-portal(-ee)?")) {
+				System.out.println(
+					"@@ cw repositoryName matches liferay-portal(-ee)?");
 				workspace = new PortalWorkspace(
 					repositoryName, upstreamBranchName, jobName);
 			}
