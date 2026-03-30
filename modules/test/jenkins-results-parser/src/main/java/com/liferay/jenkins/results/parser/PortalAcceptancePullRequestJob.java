@@ -12,7 +12,8 @@ import com.liferay.jenkins.results.parser.test.clazz.group.BatchTestClassGroup;
 import com.liferay.jenkins.results.parser.test.suite.RelevantTestSuite;
 
 import java.io.File;
-
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.PathMatcher;
@@ -81,6 +82,80 @@ public class PortalAcceptancePullRequestJob
 
 			return super.getBatchTestClassGroups();
 		}
+	}
+
+	public String getPortalBundleDistURL() {
+		// Create a new property (boolean) to determine whether to use an upstream bundle if available
+		// RelevantRule will need a method to account for that boolean
+		// RelevantTestSuite will a method to iterate overall RelevantRules to check that boolean. Only true at this level if true for all RelevantRules
+
+		// Use RelevantTestSuite evaluate the above property whether to get the URL or not
+
+		// Then use https://test-1-0.liferay.com/job/test-portal-testsuite-upstream-controller(master_bundles)/api/json to get the dist bundle URL from:
+		// https://test-1-0.liferay.com/userContent/bundles/test-portal-testsuite-upstream(master)/
+		// The SHA from git-hash file for the bundle should match the portal upstream SHA for this build
+		// You shouhttps://test-1-0.liferay.com/job/test-portal-testsuite-upstream-controller(master_bundles)/api/jsonld be able to get the upstream branch sha from the JSON object associated with this Job object
+		// JSONObject branchJSONObject = jsonObject.getJSONObject("branch");
+		// String sha = branchJSONObject.getString("upstream_branch_sha");
+
+		// if there's a valid URL, return the value, if there isn't return empty string
+		// Use this method in liferay-jenkins-ee/commands/build-common.xml get-test-suite-properties
+		// Set portal.dist.bundle.url in that macrodef
+
+		// in build-test-portal-acceptance-pullrequest.xml after get-test-suite-properties,
+		// check portal.dist.bundle.url and overwrite the property env.PORTAL_BUNDLES_DIST_URL 
+
+		////
+		/// okay so here maybe we doe an @override or something on a funciton that gets testsuite yeah... 
+		/// from RelevantTestSuite.java
+		/// and like that method should call the _useExistingBundle (mauybe change this to protected)
+		/// of each RelevantRule and if it does then send it here as true to use the bundle.
+		///
+
+		if (!_isRelevantTestSuite()) {
+			return "";
+		}
+
+		RelevantTestSuite relevantTestSuite = new RelevantTestSuite(this);
+
+		if (relevantTestSuite.useLatestBundle()) {
+
+			// need branches json object?
+
+			// GitWorkingDirectory gitWorkingDirectory = getGitWorkingDirectory();
+
+			// String sha = gitWorkingDirectory.getLatestCommitSHA();
+
+			// current job json object
+
+			JSONObject branchJSONObject = getJSONObject();
+
+			String sha = branchJSONObject.getString("upstream_branch_sha");
+
+			//get json object
+			JSONObject controllerJobJSONObject =  getJSONObject("https://test-1-0.liferay.com/job/test-portal-testsuite-upstream-controller(master_bundles)/api/json");
+
+			JSONArray buildJSONArray = controllerJobJSONObject.getJSONArray("builds");
+
+			for (JSONObject build : buildJSONArray) {
+
+				String buildNumber = build.get("number");
+				
+				String buildSHA = JenkinsResultsParserUtil.toString("https://test-1-0.liferay.com/userContent/bundles/test-portal-testsuite-upstream(master)/" + buildNumber + "/git-hash/");
+				
+				System.out.println(buildSHA);
+				
+				if (buildSHA == sha) {
+					String buildURL = build.get("url");
+
+					return buildURL;
+
+					break;
+				}
+			}			
+		}
+
+		return "";
 	}
 
 	public boolean isCentralMergePullRequest() {
