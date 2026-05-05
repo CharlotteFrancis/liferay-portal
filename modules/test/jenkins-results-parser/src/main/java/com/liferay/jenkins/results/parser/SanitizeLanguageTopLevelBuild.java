@@ -16,16 +16,23 @@ public class SanitizeLanguageTopLevelBuild
 
 		super(buildURL, topLevelBuild);
 
-		StringBuilder sb = new StringBuilder();
+		String pullRequestNumber = getParameterValue(
+			"GITHUB_PULL_REQUEST_NUMBER");
 
-		sb.append("https://github.com/");
-		sb.append(getParameterValue("GITHUB_RECEIVER_USERNAME"));
-		sb.append("/liferay-portal");
+		if (!JenkinsResultsParserUtil.isNullOrEmpty(pullRequestNumber)) {
+			StringBuilder sb = new StringBuilder();
 
-		sb.append("/pull/");
-		sb.append(getParameterValue("GITHUB_PULL_REQUEST_NUMBER"));
+			sb.append("https://github.com/");
+			sb.append(getParameterValue("GITHUB_RECEIVER_USERNAME"));
+			sb.append("/liferay-portal");
+			sb.append("/pull/");
+			sb.append(pullRequestNumber);
 
-		_pullRequest = PullRequestFactory.newPullRequest(sb.toString());
+			_pullRequest = PullRequestFactory.newPullRequest(sb.toString());
+		}
+		else {
+			_pullRequest = null;
+		}
 	}
 
 	@Override
@@ -35,7 +42,14 @@ public class SanitizeLanguageTopLevelBuild
 
 	@Override
 	public String getBranchName() {
-		return getParameterValue("GITHUB_UPSTREAM_BRANCH_NAME");
+		String upstreamBranchName = getParameterValue(
+			"GITHUB_UPSTREAM_BRANCH_NAME");
+
+		if (JenkinsResultsParserUtil.isNullOrEmpty(upstreamBranchName)) {
+			return "master";
+		}
+
+		return upstreamBranchName;
 	}
 
 	@Override
@@ -70,8 +84,7 @@ public class SanitizeLanguageTopLevelBuild
 		PullRequest pullRequest = getPullRequest();
 
 		Workspace workspace = WorkspaceFactory.newWorkspace(
-			"liferay-portal", getParameterValue("GITHUB_UPSTREAM_BRANCH_NAME"),
-			"sanitize-language");
+			"liferay-portal", getBranchName(), "sanitize-language");
 
 		if (workspace instanceof PortalWorkspace) {
 			PortalWorkspace portalWorkspace = (PortalWorkspace)workspace;
@@ -82,7 +95,9 @@ public class SanitizeLanguageTopLevelBuild
 		WorkspaceGitRepository workspaceGitRepository =
 			workspace.getPrimaryWorkspaceGitRepository();
 
-		workspaceGitRepository.setGitHubURL(pullRequest.getHtmlURL());
+		if (pullRequest != null) {
+			workspaceGitRepository.setGitHubURL(pullRequest.getHtmlURL());
+		}
 
 		String senderBranchSHA = _getSenderBranchSHA();
 
