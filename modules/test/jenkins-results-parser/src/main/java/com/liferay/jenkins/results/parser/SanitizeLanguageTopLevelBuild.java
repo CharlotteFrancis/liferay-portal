@@ -42,7 +42,14 @@ public class SanitizeLanguageTopLevelBuild
 
 	@Override
 	public String getBranchName() {
-		return getParameterValue("GITHUB_UPSTREAM_BRANCH_NAME");
+		String upstreamBranchName = getParameterValue(
+			"GITHUB_UPSTREAM_BRANCH_NAME");
+
+		if (JenkinsResultsParserUtil.isNullOrEmpty(upstreamBranchName)) {
+			return "master";
+		}
+
+		return upstreamBranchName;
 	}
 
 	@Override
@@ -77,8 +84,7 @@ public class SanitizeLanguageTopLevelBuild
 		PullRequest pullRequest = getPullRequest();
 
 		Workspace workspace = WorkspaceFactory.newWorkspace(
-			"liferay-portal", getParameterValue("GITHUB_UPSTREAM_BRANCH_NAME"),
-			"sanitize-language");
+			"liferay-portal", getBranchName(), "sanitize-language");
 
 		if (workspace instanceof PortalWorkspace) {
 			PortalWorkspace portalWorkspace = (PortalWorkspace)workspace;
