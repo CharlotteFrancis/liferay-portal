@@ -270,7 +270,7 @@
 		</condition>
 .
 
-Properties "microsoft.translator.client.id" and
+Properties "microsoft.translator.client.id" and the
 "microsoft.translator.client.secret" are deprecated. Please remove these
 properties, or set "microsoft.translator.subscription.key" instead, then rerun
 your task.
