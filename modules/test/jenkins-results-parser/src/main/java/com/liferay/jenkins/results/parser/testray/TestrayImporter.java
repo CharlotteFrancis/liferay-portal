@@ -131,7 +131,7 @@ public class TestrayImporter {
 		for (Map.Entry<Long, TestrayBuild> testrayBuildEntry :
 				testrayBuildMap.entrySet()) {
 
-			String testrayRoutineTitle = "Testray Routine";
+			String testrayRoutineTitle = "Testray Test";
 
 			if (i > 0) {
 				testrayRoutineTitle = JenkinsResultsParserUtil.combine(
