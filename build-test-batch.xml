@@ -1410,6 +1410,8 @@ mariadb.executable=${mariadb.executable}]]></echo>
 			<echo append="true" file="app.server.${env.HOSTNAME}.properties"><![CDATA[
 app.server.type=@{app.server.type}]]></echo>
 
+			<echo>@@ cw in prepare-test-build-dist in liferay-portal</echo>
+
 			<record-git-commit-portal />
 
 			<antcall inheritAll="false" target="compile" />
@@ -1509,6 +1511,22 @@ app.server.type=@{app.server.type}]]></echo>
 				tar --file=liferay-portal-bundle-@{app.server.type}.tar.gz --list --use-compress-program=pigz --verbose
 			</execute>
 
+			<if>
+				<available file="./liferay-portal-bundle-@{app.server.type}.tar.gz" />
+				<then>
+					<untar
+						compression="gzip"
+						dest="./dist"
+						src="./liferay-portal-bundle-@{app.server.type}.tar.gz"
+					/>
+					<echo>@@ cw untar in prepare-test-build-dist in liferay-portal</echo>
+					
+					<exec executable="stat">
+						<arg value="./dist/bundles/tomcat-${app.server.tomcat.version}/work/Catalina/localhost/ROOT/org/apache/jsp/init.jsp" />
+					</exec>
+				</then>
+			</if>
+			
 			<lstopwatch action="total" name="prepare-test-build-dist.bundles.@{app.server.type}.compress" />
 
 			<lstopwatch action="total" name="prepare-test-build-dist.bundles.@{app.server.type}" />
