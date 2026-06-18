@@ -1014,6 +1014,24 @@ public abstract class BatchTestClassGroup extends BaseTestClassGroup {
 			return true;
 		}
 
+		if (isQuarterlyReleaseBranch() &&
+			batchName.contains("semantic-versioning")) {
+
+			return true;
+		}
+
+		return false;
+	}
+
+	protected boolean isQuarterlyReleaseBranch() {
+		Matcher quarterlyReleaseNameMatcher =
+			_quarterlyReleaseNamePattern.matcher(
+				portalGitWorkingDirectory.getUpstreamBranchName());
+
+		if (quarterlyReleaseNameMatcher.find()) {
+			return true;
+		}
+
 		return false;
 	}
 
@@ -1713,6 +1731,8 @@ public abstract class BatchTestClassGroup extends BaseTestClassGroup {
 		new AtomicBoolean();
 	private static final Pattern _jobNamePattern = Pattern.compile(
 		"(?<jobBaseName>.*)(?<jobVariant>\\([^\\)]+\\))");
+	private static final Pattern _quarterlyReleaseNamePattern = Pattern.compile(
+		"(release-\\d{4}.[qQ](.\\d)?)");
 
 	private BatchHistory _batchHistory;
 	private final Map<String, List<DownstreamBuildReport>>
