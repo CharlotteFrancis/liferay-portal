@@ -19,6 +19,10 @@ import {sub} from 'frontend-js-web';
 import React from 'react';
 
 import {styleActions, styleBulkActions} from '../../utils/actionStyles';
+import {
+	installCMPTabPersistence,
+	registerTabFDS,
+} from '../../utils/cmpTabPersistence';
 import {openCMPModal} from '../../utils/openCMPModal';
 import {ProjectTaskItemData, TaskAction} from '../../utils/types';
 import StateLabel from '../StateLabel';
@@ -29,6 +33,7 @@ import EditAssigneeModalContent from '../modal/EditAssigneeModalContent';
 import ACTIONS from './actions/creationMenuActions';
 import {cmpTasksFDSAtom} from './atoms';
 import AssigneeRenderer from './cell_renderers/AssigneeRenderer';
+import CalendarView from './views/calendar_view/CalendarView';
 import KanbanView from './views/kanban_view/KanbanView';
 
 export default function ProjectTasksFDSPropsTransformer({
@@ -54,6 +59,27 @@ export default function ProjectTasksFDSPropsTransformer({
 		default: false,
 		initialPaginationDelta: 20,
 	}));
+
+	registerTabFDS(id, 1);
+	installCMPTabPersistence();
+
+	const calendarView: IView = {
+		component: CalendarView,
+		default: false,
+		initialPaginationDelta: FDS_PAGINATION_DELTA_ALL,
+		label: Liferay.Language.get('calendar'),
+		name: 'calendar',
+		schema: {
+			description: 'description',
+			image: 'imageURL',
+			link: '',
+			sticker: '',
+			symbol: '',
+			title: 'embedded.title',
+		},
+		showPagination: false,
+		thumbnail: 'calendar',
+	};
 
 	const kanbanView: IView = {
 		component: (props: any) =>
@@ -272,6 +298,10 @@ export default function ProjectTasksFDSPropsTransformer({
 				});
 			}
 		},
-		views: [...nonDefaultViews, kanbanView],
+		views: [
+			...nonDefaultViews,
+			kanbanView,
+			...(Liferay.FeatureFlags['LPD-69885'] ? [calendarView] : []),
+		],
 	};
 }
