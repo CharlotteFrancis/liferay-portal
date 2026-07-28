@@ -1,0 +1,7 @@
+LRCI-7653 dummy PR marker.
+
+Purpose: trigger the CI PR tester so downstream/validation jobs run
+and exercise the jenkins_local_git.sh shallow-clone fallback added in
+CharlotteFrancis/liferay-jenkins-ee#67 (branch LRCI-7653-test).
+
+This file has no runtime effect. Do not merge.
