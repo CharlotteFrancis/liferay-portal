@@ -8598,14 +8598,31 @@ ${docker.start.error}</fail>
 						<get-database-property property.name="database.password" />
 						<get-database-property property.name="database.username" />
 
-						<property name="docker.database.wait.condition">${database.executable} -P ${database.password} -U ${database.username} -Q "select name from sys.databases" 2>/dev/null</property>
+						<property name="docker.database.wait.condition">${database.executable} -P ${database.password} -U ${database.username} -Q "select name from sys.databases"</property>
 					</then>
 				</elseif>
 			</if>
 
-			<wait-for-docker-database
-				shell.condition="${docker.database.wait.condition}"
-			/>
+			<trycatch property="wait.for.docker.database.error">
+				<try>
+					<wait-for-docker-database
+						shell.condition="${docker.database.wait.condition}"
+					/>
+				</try>
+				<catch>
+					<echo>Database container ${database.host} did not become ready.</echo>
+
+					<execute failonerror="false">
+						<![CDATA[
+							docker logs ${database.host}
+
+							docker inspect ${database.host}
+						]]>
+					</execute>
+
+					<fail>${wait.for.docker.database.error}</fail>
+				</catch>
+			</trycatch>
 
 			<if>
 				<equals arg1="${database.type}" arg2="oracle" />
@@ -10122,6 +10139,7 @@ war.path=${app.server.portal.dir}/</echo>
 	</macrodef>
 
 	<macrodef name="wait-for-docker-database">
+		<attribute default="900" name="max.wait.seconds" />
 		<attribute name="shell.condition" />
 
 		<sequential>
@@ -10135,12 +10153,23 @@ war.path=${app.server.portal.dir}/</echo>
 				<![CDATA[
 					#!/bin/bash
 
+					waited=0
+
 					until @{shell.condition}
 
 					do
+						if [ $waited -ge @{max.wait.seconds} ]
+						then
+							echo "${database.name} ${database.version} was not ready after @{max.wait.seconds} seconds"
+
+							exit 1
+						fi
+
 						echo "Waiting for ${database.name} ${database.version} to be ready"
 
 						sleep 10
+
+						waited=$((waited + 10))
 					done
 				]]>
 			</docker-execute>
