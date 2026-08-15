@@ -476,7 +476,7 @@ information.
 				replace=""
 			/>
 
-			<echo>Executing commands: ${commands.trimmed}</echo>
+			<echo>Executing commands like: ${commands.trimmed}</echo>
 
 			<for delimiter="${line.separator}" list="${commands.trimmed}" param="command">
 				<sequential>
