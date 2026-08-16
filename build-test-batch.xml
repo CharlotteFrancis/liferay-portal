@@ -178,7 +178,7 @@ mariadb.executable=${mariadb.executable}]]></echo>
 							<if>
 								<isset property="database.docker.image" />
 								<then>
-									<echo>Using Docker for ${database.type}.</echo>
+									<echo>Using Docker for ${database.type}: ${database.docker.image}</echo>
 								</then>
 								<elseif>
 									<equals arg1="${database.type}" arg2="db2" />
