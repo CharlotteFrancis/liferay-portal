@@ -156,6 +156,7 @@ public class PullRequest {
 		}
 	}
 
+	// test
 	public void close() {
 		if (!isUpdateEnabled()) {
 			return;
