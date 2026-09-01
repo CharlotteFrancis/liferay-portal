@@ -188,8 +188,8 @@ public abstract class ModulesTestClass extends BaseTestClass {
 		PortalGitWorkingDirectory portalGitWorkingDirectory =
 			getPortalGitWorkingDirectory();
 
-		return new File(
-			portalGitWorkingDirectory.getWorkingDirectory(), "modules");
+		return portalGitWorkingDirectory.getGradleBuildRootDir(
+			getModuleBaseDir());
 	}
 
 	protected File getTestPropertiesFile() {

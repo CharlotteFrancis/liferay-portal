@@ -64,13 +64,11 @@ public class JSUnitModulesTestClass extends ModulesTestClass {
 
 	@Override
 	public String getTestTaskName() {
-		String testClassFilePath = JenkinsResultsParserUtil.getCanonicalPath(
-			getTestClassFile());
+		String path = JenkinsResultsParserUtil.getPathRelativeTo(
+			getModuleBaseDir(), getPortalModulesBaseDir());
 
-		String testTaskName = testClassFilePath.replaceAll(
-			".*/modules(/.+)", "$1");
-
-		return testTaskName.replaceAll("/", ":") + ":" + getTaskName();
+		return JenkinsResultsParserUtil.combine(
+			":", path.replaceAll("/", ":"), ":", getTaskName());
 	}
 
 	protected JSUnitModulesTestClass(
