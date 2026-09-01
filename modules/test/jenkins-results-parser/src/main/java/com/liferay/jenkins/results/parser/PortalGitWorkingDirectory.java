@@ -92,6 +92,29 @@ public class PortalGitWorkingDirectory extends GitWorkingDirectory {
 		return _appServerProperties;
 	}
 
+	public File getGradleBuildRootDir(File file) {
+		File workspacesDir = new File(getWorkingDirectory(), "workspaces");
+
+		String filePath = JenkinsResultsParserUtil.getCanonicalPath(file);
+		String workspacesDirPath = JenkinsResultsParserUtil.getCanonicalPath(
+			workspacesDir);
+
+		if (filePath.startsWith(workspacesDirPath + "/")) {
+			String workspaceName = filePath.substring(
+				workspacesDirPath.length() + 1);
+
+			int index = workspaceName.indexOf('/');
+
+			if (index != -1) {
+				workspaceName = workspaceName.substring(0, index);
+			}
+
+			return new File(workspacesDir, workspaceName);
+		}
+
+		return new File(getWorkingDirectory(), "modules");
+	}
+
 	public List<File> getJSUnitFiles() {
 		if (_jsUnitFiles != null) {
 			return _jsUnitFiles;

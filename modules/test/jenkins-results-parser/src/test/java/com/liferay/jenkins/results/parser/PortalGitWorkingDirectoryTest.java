@@ -69,6 +69,35 @@ public class PortalGitWorkingDirectoryTest
 	}
 
 	@Test
+	public void testGetGradleBuildRootDir() throws Exception {
+		File workspaceModuleDir = temporaryFolder.newFolder(
+			"workspaces", "liferay-osbfaro-workspace", "modules",
+			"osb-faro-web");
+		File portalModuleDir = temporaryFolder.newFolder(
+			"modules", "apps", "foo-web");
+
+		PortalGitWorkingDirectory portalGitWorkingDirectory =
+			_mockPortalGitWorkingDirectory(temporaryFolder.getRoot());
+
+		Mockito.doCallRealMethod(
+		).when(
+			portalGitWorkingDirectory
+		).getGradleBuildRootDir(
+			Mockito.any(File.class)
+		);
+
+		Assert.assertEquals(
+			new File(
+				temporaryFolder.getRoot(),
+				"workspaces/liferay-osbfaro-workspace"),
+			portalGitWorkingDirectory.getGradleBuildRootDir(
+				workspaceModuleDir));
+		Assert.assertEquals(
+			new File(temporaryFolder.getRoot(), "modules"),
+			portalGitWorkingDirectory.getGradleBuildRootDir(portalModuleDir));
+	}
+
+	@Test
 	public void testGetModuleBaseDirs() throws Exception {
 		temporaryFolder.newFolder("modules");
 		temporaryFolder.newFolder("workspaces");
