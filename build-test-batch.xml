@@ -3199,8 +3199,34 @@ ${poshi.runner.testsuite.testcase.name}</echo>
 							return null;
 						}
 
+						public static String getTestBuildRootDir(String testClassFilePath) {
+							String projectDir = project.getProperty("project.dir");
+
+							// LRCI-8198: a workspace test runs against the
+							// workspace's own Gradle build (its own gradlew),
+							// rooted at workspaces/<name>, not modules/.
+
+							Matcher matcher = Pattern.compile(projectDir + "/(workspaces/[^/]+)/modules/.+/src/test").matcher(testClassFilePath);
+
+							if (matcher.find()) {
+								return matcher.group(1);
+							}
+
+							return "modules";
+						}
+
 						public static String getTestProjectName(String testClassFilePath) {
 							String projectDir = project.getProperty("project.dir");
+
+							// LRCI-8198: for a workspace test the Gradle project
+							// path is relative to the workspace root, so modules/
+							// is itself a project segment (e.g. :modules:osb-faro-web).
+
+							Matcher workspaceMatcher = Pattern.compile(projectDir + "/workspaces/[^/]+/(modules/.+)/src/test").matcher(testClassFilePath);
+
+							if (workspaceMatcher.find()) {
+								return ":" + workspaceMatcher.group(1).replaceAll("/", ":");
+							}
 
 							String regex = projectDir + "/modules(\\/+.+)/src/test";
 
@@ -3277,6 +3303,11 @@ ${poshi.runner.testsuite.testcase.name}</echo>
 						File projectDir = new File(project.getProperty("project.dir"));
 						Map testNamesMap = new HashMap();
 
+						// LRCI-8198: Gradle build root (modules or workspaces/<name>)
+						// per test task, so a workspace task runs in its own build.
+
+						Map buildRootDirMap = new HashMap();
+
 						String testTaskGroup = "@{test.task.group}";
 
 						if (!JenkinsResultsParserUtil.isNullOrEmpty(testTaskGroup)) {
@@ -3328,6 +3359,8 @@ ${poshi.runner.testsuite.testcase.name}</echo>
 
 								String testTaskName = getTestProjectName(testClassFile.toString()) + ":" + "@{test.task}";
 
+								buildRootDirMap.put(testTaskName, getTestBuildRootDir(testClassFile.toString()));
+
 								generateJunitReport(baseDir, testClassName, testTaskName);
 
 								String testName = getTestName(testClassFilePath);
@@ -3345,7 +3378,17 @@ ${poshi.runner.testsuite.testcase.name}</echo>
 						for (Map.Entry entry : testNamesMap.entrySet()) {
 							Map parameters = new HashMap();
 
-							parameters.put("dir", "modules");
+							// LRCI-8198: dir is the task's Gradle build root; a
+							// workspace task runs in workspaces/<name> so
+							// gradle-execute-modules uses that workspace's gradlew.
+
+							String buildRootDir = (String)buildRootDirMap.get(entry.getKey());
+
+							if (buildRootDir == null) {
+								buildRootDir = "modules";
+							}
+
+							parameters.put("dir", buildRootDir);
 							parameters.put("gradle.jvm.args", "@{test.junit.args}");
 
 							StringBuilder sb = new StringBuilder();
@@ -8460,11 +8503,56 @@ information. Make sure to commit in all format-javadoc results.
 					<sequential>
 						<echo>Executing Gradle tasks: @{modules.test.class}.</echo>
 
+						<!--
+							LRCI-8198 STRAWMAN (pending team decision, unverified):
+							js-unit iterates task names only, which do not name the
+							workspace. This resolves it (design "option 2") by
+							locating the workspace whose modules/<module> matches a
+							:modules: task. The cleaner "option 1" is to have the
+							Java side emit the build root per test. A :modules:
+							prefix identifies a workspace task because portal js
+							tasks are relative to modules/ (:apps:, :dxp:, ...).
+						-->
+
+						<var name="js.workspace.dir" unset="true" />
+
+						<beanshell><![CDATA[
+							String task = "@{modules.test.class}";
+
+							if (task.startsWith(":modules:")) {
+								String modulePath = task.replaceAll("^:", "").replaceAll(":[^:]+$", "").replaceAll(":", "/");
+
+								File workspacesDir = new File(project.getProperty("project.dir"), "workspaces");
+
+								File[] workspaceDirs = workspacesDir.listFiles();
+
+								if (workspaceDirs != null) {
+									for (File workspaceDir : workspaceDirs) {
+										if (new File(workspaceDir, modulePath).exists()) {
+											project.setProperty("js.workspace.dir", "workspaces/" + workspaceDir.getName());
+
+											break;
+										}
+									}
+								}
+							}
+						]]></beanshell>
+
 						<trycatch property="gradle.failure">
 							<try>
-								<gradle-execute dir="modules" task="@{modules.test.class}">
-									<arg value="--continue" />
-								</gradle-execute>
+								<if>
+									<isset property="js.workspace.dir" />
+									<then>
+										<execute dir="${js.workspace.dir}">
+											./gradlew @{modules.test.class} --continue
+										</execute>
+									</then>
+									<else>
+										<gradle-execute dir="modules" task="@{modules.test.class}">
+											<arg value="--continue" />
+										</gradle-execute>
+									</else>
+								</if>
 							</try>
 							<catch>
 								<echo>${gradle.failure}</echo>
