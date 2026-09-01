@@ -3329,6 +3329,8 @@ ${poshi.runner.testsuite.testcase.name}</echo>
 								for (String testClassFilePath : testClassFilePathList) {
 									testClassFilePath = testClassFilePath.replaceAll("\\.class", "\\.java");
 
+									buildRootDirMap.put(testTaskName, getTestBuildRootDir(testClassFilePath));
+
 									String testClassName = getTestClassNameForTestResults(testClassFilePath);
 
 									generateJunitReport(baseDir, testClassName, testTaskName);

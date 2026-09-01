@@ -2491,7 +2491,7 @@ rerun your task.
 					<matches pattern="^workspaces/" string="${dir}" />
 					<then>
 						<execute dir="${dir}">
-							./gradlew ${test.task} ${test.name}
+							./gradlew ${test.task} ${test.name} ${gradle.jvm.args}
 						</execute>
 					</then>
 					<else>
