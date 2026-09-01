@@ -448,8 +448,8 @@ public class JUnitTestClass extends BaseTestClass {
 		PortalGitWorkingDirectory portalGitWorkingDirectory =
 			getPortalGitWorkingDirectory();
 
-		return new File(
-			portalGitWorkingDirectory.getWorkingDirectory(), "modules");
+		return portalGitWorkingDirectory.getGradleBuildRootDir(
+			getTestClassFile());
 	}
 
 	private String _getTaskName() {
