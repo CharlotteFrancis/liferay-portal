@@ -44,6 +44,80 @@ public abstract class BaseTestrayContext implements TestrayContext {
 	}
 
 	@Override
+	public synchronized List<Job> getJobs() {
+		if (_jobs != null) {
+			return _jobs;
+		}
+
+		_jobs = _buildDatabase.getJobs();
+
+		return _jobs;
+	}
+
+	@Override
+	public PortalFixpackRelease getPortalFixpackRelease() {
+		if (_portalFixpackReleases.isEmpty()) {
+			return null;
+		}
+
+		return _portalFixpackReleases.get(0);
+	}
+
+	@Override
+	public PortalHotfixRelease getPortalHotfixRelease() {
+		if (_portalHotfixReleases.isEmpty()) {
+			return null;
+		}
+
+		return _portalHotfixReleases.get(0);
+	}
+
+	@Override
+	public PortalRelease getPortalRelease() {
+		if (_portalReleases.isEmpty()) {
+			return null;
+		}
+
+		return _portalReleases.get(0);
+	}
+
+	@Override
+	public PullRequest getPullRequest() {
+		if (_pullRequests.isEmpty()) {
+			return null;
+		}
+
+		if (_pullRequests.size() == 1) {
+			return _pullRequests.get(0);
+		}
+
+		Map<String, String> buildParameters = getBuildParameters();
+
+		String githubReceiverUsername = buildParameters.get(
+			"GITHUB_RECEIVER_USERNAME");
+
+		String pullRequestNumber = buildParameters.get(
+			"GITHUB_PULL_REQUEST_NUMBER");
+
+		if (!JenkinsResultsParserUtil.isNullOrEmpty(githubReceiverUsername) &&
+			!JenkinsResultsParserUtil.isNullOrEmpty(pullRequestNumber)) {
+
+			for (PullRequest pullRequest : _pullRequests) {
+				if (Objects.equals(
+						pullRequest.getReceiverUsername(),
+						githubReceiverUsername) &&
+					Objects.equals(
+						pullRequest.getNumber(), pullRequestNumber)) {
+
+					return pullRequest;
+				}
+			}
+		}
+
+		return _pullRequests.get(0);
+	}
+
+	@Override
 	public Date getTestrayBuildDate() {
 		if (hasControllerBuild()) {
 			return getControllerStartDate();
@@ -56,7 +130,7 @@ public abstract class BaseTestrayContext implements TestrayContext {
 	public String getTestrayBuildDescription() {
 		StringBuilder sb = new StringBuilder();
 
-		PortalRelease portalRelease = _getPortalRelease();
+		PortalRelease portalRelease = getPortalRelease();
 
 		if (portalRelease != null) {
 			sb.append("Portal Release: ");
@@ -64,7 +138,7 @@ public abstract class BaseTestrayContext implements TestrayContext {
 			sb.append("; ");
 		}
 
-		PortalFixpackRelease portalFixpackRelease = _getPortalFixpackRelease();
+		PortalFixpackRelease portalFixpackRelease = getPortalFixpackRelease();
 
 		if (portalFixpackRelease != null) {
 			sb.append("Portal Fixpack: ");
@@ -72,7 +146,7 @@ public abstract class BaseTestrayContext implements TestrayContext {
 			sb.append("; ");
 		}
 
-		PortalHotfixRelease portalHotfixRelease = _getPortalHotfixRelease();
+		PortalHotfixRelease portalHotfixRelease = getPortalHotfixRelease();
 
 		if (portalHotfixRelease != null) {
 			sb.append("Portal Hotfix: ");
@@ -298,30 +372,6 @@ public abstract class BaseTestrayContext implements TestrayContext {
 		return Job.BuildProfile.DXP;
 	}
 
-	private PortalFixpackRelease _getPortalFixpackRelease() {
-		if (_portalFixpackReleases.isEmpty()) {
-			return null;
-		}
-
-		return _portalFixpackReleases.get(0);
-	}
-
-	private PortalHotfixRelease _getPortalHotfixRelease() {
-		if (_portalHotfixReleases.isEmpty()) {
-			return null;
-		}
-
-		return _portalHotfixReleases.get(0);
-	}
-
-	private PortalRelease _getPortalRelease() {
-		if (_portalReleases.isEmpty()) {
-			return null;
-		}
-
-		return _portalReleases.get(0);
-	}
-
 	private PortalWorkspaceGitRepository _getPortalWorkspaceGitRepository() {
 		for (Workspace workspace : _workspaces) {
 			if (!(workspace instanceof PortalWorkspace)) {
@@ -334,41 +384,6 @@ public abstract class BaseTestrayContext implements TestrayContext {
 		}
 
 		return null;
-	}
-
-	private PullRequest _getPullRequest() {
-		if (_pullRequests.isEmpty()) {
-			return null;
-		}
-
-		if (_pullRequests.size() == 1) {
-			return _pullRequests.get(0);
-		}
-
-		Map<String, String> buildParameters = getBuildParameters();
-
-		String githubReceiverUsername = buildParameters.get(
-			"GITHUB_RECEIVER_USERNAME");
-
-		String pullRequestNumber = buildParameters.get(
-			"GITHUB_PULL_REQUEST_NUMBER");
-
-		if (!JenkinsResultsParserUtil.isNullOrEmpty(githubReceiverUsername) &&
-			!JenkinsResultsParserUtil.isNullOrEmpty(pullRequestNumber)) {
-
-			for (PullRequest pullRequest : _pullRequests) {
-				if (Objects.equals(
-						pullRequest.getReceiverUsername(),
-						githubReceiverUsername) &&
-					Objects.equals(
-						pullRequest.getNumber(), pullRequestNumber)) {
-
-					return pullRequest;
-				}
-			}
-		}
-
-		return _pullRequests.get(0);
 	}
 
 	private QAWebsitesWorkspaceGitRepository
@@ -545,7 +560,7 @@ public abstract class BaseTestrayContext implements TestrayContext {
 	}
 
 	private String _replacePortalRelease(String string) {
-		PortalRelease portalRelease = _getPortalRelease();
+		PortalRelease portalRelease = getPortalRelease();
 
 		if (portalRelease != null) {
 			String portalBundleTomcatURLString = String.valueOf(
@@ -581,7 +596,7 @@ public abstract class BaseTestrayContext implements TestrayContext {
 			}
 		}
 
-		PortalFixpackRelease portalFixpackRelease = _getPortalFixpackRelease();
+		PortalFixpackRelease portalFixpackRelease = getPortalFixpackRelease();
 
 		if (portalFixpackRelease != null) {
 			String portalFixpackURL = String.valueOf(
@@ -604,7 +619,7 @@ public abstract class BaseTestrayContext implements TestrayContext {
 			}
 		}
 
-		PortalHotfixRelease portalHotfixRelease = _getPortalHotfixRelease();
+		PortalHotfixRelease portalHotfixRelease = getPortalHotfixRelease();
 
 		if (portalHotfixRelease != null) {
 			String portalHotfixURL = String.valueOf(
@@ -662,7 +677,7 @@ public abstract class BaseTestrayContext implements TestrayContext {
 	}
 
 	private String _replacePullRequestBuild(String string) {
-		PullRequest pullRequest = _getPullRequest();
+		PullRequest pullRequest = getPullRequest();
 
 		if (pullRequest == null) {
 			return string;
@@ -818,6 +833,7 @@ public abstract class BaseTestrayContext implements TestrayContext {
 		"release-(?<year>\\d{4})\\.q(?<quarter>[1-4])");
 
 	private final BuildDatabase _buildDatabase;
+	private List<Job> _jobs;
 	private final List<PortalFixpackRelease> _portalFixpackReleases;
 	private final List<PortalHotfixRelease> _portalHotfixReleases;
 	private final List<PortalRelease> _portalReleases;

@@ -15,8 +15,6 @@ import com.liferay.jenkins.results.parser.JenkinsResultsParserUtil;
 import com.liferay.jenkins.results.parser.Job;
 import com.liferay.jenkins.results.parser.NotificationUtil;
 import com.liferay.jenkins.results.parser.ParallelExecutor;
-import com.liferay.jenkins.results.parser.PortalFixpackRelease;
-import com.liferay.jenkins.results.parser.PortalHotfixRelease;
 import com.liferay.jenkins.results.parser.PortalRelease;
 import com.liferay.jenkins.results.parser.PullRequest;
 import com.liferay.jenkins.results.parser.QAWebsitesGitRepositoryJob;
@@ -77,12 +75,6 @@ public class TestrayImporter {
 
 		_topLevelBuildReport = topLevelBuildReport;
 
-		_jobs = buildDatabase.getJobs();
-		_portalFixpackReleases = buildDatabase.getPortalFixpackReleases();
-		_portalHotfixReleases = buildDatabase.getPortalHotfixReleases();
-		_portalReleases = buildDatabase.getPortalReleases();
-		_pullRequests = buildDatabase.getPullRequests();
-
 		_testrayContext = TestrayFactory.newTestrayContext(
 			buildDatabase, topLevelBuildReport);
 	}
@@ -106,7 +98,7 @@ public class TestrayImporter {
 			_getJenkinsBuildDescriptionElement(
 				"Jenkins Suite", _topLevelBuildReport.getTestSuiteName()));
 
-		PullRequest pullRequest = getPullRequest();
+		PullRequest pullRequest = _testrayContext.getPullRequest();
 
 		if (pullRequest != null) {
 			Dom4JUtil.addToElement(
@@ -182,66 +174,6 @@ public class TestrayImporter {
 		catch (IOException ioException) {
 			throw new RuntimeException(ioException);
 		}
-	}
-
-	public PortalFixpackRelease getPortalFixpackRelease() {
-		if (_portalFixpackReleases.isEmpty()) {
-			return null;
-		}
-
-		return _portalFixpackReleases.get(0);
-	}
-
-	public PortalHotfixRelease getPortalHotfixRelease() {
-		if (_portalHotfixReleases.isEmpty()) {
-			return null;
-		}
-
-		return _portalHotfixReleases.get(0);
-	}
-
-	public PortalRelease getPortalRelease() {
-		if (_portalReleases.isEmpty()) {
-			return null;
-		}
-
-		return _portalReleases.get(0);
-	}
-
-	public PullRequest getPullRequest() {
-		if (_pullRequests.isEmpty()) {
-			return null;
-		}
-
-		if (_pullRequests.size() == 1) {
-			return _pullRequests.get(0);
-		}
-
-		Map<String, String> buildParameters =
-			_topLevelBuildReport.getBuildParameters();
-
-		String githubReceiverUsername = buildParameters.get(
-			"GITHUB_RECEIVER_USERNAME");
-
-		String pullRequestNumber = buildParameters.get(
-			"GITHUB_PULL_REQUEST_NUMBER");
-
-		if (!JenkinsResultsParserUtil.isNullOrEmpty(githubReceiverUsername) &&
-			!JenkinsResultsParserUtil.isNullOrEmpty(pullRequestNumber)) {
-
-			for (PullRequest pullRequest : _pullRequests) {
-				if (Objects.equals(
-						pullRequest.getReceiverUsername(),
-						githubReceiverUsername) &&
-					Objects.equals(
-						pullRequest.getNumber(), pullRequestNumber)) {
-
-					return pullRequest;
-				}
-			}
-		}
-
-		return _pullRequests.get(0);
 	}
 
 	public synchronized TestrayBuild getTestrayBuild(File testBaseDir) {
@@ -452,7 +384,7 @@ public class TestrayImporter {
 				}
 			}
 
-			PortalRelease portalRelease = getPortalRelease();
+			PortalRelease portalRelease = _testrayContext.getPortalRelease();
 
 			if (portalRelease != null) {
 				String portalReleaseVersion = portalRelease.getPortalVersion();
@@ -563,7 +495,7 @@ public class TestrayImporter {
 				}
 			}
 
-			PortalRelease portalRelease = getPortalRelease();
+			PortalRelease portalRelease = _testrayContext.getPortalRelease();
 
 			if (portalRelease != null) {
 				String portalVersion = portalRelease.getPortalVersion();
@@ -844,7 +776,7 @@ public class TestrayImporter {
 		List<AxisTestClassGroup> axisTestClassGroups = new ArrayList<>();
 		List<Callable<Void>> callables = new ArrayList<>();
 
-		for (Job job : _jobs) {
+		for (Job job : _testrayContext.getJobs()) {
 			if (job instanceof TestSuiteJob) {
 				TestSuiteJob testSuiteJob = (TestSuiteJob)job;
 
@@ -1111,7 +1043,7 @@ public class TestrayImporter {
 	private JobProperty _getJobProperty(
 		String basePropertyName, File testBaseDir) {
 
-		for (Job job : _jobs) {
+		for (Job job : _testrayContext.getJobs()) {
 			if (job instanceof QAWebsitesGitRepositoryJob) {
 				JobProperty jobProperty = JobPropertyFactory.newJobProperty(
 					basePropertyName, job, testBaseDir,
@@ -1630,7 +1562,7 @@ public class TestrayImporter {
 	}
 
 	private void _sendPullRequestNotification() {
-		PullRequest pullRequest = getPullRequest();
+		PullRequest pullRequest = _testrayContext.getPullRequest();
 
 		if (pullRequest == null) {
 			return;
@@ -1646,11 +1578,6 @@ public class TestrayImporter {
 	private static final Pattern _quarterlyReleaseVersionPattern =
 		Pattern.compile("(?<year>\\d{4}).(?<quarter>[Qq]\\d+).\\d+");
 
-	private final List<Job> _jobs;
-	private final List<PortalFixpackRelease> _portalFixpackReleases;
-	private final List<PortalHotfixRelease> _portalHotfixReleases;
-	private final List<PortalRelease> _portalReleases;
-	private final List<PullRequest> _pullRequests;
 	private final Map<File, TestrayBuild> _testrayBuilds =
 		Collections.synchronizedMap(new HashMap<File, TestrayBuild>());
 	private final TestrayContext _testrayContext;

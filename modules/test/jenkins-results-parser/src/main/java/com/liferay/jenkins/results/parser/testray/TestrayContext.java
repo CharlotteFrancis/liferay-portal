@@ -6,8 +6,14 @@
 package com.liferay.jenkins.results.parser.testray;
 
 import com.liferay.jenkins.results.parser.BuildDatabase;
+import com.liferay.jenkins.results.parser.Job;
+import com.liferay.jenkins.results.parser.PortalFixpackRelease;
+import com.liferay.jenkins.results.parser.PortalHotfixRelease;
+import com.liferay.jenkins.results.parser.PortalRelease;
+import com.liferay.jenkins.results.parser.PullRequest;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author Michael Hashimoto
@@ -15,6 +21,16 @@ import java.util.Date;
 public interface TestrayContext {
 
 	public BuildDatabase getBuildDatabase();
+
+	public List<Job> getJobs();
+
+	public PortalFixpackRelease getPortalFixpackRelease();
+
+	public PortalHotfixRelease getPortalHotfixRelease();
+
+	public PortalRelease getPortalRelease();
+
+	public PullRequest getPullRequest();
 
 	public Date getTestrayBuildDate();
 
