@@ -9,10 +9,14 @@ import {dataApiHelpersTest} from '../../../fixtures/dataApiHelpersTest';
 import {featureFlagsTest} from '../../../fixtures/featureFlagsTest';
 import {loginTest} from '../../../fixtures/loginTest';
 import {DataApiHelpers} from '../../../helpers/ApiHelpers';
+import {ServerAdministrationPage} from '../../../pages/server-admin-web/ServerAdministrationPage';
 import {addCMSAdministrator} from '../../../utils/addCMSAdministrator';
 import {getRandomInt} from '../../../utils/getRandomInt';
 import getRandomString from '../../../utils/getRandomString';
-import {performUserSwitchViaApi} from '../../../utils/performLogin';
+import {
+	performLoginViaApi,
+	performUserSwitchViaApi,
+} from '../../../utils/performLogin';
 import {cmsPagesTest} from './fixtures/cmsPagesTest';
 
 const test = mergeTests(
@@ -29,6 +33,7 @@ const DATE_DISPLAYED = '12/31/2099, 10:00 AM';
 const DATE_INPUT = '12/31/2099 10:00 AM';
 const DUE_DATE_INPUT = '2099-12-31';
 const DUE_TIME_INPUT = '10:00';
+const LONG_STANDING_DRAFT_AGE_DAYS = 45;
 const PAST_DATE = '2020-01-01T00:00:00Z';
 const TIME_ZONE_BROWSER = 'America/Los_Angeles';
 const TIME_ZONE_USER = 'UTC';
@@ -43,6 +48,24 @@ async function fillScheduleDateModal(page: Page, date: string) {
 	await dateInput.blur();
 
 	await page.locator('.modal').getByRole('button', {name: 'Save'}).click();
+}
+
+function getLongStandingDraftScript(objectEntryId: number) {
+	return `
+		import com.liferay.object.service.ObjectDefinitionLocalServiceUtil
+		import com.liferay.object.service.ObjectEntryLocalServiceUtil
+		import com.liferay.portal.kernel.search.IndexerRegistryUtil
+
+		def objectEntry = ObjectEntryLocalServiceUtil.getObjectEntry(${objectEntryId})
+
+		objectEntry.setModifiedDate(new Date(System.currentTimeMillis() - ${LONG_STANDING_DRAFT_AGE_DAYS} * 86400000L))
+
+		objectEntry = ObjectEntryLocalServiceUtil.updateObjectEntry(objectEntry)
+
+		def objectDefinition = ObjectDefinitionLocalServiceUtil.getObjectDefinition(objectEntry.getObjectDefinitionId())
+
+		IndexerRegistryUtil.nullSafeGetIndexer(objectDefinition.getClassName()).reindex(objectEntry)
+	`;
 }
 
 function getUpcomingDate(hour: number) {
@@ -1018,6 +1041,138 @@ test.describe('Operations section', () => {
 
 				await expect(
 					page.getByText(approvedTitle, {exact: true})
+				).toBeHidden();
+			});
+		}
+	);
+
+	test(
+		'Lists the drafts of the selected space not modified for more than 30 days',
+		{tag: '@LPD-101600'},
+		async ({apiHelpers, browser, page}) => {
+			const spaceName = `space ${getRandomString()}`;
+			const longStandingDraftTitle = `draft ${getRandomString()}`;
+			const recentDraftTitle = `draft ${getRandomString()}`;
+
+			await test.step('Create a long-standing draft and a recent one', async () => {
+				await apiHelpers.headlessAssetLibrary.createAssetLibrary({
+					name: spaceName,
+					type: 'Space',
+				});
+
+				const drafts = [];
+
+				for (const title of [
+					longStandingDraftTitle,
+					recentDraftTitle,
+				]) {
+					const draft = await apiHelpers.objectEntry.postObjectEntry(
+						{
+							objectEntryFolderExternalReferenceCode:
+								'L_CONTENTS',
+							status: {code: 2},
+							title,
+						},
+						APPLICATION_NAME,
+						spaceName
+					);
+
+					apiHelpers.data.push({id: draft.id, type: 'document'});
+
+					expect(draft.id).toBeTruthy();
+
+					drafts.push(draft);
+				}
+
+				const adminContext = await browser.newContext();
+
+				try {
+					const adminPage = await adminContext.newPage();
+
+					await performLoginViaApi({
+						page: adminPage,
+						screenName: 'test',
+					});
+
+					const serverAdministrationPage =
+						new ServerAdministrationPage(adminPage);
+
+					await serverAdministrationPage.goto();
+
+					await serverAdministrationPage.executeScript(
+						getLongStandingDraftScript(drafts[0].id)
+					);
+				}
+				finally {
+					await adminContext.close();
+				}
+			});
+
+			const card = page.getByRole('button', {
+				name: /^Long-Standing Drafts/,
+			});
+
+			await test.step('Count the long-standing draft in the card', async () => {
+				await expect(async () => {
+					await page.goto('/web/cms/dashboard');
+
+					await selectSpace(page, spaceName);
+
+					await expect(card).toContainText('50% of 2 Assets', {
+						timeout: 5000,
+					});
+				}).toPass();
+			});
+
+			const list = page.getByRole('region', {
+				name: 'Long-Standing Drafts',
+			});
+
+			await test.step('Expand the list of long-standing drafts', async () => {
+				await card.click();
+
+				await expect(card).toHaveAttribute('aria-expanded', 'true');
+
+				await expect(
+					list.getByRole('link', {name: longStandingDraftTitle})
+				).toBeVisible();
+
+				await expect(
+					list.getByText(
+						`${LONG_STANDING_DRAFT_AGE_DAYS} days in draft`
+					)
+				).toBeVisible();
+
+				await expect(
+					list.getByText(recentDraftTitle, {exact: true})
+				).toBeHidden();
+			});
+
+			await test.step('Collapse the list', async () => {
+				await card.click();
+
+				await expect(card).toHaveAttribute('aria-expanded', 'false');
+
+				await expect(list).toBeHidden();
+
+				await card.click();
+			});
+
+			await test.step('Open the All section filtered by draft and modified date', async () => {
+				await list
+					.getByRole('link', {name: 'View All Long-Standing Drafts'})
+					.click();
+
+				await expect(page).toHaveURL(
+					/allSection_fdsConfig=.*status.*dateModified/
+				);
+
+				await expect(
+					page.getByText(longStandingDraftTitle, {exact: true})
+				).toBeVisible();
+
+				await expect(
+					page.getByText(recentDraftTitle, {exact: true})
 				).toBeHidden();
 			});
 		}
