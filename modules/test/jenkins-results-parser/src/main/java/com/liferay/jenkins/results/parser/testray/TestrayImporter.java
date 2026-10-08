@@ -15,19 +15,13 @@ import com.liferay.jenkins.results.parser.JenkinsResultsParserUtil;
 import com.liferay.jenkins.results.parser.Job;
 import com.liferay.jenkins.results.parser.NotificationUtil;
 import com.liferay.jenkins.results.parser.ParallelExecutor;
-import com.liferay.jenkins.results.parser.PluginsWorkspaceGitRepository;
 import com.liferay.jenkins.results.parser.PortalFixpackRelease;
 import com.liferay.jenkins.results.parser.PortalHotfixRelease;
 import com.liferay.jenkins.results.parser.PortalRelease;
-import com.liferay.jenkins.results.parser.PortalWorkspace;
-import com.liferay.jenkins.results.parser.PortalWorkspaceGitRepository;
 import com.liferay.jenkins.results.parser.PullRequest;
 import com.liferay.jenkins.results.parser.QAWebsitesGitRepositoryJob;
-import com.liferay.jenkins.results.parser.QAWebsitesWorkspaceGitRepository;
 import com.liferay.jenkins.results.parser.TestSuiteJob;
 import com.liferay.jenkins.results.parser.TopLevelBuildReport;
-import com.liferay.jenkins.results.parser.Workspace;
-import com.liferay.jenkins.results.parser.WorkspaceGitRepository;
 import com.liferay.jenkins.results.parser.job.property.JobProperty;
 import com.liferay.jenkins.results.parser.job.property.JobPropertyFactory;
 import com.liferay.jenkins.results.parser.persistent.resource.PersistentResource;
@@ -88,7 +82,6 @@ public class TestrayImporter {
 		_portalHotfixReleases = buildDatabase.getPortalHotfixReleases();
 		_portalReleases = buildDatabase.getPortalReleases();
 		_pullRequests = buildDatabase.getPullRequests();
-		_workspaces = buildDatabase.getWorkspaces();
 
 		_testrayContext = TestrayFactory.newTestrayContext(
 			buildDatabase, topLevelBuildReport);
@@ -260,9 +253,10 @@ public class TestrayImporter {
 
 		long start = JenkinsResultsParserUtil.getCurrentTimeMillis();
 
-		Date testrayBuildDate = getTestrayBuildDate();
-		String testrayBuildDescription = getTestrayBuildDescription();
-		String testrayBuildSHA = getTestrayBuildSHA();
+		Date testrayBuildDate = _testrayContext.getTestrayBuildDate();
+		String testrayBuildDescription =
+			_testrayContext.getTestrayBuildDescription();
+		String testrayBuildSHA = _testrayContext.getTestrayBuildSHA();
 
 		try {
 			String testrayBuildId = Environment.get("TESTRAY_BUILD_ID");
@@ -353,129 +347,6 @@ public class TestrayImporter {
 		}
 
 		throw new RuntimeException("Please set TESTRAY_BUILD_NAME");
-	}
-
-	public Date getTestrayBuildDate() {
-		ControllerBuildReport controllerBuildReport =
-			_topLevelBuildReport.getControllerBuildReport();
-
-		if (controllerBuildReport != null) {
-			return controllerBuildReport.getStartDate();
-		}
-
-		return _topLevelBuildReport.getStartDate();
-	}
-
-	public String getTestrayBuildDescription() {
-		StringBuilder sb = new StringBuilder();
-
-		PortalRelease portalRelease = getPortalRelease();
-
-		if (portalRelease != null) {
-			sb.append("Portal Release: ");
-			sb.append(portalRelease.getPortalVersion());
-			sb.append("; ");
-		}
-
-		PortalFixpackRelease portalFixpackRelease = getPortalFixpackRelease();
-
-		if (portalFixpackRelease != null) {
-			sb.append("Portal Fixpack: ");
-			sb.append(portalFixpackRelease.getPortalFixpackVersion());
-			sb.append("; ");
-		}
-
-		PortalHotfixRelease portalHotfixRelease = getPortalHotfixRelease();
-
-		if (portalHotfixRelease != null) {
-			sb.append("Portal Hotfix: ");
-			sb.append(portalHotfixRelease.getPortalHotfixReleaseVersion());
-			sb.append("; ");
-		}
-
-		sb.append("<a href=\"");
-
-		URL testrayAttachmentURL =
-			_topLevelBuildReport.getTestrayAttachmentURLBySuffix(
-				"jenkins-report.html.gz");
-
-		if (testrayAttachmentURL != null) {
-			sb.append(testrayAttachmentURL);
-			sb.append("?authuser=0");
-		}
-		else {
-			sb.append(_topLevelBuildReport.getJenkinsReportURL());
-		}
-
-		sb.append("\">Jenkins Report</a>");
-		sb.append("; ");
-
-		PortalWorkspaceGitRepository portalWorkspaceGitRepository =
-			_getPortalWorkspaceGitRepository();
-
-		if (portalWorkspaceGitRepository != null) {
-			sb.append("Portal Branch: ");
-			sb.append(portalWorkspaceGitRepository.getUpstreamBranchName());
-			sb.append("; ");
-
-			sb.append("Portal SHA: ");
-			sb.append(portalWorkspaceGitRepository.getSenderBranchSHAShort());
-			sb.append("; ");
-		}
-
-		PluginsWorkspaceGitRepository pluginsWorkspaceGitRepository =
-			_getPluginsWorkspaceGitRepository();
-
-		if (pluginsWorkspaceGitRepository != null) {
-			sb.append("Plugins Branch: ");
-			sb.append(pluginsWorkspaceGitRepository.getUpstreamBranchName());
-			sb.append("; ");
-
-			sb.append("Plugins SHA: ");
-			sb.append(pluginsWorkspaceGitRepository.getSenderBranchSHAShort());
-			sb.append("; ");
-		}
-
-		QAWebsitesWorkspaceGitRepository qaWebsitesWorkspaceGitRepository =
-			_getQAWebsitesWorkspaceGitRepository();
-
-		if (qaWebsitesWorkspaceGitRepository != null) {
-			sb.append("QA Websites Branch: ");
-			sb.append(qaWebsitesWorkspaceGitRepository.getUpstreamBranchName());
-			sb.append("; ");
-
-			sb.append("QA Websites SHA: ");
-			sb.append(
-				qaWebsitesWorkspaceGitRepository.getSenderBranchSHAShort());
-			sb.append("; ");
-		}
-
-		return sb.toString();
-	}
-
-	public String getTestrayBuildSHA() {
-		PortalWorkspaceGitRepository portalWorkspaceGitRepository =
-			_getPortalWorkspaceGitRepository();
-
-		if (portalWorkspaceGitRepository != null) {
-			return portalWorkspaceGitRepository.getSenderBranchSHA();
-		}
-
-		PluginsWorkspaceGitRepository pluginsWorkspaceGitRepository =
-			_getPluginsWorkspaceGitRepository();
-
-		if (pluginsWorkspaceGitRepository != null) {
-			return pluginsWorkspaceGitRepository.getSenderBranchSHA();
-		}
-
-		QAWebsitesWorkspaceGitRepository qaWebsitesWorkspaceGitRepository =
-			_getQAWebsitesWorkspaceGitRepository();
-
-		if (qaWebsitesWorkspaceGitRepository != null) {
-			return qaWebsitesWorkspaceGitRepository.getSenderBranchSHA();
-		}
-
-		return null;
 	}
 
 	public synchronized TestrayProductVersion getTestrayProductVersion(
@@ -1260,53 +1131,6 @@ public class TestrayImporter {
 			"Unable to get job property " + basePropertyName);
 	}
 
-	private PluginsWorkspaceGitRepository _getPluginsWorkspaceGitRepository() {
-		for (Workspace workspace : _workspaces) {
-			if (!(workspace instanceof PortalWorkspace)) {
-				continue;
-			}
-
-			PortalWorkspace portalWorkspace = (PortalWorkspace)workspace;
-
-			return portalWorkspace.getPluginsWorkspaceGitRepository();
-		}
-
-		return null;
-	}
-
-	private PortalWorkspaceGitRepository _getPortalWorkspaceGitRepository() {
-		for (Workspace workspace : _workspaces) {
-			if (!(workspace instanceof PortalWorkspace)) {
-				continue;
-			}
-
-			PortalWorkspace portalWorkspace = (PortalWorkspace)workspace;
-
-			return portalWorkspace.getPortalWorkspaceGitRepository();
-		}
-
-		return null;
-	}
-
-	private QAWebsitesWorkspaceGitRepository
-		_getQAWebsitesWorkspaceGitRepository() {
-
-		for (Workspace workspace : _workspaces) {
-			WorkspaceGitRepository workspaceGitRepository =
-				workspace.getWorkspaceGitRepository("liferay-qa-websites-ee");
-
-			if (!(workspaceGitRepository instanceof
-					QAWebsitesWorkspaceGitRepository)) {
-
-				return null;
-			}
-
-			return (QAWebsitesWorkspaceGitRepository)workspaceGitRepository;
-		}
-
-		return null;
-	}
-
 	private String _getSlackBody(File testBaseDir) {
 		JobProperty jobProperty = _getJobProperty(
 			"testray.slack.body", testBaseDir);
@@ -1841,6 +1665,5 @@ public class TestrayImporter {
 	private final TopLevelBuildReport _topLevelBuildReport;
 	private final AtomicInteger _uncreatedTestrayCaseResultsCount =
 		new AtomicInteger();
-	private final List<Workspace> _workspaces;
 
 }

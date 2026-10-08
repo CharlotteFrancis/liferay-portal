@@ -10,6 +10,8 @@ import com.liferay.jenkins.results.parser.ControllerBuildReport;
 import com.liferay.jenkins.results.parser.JenkinsMaster;
 import com.liferay.jenkins.results.parser.TopLevelBuildReport;
 
+import java.net.URL;
+
 import java.util.Date;
 import java.util.Map;
 
@@ -98,6 +100,11 @@ public class BuildReportTestrayContext extends BaseTestrayContext {
 		_testSuiteName = _topLevelBuildReport.getTestSuiteName();
 
 		return _testSuiteName;
+	}
+
+	@Override
+	protected URL getTestrayAttachmentURLBySuffix(String suffix) {
+		return _topLevelBuildReport.getTestrayAttachmentURLBySuffix(suffix);
 	}
 
 	@Override

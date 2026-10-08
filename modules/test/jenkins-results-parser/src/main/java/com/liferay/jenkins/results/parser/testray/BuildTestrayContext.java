@@ -10,6 +10,8 @@ import com.liferay.jenkins.results.parser.BuildDatabase;
 import com.liferay.jenkins.results.parser.JenkinsMaster;
 import com.liferay.jenkins.results.parser.TopLevelBuild;
 
+import java.net.URL;
+
 import java.util.Date;
 import java.util.Map;
 
@@ -88,6 +90,22 @@ public class BuildTestrayContext extends BaseTestrayContext {
 	@Override
 	protected String getTestSuiteName() {
 		return _topLevelBuild.getTestSuiteName();
+	}
+
+	@Override
+	protected URL getTestrayAttachmentURLBySuffix(String suffix) {
+		for (URL testrayAttachmentURL :
+				_topLevelBuild.getTestrayAttachmentURLs()) {
+
+			String testrayAttachmentURLString = String.valueOf(
+				testrayAttachmentURL);
+
+			if (testrayAttachmentURLString.endsWith(suffix)) {
+				return testrayAttachmentURL;
+			}
+		}
+
+		return null;
 	}
 
 	@Override

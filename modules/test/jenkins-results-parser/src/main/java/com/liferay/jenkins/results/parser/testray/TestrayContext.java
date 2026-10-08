@@ -5,10 +5,22 @@
 
 package com.liferay.jenkins.results.parser.testray;
 
+import com.liferay.jenkins.results.parser.BuildDatabase;
+
+import java.util.Date;
+
 /**
  * @author Michael Hashimoto
  */
 public interface TestrayContext {
+
+	public BuildDatabase getBuildDatabase();
+
+	public Date getTestrayBuildDate();
+
+	public String getTestrayBuildDescription();
+
+	public String getTestrayBuildSHA();
 
 	public String replace(String string);
 
