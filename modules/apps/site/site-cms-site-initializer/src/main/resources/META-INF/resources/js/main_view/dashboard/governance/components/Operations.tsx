@@ -29,8 +29,8 @@ export function Operations({
 		<div aria-label={title} className="mb-3 py-4" role="group">
 			<SectionHeader icon="organizations" title={title} />
 
-			<ClayLayout.Row className="mt-3">
-				<ClayLayout.Col className="mb-3" md={4}>
+			<ClayLayout.Row className="mt-4">
+				<ClayLayout.Col className="mb-4" md={4}>
 					<LongStandingDraftsCard
 						expanded={longStandingDraftsExpanded}
 						onClick={() =>
@@ -42,7 +42,7 @@ export function Operations({
 				</ClayLayout.Col>
 
 				{longStandingDraftsExpanded ? (
-					<ClayLayout.Col className="mb-3" size={12}>
+					<ClayLayout.Col className="mb-4" size={12}>
 						<LongStandingDraftsList
 							additionalProps={additionalProps}
 						/>
