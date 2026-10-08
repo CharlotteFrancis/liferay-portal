@@ -11,9 +11,14 @@ import com.liferay.jenkins.results.parser.PortalFixpackRelease;
 import com.liferay.jenkins.results.parser.PortalHotfixRelease;
 import com.liferay.jenkins.results.parser.PortalRelease;
 import com.liferay.jenkins.results.parser.PullRequest;
+import com.liferay.jenkins.results.parser.job.property.JobProperty;
+
+import java.io.File;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Michael Hashimoto
@@ -21,6 +26,9 @@ import java.util.List;
 public interface TestrayContext {
 
 	public BuildDatabase getBuildDatabase();
+
+	public JobProperty getJobProperty(
+		String basePropertyName, File testBaseDir);
 
 	public List<Job> getJobs();
 
@@ -32,11 +40,25 @@ public interface TestrayContext {
 
 	public PullRequest getPullRequest();
 
+	public TestrayBuild getTestrayBuild(File testBaseDir);
+
 	public Date getTestrayBuildDate();
 
 	public String getTestrayBuildDescription();
 
 	public String getTestrayBuildSHA();
+
+	public Set<TestrayBuild> getTestrayBuilds();
+
+	public Map<File, TestrayBuild> getTestrayBuildsMap();
+
+	public TestrayProductVersion getTestrayProductVersion(File testBaseDir);
+
+	public TestrayProject getTestrayProject(File testBaseDir);
+
+	public TestrayRoutine getTestrayRoutine(File testBaseDir);
+
+	public TestrayServer getTestrayServer(File testBaseDir);
 
 	public String replace(String string);
 

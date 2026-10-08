@@ -53,6 +53,14 @@ public class BuildReportTestrayContext extends BaseTestrayContext {
 	}
 
 	@Override
+	protected Map<String, String> getControllerBuildParameters() {
+		ControllerBuildReport controllerBuildReport =
+			_topLevelBuildReport.getControllerBuildReport();
+
+		return controllerBuildReport.getBuildParameters();
+	}
+
+	@Override
 	protected JenkinsMaster getControllerJenkinsMaster() {
 		ControllerBuildReport controllerBuildReport =
 			_topLevelBuildReport.getControllerBuildReport();
