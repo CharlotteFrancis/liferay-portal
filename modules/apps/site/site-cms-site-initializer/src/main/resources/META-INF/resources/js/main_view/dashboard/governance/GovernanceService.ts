@@ -4,6 +4,7 @@
  */
 
 import ApiHelper, {RequestResult} from '../../../common/services/ApiHelper';
+import {WORKFLOW_STATUS} from '../../../common/utils/constants';
 
 export type AssetStatistics = {
 	approvedCount: number;
@@ -52,11 +53,15 @@ const CONTRIBUTORS_AGGREGATION_NAME = 'contributors';
 
 const DUPLICATE_TITLES_AGGREGATION_NAME = 'duplicateTitles';
 
+const LONG_STANDING_DRAFT_DAYS = 30;
+
+export const LONG_STANDING_DRAFTS_PAGE_SIZE = 8;
+
 const MAX_CONTRIBUTORS = 7;
 
 const MAX_FACET_TERMS = 10000;
 
-const MILLISECONDS_PER_DAY = 24 * 60 * 60 * 1000;
+export const MILLISECONDS_PER_DAY = 24 * 60 * 60 * 1000;
 
 const MINIMUM_DUPLICATE_FREQUENCY = 2;
 
@@ -196,6 +201,27 @@ function getScopedFilter(filter: string, groupId?: number) {
 	return `${filter} and groupIds/any(g:g eq ${Number(groupId)})`;
 }
 
+function getLongStandingDraftsThresholdDate() {
+	return new Date(
+		Date.now() - LONG_STANDING_DRAFT_DAYS * MILLISECONDS_PER_DAY
+	);
+}
+
+function getLongStandingDraftsURL(filter: string, groupId?: number) {
+	const searchParams = new URLSearchParams({
+		emptySearch: 'true',
+		filter: getScopedFilter(
+			`${filter} and status eq ${WORKFLOW_STATUS.DRAFT} and dateModified lt ${getLongStandingDraftsThresholdDate().toISOString()}`,
+			groupId
+		),
+		nestedFields: NESTED_FIELDS,
+		pageSize: String(LONG_STANDING_DRAFTS_PAGE_SIZE),
+		sort: 'dateModified:asc',
+	});
+
+	return `${SEARCH_URL}?${searchParams}`;
+}
+
 async function getCMSEntryClassNames(
 	ercContentStructures: string,
 	ercFileTypes: string,
@@ -288,4 +314,6 @@ export default {
 	getContributors,
 	getDuplicateTitles,
 	getDuplicateTopicsCount,
+	getLongStandingDraftsThresholdDate,
+	getLongStandingDraftsURL,
 };

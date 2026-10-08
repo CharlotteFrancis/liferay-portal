@@ -13,6 +13,8 @@ import {GovernanceHealth} from './components/GovernanceHealth';
 import {Operations} from './components/Operations';
 import {GovernanceAdditionalProps} from './types';
 
+import '../../../../css/dashboard/GovernanceDashboard.scss';
+
 export default function GovernanceDashboard({
 	additionalProps,
 	constants,

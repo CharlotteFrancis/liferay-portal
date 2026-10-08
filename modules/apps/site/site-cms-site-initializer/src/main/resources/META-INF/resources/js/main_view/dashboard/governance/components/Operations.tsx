@@ -10,7 +10,10 @@ import {SectionHeader} from '../../common/SectionHeader';
 import {GovernanceAdditionalProps} from '../types';
 import {ContentProgress} from './ContentProgress';
 import {ContributorConcentration} from './ContributorConcentration';
-import {LongStandingDraftsCard} from './LongStandingDrafts';
+import {
+	LongStandingDraftsCard,
+	LongStandingDraftsList,
+} from './LongStandingDrafts';
 
 export function Operations({
 	additionalProps,
@@ -37,6 +40,14 @@ export function Operations({
 						}
 					/>
 				</ClayLayout.Col>
+
+				{longStandingDraftsExpanded ? (
+					<ClayLayout.Col className="mb-3" size={12}>
+						<LongStandingDraftsList
+							additionalProps={additionalProps}
+						/>
+					</ClayLayout.Col>
+				) : null}
 			</ClayLayout.Row>
 
 			<ClayLayout.Row>
