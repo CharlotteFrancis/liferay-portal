@@ -12,6 +12,7 @@ export type AssetStatistics = {
 	expiredCount: number;
 	expiringSoonCount: number;
 	inDraftCount: number;
+	longStandingDraftsCount: number;
 	pendingCount: number;
 	reviewDateOverdueCount: number;
 	scheduledCount: number;

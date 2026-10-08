@@ -10,6 +10,7 @@ import {SectionHeader} from '../../common/SectionHeader';
 import {GovernanceAdditionalProps} from '../types';
 import {ContentProgress} from './ContentProgress';
 import {ContributorConcentration} from './ContributorConcentration';
+import {LongStandingDraftsCard} from './LongStandingDrafts';
 
 export function Operations({
 	additionalProps,
@@ -19,10 +20,16 @@ export function Operations({
 	const title = Liferay.Language.get('operations');
 
 	return (
-		<div className="mb-3 py-4">
+		<div aria-label={title} className="mb-3 py-4" role="group">
 			<SectionHeader icon="organizations" title={title} />
 
-			<ClayLayout.Row aria-label={title} className="mt-3" role="group">
+			<ClayLayout.Row className="mt-3">
+				<ClayLayout.Col className="mb-3" md={4}>
+					<LongStandingDraftsCard />
+				</ClayLayout.Col>
+			</ClayLayout.Row>
+
+			<ClayLayout.Row>
 				<ClayLayout.Col md={6}>
 					<ContentProgress additionalProps={additionalProps} />
 				</ClayLayout.Col>
