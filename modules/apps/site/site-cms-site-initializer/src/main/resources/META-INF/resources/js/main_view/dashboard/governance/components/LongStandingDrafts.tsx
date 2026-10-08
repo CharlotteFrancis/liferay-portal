@@ -33,7 +33,13 @@ function PercentageOfTotal({
 	);
 }
 
-export function LongStandingDraftsCard() {
+export function LongStandingDraftsCard({
+	expanded,
+	onClick,
+}: {
+	expanded: boolean;
+	onClick: () => void;
+}) {
 	const {loadingStatistics, statistics} = useContext(GovernanceContext);
 
 	const count = statistics?.longStandingDraftsCount ?? 0;
@@ -54,12 +60,15 @@ export function LongStandingDraftsCard() {
 
 	return (
 		<InteractiveCard
+			active={expanded}
+			aria-expanded={expanded}
 			color="purple"
 			description={Liferay.Language.get(
 				'content-that-has-remained-in-draft-status-for-longer-than-expected'
 			)}
 			icon="pencil"
 			loading={loadingStatistics}
+			onClick={onClick}
 			title={Liferay.Language.get('long-standing-drafts')}
 			value={count}
 		>

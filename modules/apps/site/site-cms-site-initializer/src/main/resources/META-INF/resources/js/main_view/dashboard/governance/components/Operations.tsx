@@ -4,7 +4,7 @@
  */
 
 import ClayLayout from '@clayui/layout';
-import React from 'react';
+import React, {useState} from 'react';
 
 import {SectionHeader} from '../../common/SectionHeader';
 import {GovernanceAdditionalProps} from '../types';
@@ -17,6 +17,9 @@ export function Operations({
 }: {
 	additionalProps: GovernanceAdditionalProps;
 }) {
+	const [longStandingDraftsExpanded, setLongStandingDraftsExpanded] =
+		useState(false);
+
 	const title = Liferay.Language.get('operations');
 
 	return (
@@ -25,7 +28,14 @@ export function Operations({
 
 			<ClayLayout.Row className="mt-3">
 				<ClayLayout.Col className="mb-3" md={4}>
-					<LongStandingDraftsCard />
+					<LongStandingDraftsCard
+						expanded={longStandingDraftsExpanded}
+						onClick={() =>
+							setLongStandingDraftsExpanded(
+								(expanded) => !expanded
+							)
+						}
+					/>
 				</ClayLayout.Col>
 			</ClayLayout.Row>
 
