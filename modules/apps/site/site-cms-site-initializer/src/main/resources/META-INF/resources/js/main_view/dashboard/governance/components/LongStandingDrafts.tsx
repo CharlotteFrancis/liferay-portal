@@ -223,7 +223,10 @@ export function LongStandingDraftsList({
 					</span>
 
 					<ClayLink
-						aria-label={sub(Liferay.Language.get('view-x'), title)}
+						aria-label={sub(
+							Liferay.Language.get('view-all-x'),
+							title
+						)}
 						borderless
 						className="font-weight-semi-bold text-3"
 						href={viewAllHref}
