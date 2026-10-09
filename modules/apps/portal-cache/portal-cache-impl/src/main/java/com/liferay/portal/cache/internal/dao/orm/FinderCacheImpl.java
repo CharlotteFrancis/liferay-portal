@@ -159,13 +159,13 @@ public class FinderCacheImpl
 			return null;
 		}
 
-		boolean productionMode = CTCollectionThreadLocal.isProductionMode();
-
 		Serializable cacheKey = _encodeCacheKey(finderPath, args);
 		Serializable cacheValue = null;
 		Map<LocalCacheKey, Serializable> localCache = null;
 		LocalCacheKey localCacheKey = null;
 		PortalCache<Serializable, Serializable> portalCache = null;
+
+		boolean productionMode = CTCollectionThreadLocal.isProductionMode();
 
 		if (_isLocalCacheEnabled(productionMode)) {
 			localCache = _localCache.get();
@@ -261,9 +261,8 @@ public class FinderCacheImpl
 			return;
 		}
 
-		boolean productionMode = CTCollectionThreadLocal.isProductionMode();
-
 		Serializable cacheValue = (Serializable)result;
+		boolean productionMode = CTCollectionThreadLocal.isProductionMode();
 
 		if (result instanceof BaseModel<?>) {
 			BaseModel<?> model = (BaseModel<?>)result;
@@ -367,7 +366,6 @@ public class FinderCacheImpl
 
 		ArgumentsResolver argumentsResolver =
 			argumentsResolverHolder.getArgumentsResolver();
-
 		boolean productionMode = CTCollectionThreadLocal.isProductionMode();
 
 		for (FinderPath finderPath : _getFinderPaths(className)) {
