@@ -127,7 +127,6 @@ public abstract class BaseTestrayContext implements TestrayContext {
 
 		String githubReceiverUsername = buildParameters.get(
 			"GITHUB_RECEIVER_USERNAME");
-
 		String pullRequestNumber = buildParameters.get(
 			"GITHUB_PULL_REQUEST_NUMBER");
 
@@ -159,16 +158,10 @@ public abstract class BaseTestrayContext implements TestrayContext {
 
 		long start = JenkinsResultsParserUtil.getCurrentTimeMillis();
 
-		Date testrayBuildDate = getTestrayBuildDate();
-		String testrayBuildDescription = getTestrayBuildDescription();
-		String testrayBuildSHA = getTestrayBuildSHA();
-
 		try {
 			String testrayBuildId = Environment.get("TESTRAY_BUILD_ID");
 
 			TestrayRoutine testrayRoutine = getTestrayRoutine(testBaseDir);
-			TestrayProductVersion testrayProductVersion =
-				getTestrayProductVersion(testBaseDir);
 
 			if ((testrayBuildId != null) && testrayBuildId.matches("\\d+")) {
 				testrayBuild = TestrayFactory.newTestrayBuild(
@@ -176,6 +169,12 @@ public abstract class BaseTestrayContext implements TestrayContext {
 			}
 
 			String testrayBuildName = Environment.get("TESTRAY_BUILD_NAME");
+
+			Date testrayBuildDate = getTestrayBuildDate();
+			String testrayBuildDescription = getTestrayBuildDescription();
+			String testrayBuildSHA = getTestrayBuildSHA();
+			TestrayProductVersion testrayProductVersion =
+				getTestrayProductVersion(testBaseDir);
 
 			if ((testrayBuild == null) &&
 				!JenkinsResultsParserUtil.isNullOrEmpty(testrayBuildName)) {
@@ -397,10 +396,10 @@ public abstract class BaseTestrayContext implements TestrayContext {
 		long start = System.currentTimeMillis();
 
 		try {
-			TestrayProject testrayProject = getTestrayProject(testBaseDir);
-
 			String testrayProductVersionId = Environment.get(
 				"TESTRAY_PRODUCT_VERSION_ID");
+
+			TestrayProject testrayProject = getTestrayProject(testBaseDir);
 
 			if ((testrayProductVersionId != null) &&
 				testrayProductVersionId.matches("\\d+")) {
@@ -1426,17 +1425,20 @@ public abstract class BaseTestrayContext implements TestrayContext {
 	}
 
 	private String _replaceTopLevelBuild(String string) {
-		JenkinsMaster jenkinsMaster = getJenkinsMaster();
-		String jobName = getJobName();
+		string = string.replace("$(ci.test.suite)", getTestSuiteName());
+
 		int buildNumber = getBuildNumber();
 
-		string = string.replace("$(ci.test.suite)", getTestSuiteName());
 		string = string.replace(
 			"$(jenkins.build.number)", String.valueOf(buildNumber));
 		string = string.replace(
 			"$(jenkins.build.start)",
 			JenkinsResultsParserUtil.toDateString(
 				getStartDate(), "yyyy-MM-dd[HH:mm:ss]", "America/Los_Angeles"));
+
+		JenkinsMaster jenkinsMaster = getJenkinsMaster();
+		String jobName = getJobName();
+
 		string = string.replace(
 			"$(jenkins.build.url)",
 			_getBuildURL(buildNumber, jenkinsMaster, jobName));
