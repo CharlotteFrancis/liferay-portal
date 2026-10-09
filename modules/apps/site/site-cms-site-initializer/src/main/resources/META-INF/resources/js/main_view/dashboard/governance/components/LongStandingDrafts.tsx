@@ -31,6 +31,7 @@ const EMPTY_STATE_IMAGE = '/states/cms_empty_state.svg';
 
 const ITEMS_ACTION_IDS: IItemActionsData['id'][] = [
 	'actionLink',
+	'delete',
 	'view-content',
 	'view-file',
 ];
@@ -154,7 +155,7 @@ export function LongStandingDraftsList({
 }: {
 	additionalProps: GovernanceAdditionalProps;
 }) {
-	const {space, statistics} = useContext(GovernanceContext);
+	const {reloadStatistics, space, statistics} = useContext(GovernanceContext);
 
 	const {apiURL, viewAllHref} = useMemo(
 		() => ({
@@ -198,9 +199,10 @@ export function LongStandingDraftsList({
 				itemsActions: additionalProps.fdsActionDropdownItems.filter(
 					(action) => ITEMS_ACTION_IDS.includes(action.data?.id)
 				),
+				onDataChange: reloadStatistics,
 				renderSubtitle: renderAuthorAndDaysInDraft,
 			}),
-		[additionalProps, apiURL]
+		[additionalProps, apiURL, reloadStatistics]
 	);
 
 	const count = statistics?.longStandingDraftsCount ?? 0;
