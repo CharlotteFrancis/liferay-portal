@@ -32,8 +32,6 @@ export const PAGINATION_BAR_LABELS = {
 	selectPerPageItems: Liferay.Language.get('x-items'),
 };
 
-export const UPCOMING_REVIEWS_THRESHOLD_MONTHS = 1;
-
 export const ASSET_STATUS = {
 	APPROVED: 'approved',
 	DENIED: 'denied',

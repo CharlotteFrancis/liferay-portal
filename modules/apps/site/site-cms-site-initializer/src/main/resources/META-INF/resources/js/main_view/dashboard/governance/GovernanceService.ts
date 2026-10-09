@@ -59,8 +59,6 @@ const MILLISECONDS_PER_DAY = 24 * 60 * 60 * 1000;
 
 const MINIMUM_DUPLICATE_FREQUENCY = 2;
 
-const NEEDS_REVIEW_PAGE_SIZE = 8;
-
 const NESTED_FIELDS = 'embedded,systemProperties.objectDefinitionBrief';
 
 const SEARCH_URL = '/o/search/v1.0/search';
@@ -197,18 +195,6 @@ function getScopedFilter(filter: string, groupId?: number) {
 	return `${filter} and groupIds/any(g:g eq ${Number(groupId)})`;
 }
 
-function getSearchURL(filter: string, sort: string, groupId?: number) {
-	const searchParams = new URLSearchParams({
-		emptySearch: 'true',
-		filter: getScopedFilter(filter, groupId),
-		nestedFields: NESTED_FIELDS,
-		pageSize: String(NEEDS_REVIEW_PAGE_SIZE),
-		sort,
-	});
-
-	return `${SEARCH_URL}?${searchParams}`;
-}
-
 async function getCMSEntryClassNames(
 	ercContentStructures: string,
 	ercFileTypes: string,
@@ -301,5 +287,4 @@ export default {
 	getContributors,
 	getDuplicateTitles,
 	getDuplicateTopicsCount,
-	getSearchURL,
 };
