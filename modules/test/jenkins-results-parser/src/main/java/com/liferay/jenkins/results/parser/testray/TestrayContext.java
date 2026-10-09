@@ -8,7 +8,7 @@ package com.liferay.jenkins.results.parser.testray;
 /**
  * @author Michael Hashimoto
  */
-public interface TestrayTextReplacer {
+public interface TestrayContext {
 
 	public String replace(String string);
 

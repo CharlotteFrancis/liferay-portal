@@ -32,7 +32,7 @@ import java.util.regex.Pattern;
 /**
  * @author Michael Hashimoto
  */
-public abstract class BaseTestrayTextReplacer implements TestrayTextReplacer {
+public abstract class BaseTestrayContext implements TestrayContext {
 
 	@Override
 	public String replace(String string) {
@@ -57,7 +57,7 @@ public abstract class BaseTestrayTextReplacer implements TestrayTextReplacer {
 		return string;
 	}
 
-	protected BaseTestrayTextReplacer(BuildDatabase buildDatabase) {
+	protected BaseTestrayContext(BuildDatabase buildDatabase) {
 		_portalFixpackReleases = buildDatabase.getPortalFixpackReleases();
 		_portalHotfixReleases = buildDatabase.getPortalHotfixReleases();
 		_portalReleases = buildDatabase.getPortalReleases();

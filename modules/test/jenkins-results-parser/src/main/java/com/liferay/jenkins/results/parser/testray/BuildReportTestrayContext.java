@@ -16,9 +16,9 @@ import java.util.Map;
 /**
  * @author Michael Hashimoto
  */
-public class BuildReportTestrayTextReplacer extends BaseTestrayTextReplacer {
+public class BuildReportTestrayContext extends BaseTestrayContext {
 
-	protected BuildReportTestrayTextReplacer(
+	protected BuildReportTestrayContext(
 		BuildDatabase buildDatabase, TopLevelBuildReport topLevelBuildReport) {
 
 		super(buildDatabase);

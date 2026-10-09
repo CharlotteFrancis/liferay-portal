@@ -90,7 +90,7 @@ public class TestrayImporter {
 		_pullRequests = buildDatabase.getPullRequests();
 		_workspaces = buildDatabase.getWorkspaces();
 
-		_testrayTextReplacer = TestrayFactory.newTestrayTextReplacer(
+		_testrayContext = TestrayFactory.newTestrayContext(
 			buildDatabase, topLevelBuildReport);
 	}
 
@@ -283,8 +283,8 @@ public class TestrayImporter {
 
 				testrayBuild = testrayRoutine.createTestrayBuild(
 					testrayProductVersion,
-					_testrayTextReplacer.replace(testrayBuildName),
-					testrayBuildDate, testrayBuildDescription, testrayBuildSHA);
+					_testrayContext.replace(testrayBuildName), testrayBuildDate,
+					testrayBuildDescription, testrayBuildSHA);
 			}
 
 			testrayBuildId = _getBuildParameter("TESTRAY_BUILD_ID");
@@ -303,8 +303,8 @@ public class TestrayImporter {
 
 				testrayBuild = testrayRoutine.createTestrayBuild(
 					testrayProductVersion,
-					_testrayTextReplacer.replace(testrayBuildName),
-					testrayBuildDate, testrayBuildDescription, testrayBuildSHA);
+					_testrayContext.replace(testrayBuildName), testrayBuildDate,
+					testrayBuildDescription, testrayBuildSHA);
 			}
 
 			if (testrayBuild == null) {
@@ -330,7 +330,7 @@ public class TestrayImporter {
 				if (!JenkinsResultsParserUtil.isNullOrEmpty(testrayBuildName)) {
 					testrayBuild = testrayRoutine.createTestrayBuild(
 						testrayProductVersion,
-						_testrayTextReplacer.replace(testrayBuildName),
+						_testrayContext.replace(testrayBuildName),
 						testrayBuildDate, testrayBuildDescription,
 						testrayBuildSHA);
 				}
@@ -513,8 +513,7 @@ public class TestrayImporter {
 
 				testrayProductVersion =
 					testrayProject.createTestrayProductVersion(
-						_testrayTextReplacer.replace(
-							testrayProductVersionName));
+						_testrayContext.replace(testrayProductVersionName));
 			}
 
 			testrayProductVersionId = _getBuildParameter(
@@ -538,8 +537,7 @@ public class TestrayImporter {
 
 				testrayProductVersion =
 					testrayProject.createTestrayProductVersion(
-						_testrayTextReplacer.replace(
-							testrayProductVersionName));
+						_testrayContext.replace(testrayProductVersionName));
 			}
 
 			if (testrayProductVersion == null) {
@@ -565,7 +563,7 @@ public class TestrayImporter {
 
 				testrayProductVersion =
 					testrayProject.createTestrayProductVersion(
-						_testrayTextReplacer.replace("1.x"));
+						_testrayContext.replace("1.x"));
 			}
 
 			if (testrayProductVersion == null) {
@@ -579,8 +577,7 @@ public class TestrayImporter {
 
 					testrayProductVersion =
 						testrayProject.createTestrayProductVersion(
-							_testrayTextReplacer.replace(
-								testrayProductVersionName));
+							_testrayContext.replace(testrayProductVersionName));
 				}
 			}
 
@@ -591,7 +588,7 @@ public class TestrayImporter {
 
 				testrayProductVersion =
 					testrayProject.createTestrayProductVersion(
-						_testrayTextReplacer.replace(portalReleaseVersion));
+						_testrayContext.replace(portalReleaseVersion));
 			}
 		}
 		finally {
@@ -639,14 +636,14 @@ public class TestrayImporter {
 				!JenkinsResultsParserUtil.isNullOrEmpty(testrayProjectName)) {
 
 				testrayProject = testrayServer.getTestrayProjectByName(
-					_testrayTextReplacer.replace(testrayProjectName));
+					_testrayContext.replace(testrayProjectName));
 			}
 
 			if ((testrayProject == null) &&
 				!JenkinsResultsParserUtil.isNullOrEmpty(testrayProjectName)) {
 
 				testrayProject = testrayServer.createTestrayProject(
-					_testrayTextReplacer.replace(testrayProjectName));
+					_testrayContext.replace(testrayProjectName));
 			}
 
 			testrayProjectId = _getBuildParameter("TESTRAY_PROJECT_ID");
@@ -664,7 +661,7 @@ public class TestrayImporter {
 				!JenkinsResultsParserUtil.isNullOrEmpty(testrayProjectName)) {
 
 				testrayProject = testrayServer.getTestrayProjectByName(
-					_testrayTextReplacer.replace(testrayProjectName));
+					_testrayContext.replace(testrayProjectName));
 			}
 
 			if (testrayProject == null) {
@@ -691,7 +688,7 @@ public class TestrayImporter {
 						testrayProjectName)) {
 
 					testrayProject = testrayServer.getTestrayProjectByName(
-						_testrayTextReplacer.replace(testrayProjectName));
+						_testrayContext.replace(testrayProjectName));
 				}
 			}
 
@@ -715,7 +712,7 @@ public class TestrayImporter {
 							quarter.toUpperCase());
 
 						testrayProject = testrayServer.getTestrayProjectByName(
-							_testrayTextReplacer.replace(testrayProjectName));
+							_testrayContext.replace(testrayProjectName));
 					}
 				}
 			}
@@ -731,7 +728,7 @@ public class TestrayImporter {
 						"testray.override.project.name");
 
 					testrayProject = testrayServer.getTestrayProjectByName(
-						_testrayTextReplacer.replace(testrayProjectName));
+						_testrayContext.replace(testrayProjectName));
 				}
 			}
 			catch (IOException ioException) {
@@ -784,7 +781,7 @@ public class TestrayImporter {
 				!JenkinsResultsParserUtil.isNullOrEmpty(testrayRoutineName)) {
 
 				testrayRoutine = testrayProject.createTestrayRoutine(
-					_testrayTextReplacer.replace(testrayRoutineName));
+					_testrayContext.replace(testrayRoutineName));
 			}
 
 			testrayRoutineId = _getBuildParameter("TESTRAY_ROUTINE_ID");
@@ -802,7 +799,7 @@ public class TestrayImporter {
 				!JenkinsResultsParserUtil.isNullOrEmpty(testrayRoutineName)) {
 
 				testrayRoutine = testrayProject.createTestrayRoutine(
-					_testrayTextReplacer.replace(testrayRoutineName));
+					_testrayContext.replace(testrayRoutineName));
 			}
 
 			testrayRoutineName = _getBuildParameter("TESTRAY_BUILD_TYPE");
@@ -811,7 +808,7 @@ public class TestrayImporter {
 				!JenkinsResultsParserUtil.isNullOrEmpty(testrayRoutineName)) {
 
 				testrayRoutine = testrayProject.createTestrayRoutine(
-					_testrayTextReplacer.replace(testrayRoutineName));
+					_testrayContext.replace(testrayRoutineName));
 			}
 
 			if (testrayRoutine == null) {
@@ -838,7 +835,7 @@ public class TestrayImporter {
 						testrayRoutineName)) {
 
 					testrayRoutine = testrayProject.createTestrayRoutine(
-						_testrayTextReplacer.replace(testrayRoutineName));
+						_testrayContext.replace(testrayRoutineName));
 				}
 			}
 
@@ -853,7 +850,7 @@ public class TestrayImporter {
 						"testray.override.routine.name");
 
 					testrayRoutine = testrayProject.createTestrayRoutine(
-						_testrayTextReplacer.replace(testrayRoutineName));
+						_testrayContext.replace(testrayRoutineName));
 				}
 			}
 			catch (IOException ioException) {
@@ -1804,7 +1801,7 @@ public class TestrayImporter {
 	}
 
 	private String _replaceSlackEnvVars(String string, File testBaseDir) {
-		return _testrayTextReplacer.replaceSlack(
+		return _testrayContext.replaceSlack(
 			string, getTestrayBuild(testBaseDir));
 	}
 
@@ -1832,6 +1829,7 @@ public class TestrayImporter {
 	private final List<PullRequest> _pullRequests;
 	private final Map<File, TestrayBuild> _testrayBuilds =
 		Collections.synchronizedMap(new HashMap<File, TestrayBuild>());
+	private final TestrayContext _testrayContext;
 	private final Map<File, TestrayProductVersion> _testrayProductVersions =
 		Collections.synchronizedMap(new HashMap<File, TestrayProductVersion>());
 	private final Map<File, TestrayProject> _testrayProjects =
@@ -1840,7 +1838,6 @@ public class TestrayImporter {
 		Collections.synchronizedMap(new HashMap<File, TestrayRoutine>());
 	private final Map<File, TestrayServer> _testrayServers =
 		Collections.synchronizedMap(new HashMap<File, TestrayServer>());
-	private final TestrayTextReplacer _testrayTextReplacer;
 	private final TopLevelBuildReport _topLevelBuildReport;
 	private final AtomicInteger _uncreatedTestrayCaseResultsCount =
 		new AtomicInteger();
