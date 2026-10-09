@@ -125,18 +125,18 @@ public abstract class BaseTestrayContext implements TestrayContext {
 
 		Map<String, String> buildParameters = getBuildParameters();
 
-		String githubReceiverUsername = buildParameters.get(
+		String gitHubReceiverUsername = buildParameters.get(
 			"GITHUB_RECEIVER_USERNAME");
 		String pullRequestNumber = buildParameters.get(
 			"GITHUB_PULL_REQUEST_NUMBER");
 
-		if (!JenkinsResultsParserUtil.isNullOrEmpty(githubReceiverUsername) &&
+		if (!JenkinsResultsParserUtil.isNullOrEmpty(gitHubReceiverUsername) &&
 			!JenkinsResultsParserUtil.isNullOrEmpty(pullRequestNumber)) {
 
 			for (PullRequest pullRequest : _pullRequests) {
 				if (Objects.equals(
 						pullRequest.getReceiverUsername(),
-						githubReceiverUsername) &&
+						gitHubReceiverUsername) &&
 					Objects.equals(
 						pullRequest.getNumber(), pullRequestNumber)) {
 
@@ -1407,12 +1407,12 @@ public abstract class BaseTestrayContext implements TestrayContext {
 	private String _replaceSubrepository(String string) {
 		Map<String, String> buildParameters = getBuildParameters();
 
-		String githubUpstreamBranchName = buildParameters.get(
+		String gitHubUpstreamBranchName = buildParameters.get(
 			"GITHUB_UPSTREAM_BRANCH_NAME");
 
-		if (!JenkinsResultsParserUtil.isNullOrEmpty(githubUpstreamBranchName)) {
+		if (!JenkinsResultsParserUtil.isNullOrEmpty(gitHubUpstreamBranchName)) {
 			string = string.replace(
-				"$(github.upstream.branch.name)", githubUpstreamBranchName);
+				"$(github.upstream.branch.name)", gitHubUpstreamBranchName);
 		}
 
 		String repositoryName = buildParameters.get("REPOSITORY_NAME");
