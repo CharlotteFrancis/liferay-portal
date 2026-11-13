@@ -34,6 +34,8 @@ import com.liferay.jenkins.results.parser.test.clazz.group.ModulesAxisTestClassG
 import com.liferay.jenkins.results.parser.test.clazz.group.PlaywrightAxisTestClassGroup;
 import com.liferay.jenkins.results.parser.test.clazz.group.WorkspacesCompileAxisTestClassGroup;
 
+import com.liferay.poshi.core.util.GetterUtil;
+
 import java.io.File;
 import java.io.IOException;
 
@@ -676,12 +678,11 @@ public class TestrayImporter {
 		AxisTestClassGroup axisTestClassGroup) {
 
 		try {
-			String imported = JenkinsResultsParserUtil.getProperty(
-				JenkinsResultsParserUtil.getBuildProperties(),
-				"testray.import.downstream.test.results", false,
-				axisTestClassGroup.getBatchName());
-
-			return Boolean.parseBoolean(imported);
+			return GetterUtil.getBoolean(
+				JenkinsResultsParserUtil.getProperty(
+					JenkinsResultsParserUtil.getBuildProperties(),
+					"testray.import.downstream.test.results", false,
+					axisTestClassGroup.getBatchName()));
 		}
 		catch (IOException ioException) {
 			throw new RuntimeException(ioException);

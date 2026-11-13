@@ -33,7 +33,7 @@ public class DownstreamTestClassBuildTestrayCaseResultTest
 		DownstreamTestClassBuildTestrayCaseResult
 			downstreamTestClassBuildTestrayCaseResult =
 				_newDownstreamTestClassBuildTestrayCaseResult(
-					testReport, Mockito.mock(DownstreamBuildReport.class));
+					Mockito.mock(DownstreamBuildReport.class), testReport);
 
 		Assert.assertSame(
 			testReport,
@@ -54,10 +54,10 @@ public class DownstreamTestClassBuildTestrayCaseResultTest
 		DownstreamTestClassBuildTestrayCaseResult
 			downstreamTestClassBuildTestrayCaseResult =
 				_newDownstreamTestClassBuildTestrayCaseResult(
-					testReport, Mockito.mock(DownstreamBuildReport.class));
+					Mockito.mock(DownstreamBuildReport.class), testReport);
 
 		Assert.assertEquals(
-			1234L, downstreamTestClassBuildTestrayCaseResult.getDuration());
+			1234, downstreamTestClassBuildTestrayCaseResult.getDuration());
 	}
 
 	@Test
@@ -70,7 +70,7 @@ public class DownstreamTestClassBuildTestrayCaseResultTest
 		DownstreamTestClassBuildTestrayCaseResult
 			downstreamTestClassBuildTestrayCaseResult =
 				_newDownstreamTestClassBuildTestrayCaseResult(
-					testReport, Mockito.mock(DownstreamBuildReport.class));
+					Mockito.mock(DownstreamBuildReport.class), testReport);
 
 		Assert.assertEquals(
 			JenkinsResultsParserUtil.combine(testClassName, "#", testName),
@@ -80,9 +80,9 @@ public class DownstreamTestClassBuildTestrayCaseResultTest
 	@Test
 	public void testGetStatus() {
 		Assert.assertEquals(
-			TestrayCaseResult.Status.PASSED, _getStatus(false, false));
-		Assert.assertEquals(
 			TestrayCaseResult.Status.FAILED, _getStatus(true, false));
+		Assert.assertEquals(
+			TestrayCaseResult.Status.PASSED, _getStatus(false, false));
 		Assert.assertEquals(
 			TestrayCaseResult.Status.UNTESTED, _getStatus(false, true));
 	}
@@ -98,7 +98,6 @@ public class DownstreamTestClassBuildTestrayCaseResultTest
 		).when(
 			testReport
 		).isFailing();
-
 		Mockito.doReturn(
 			skipped
 		).when(
@@ -108,7 +107,7 @@ public class DownstreamTestClassBuildTestrayCaseResultTest
 		DownstreamTestClassBuildTestrayCaseResult
 			downstreamTestClassBuildTestrayCaseResult =
 				_newDownstreamTestClassBuildTestrayCaseResult(
-					testReport, Mockito.mock(DownstreamBuildReport.class));
+					Mockito.mock(DownstreamBuildReport.class), testReport);
 
 		return downstreamTestClassBuildTestrayCaseResult.getStatus();
 	}
@@ -146,8 +145,8 @@ public class DownstreamTestClassBuildTestrayCaseResultTest
 
 	private DownstreamTestClassBuildTestrayCaseResult
 		_newDownstreamTestClassBuildTestrayCaseResult(
-			TestReport testReport,
-			DownstreamBuildReport downstreamBuildReport) {
+			DownstreamBuildReport downstreamBuildReport,
+			TestReport testReport) {
 
 		TopLevelBuildReport topLevelBuildReport = Mockito.mock(
 			TopLevelBuildReport.class);
