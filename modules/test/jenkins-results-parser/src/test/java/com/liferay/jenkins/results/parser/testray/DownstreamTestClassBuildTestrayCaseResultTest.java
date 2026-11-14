@@ -98,6 +98,7 @@ public class DownstreamTestClassBuildTestrayCaseResultTest
 		).when(
 			testReport
 		).isFailing();
+
 		Mockito.doReturn(
 			skipped
 		).when(

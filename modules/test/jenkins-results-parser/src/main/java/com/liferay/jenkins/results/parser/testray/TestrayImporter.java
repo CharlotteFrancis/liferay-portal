@@ -33,7 +33,6 @@ import com.liferay.jenkins.results.parser.test.clazz.group.JUnitAxisTestClassGro
 import com.liferay.jenkins.results.parser.test.clazz.group.ModulesAxisTestClassGroup;
 import com.liferay.jenkins.results.parser.test.clazz.group.PlaywrightAxisTestClassGroup;
 import com.liferay.jenkins.results.parser.test.clazz.group.WorkspacesCompileAxisTestClassGroup;
-
 import com.liferay.poshi.core.util.GetterUtil;
 
 import java.io.File;
