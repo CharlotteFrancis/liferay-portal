@@ -345,11 +345,17 @@ public class SiteResourceImpl
 			ServiceContextThreadLocal.pushServiceContext(
 				_getServiceContext(group));
 
-			SiteInitializer siteInitializer = _siteInitializerFactory.create(
-				new File(tempFolder, "site-initializer"),
-				group.getName(LocaleUtil.getDefault()));
+			try {
+				SiteInitializer siteInitializer =
+					_siteInitializerFactory.create(
+						new File(tempFolder, "site-initializer"),
+						group.getName(LocaleUtil.getDefault()));
 
-			siteInitializer.initialize(group.getGroupId());
+				siteInitializer.initialize(group.getGroupId());
+			}
+			finally {
+				ServiceContextThreadLocal.popServiceContext();
+			}
 		}
 		catch (Exception exception) {
 
@@ -362,8 +368,6 @@ public class SiteResourceImpl
 		finally {
 			PermissionThreadLocal.setPermissionChecker(permissionChecker);
 			PrincipalThreadLocal.setName(name);
-
-			ServiceContextThreadLocal.popServiceContext();
 
 			tempFolder.delete();
 		}
@@ -647,7 +651,16 @@ public class SiteResourceImpl
 				_layoutServiceContextHelper.getServiceContextAutoCloseable(
 					contextCompany, permissionChecker.getUser())) {
 
-			return _addGroup(externalReferenceCode, site, _getServiceContext());
+			ServiceContext serviceContext = _getServiceContext();
+
+			ServiceContextThreadLocal.pushServiceContext(serviceContext);
+
+			try {
+				return _addGroup(externalReferenceCode, site, serviceContext);
+			}
+			finally {
+				ServiceContextThreadLocal.popServiceContext();
+			}
 		}
 		catch (Exception exception) {
 
@@ -657,9 +670,6 @@ public class SiteResourceImpl
 				contextUser.getUserId(), permissionChecker.getUserId());
 
 			throw exception;
-		}
-		finally {
-			ServiceContextThreadLocal.popServiceContext();
 		}
 	}
 
@@ -941,8 +951,6 @@ public class SiteResourceImpl
 			serviceContext.setRequest(contextHttpServletRequest);
 			serviceContext.setUserId(contextUser.getUserId());
 		}
-
-		ServiceContextThreadLocal.pushServiceContext(serviceContext);
 
 		return serviceContext;
 	}
@@ -1309,39 +1317,37 @@ public class SiteResourceImpl
 				_layoutServiceContextHelper.getServiceContextAutoCloseable(
 					contextCompany, permissionChecker.getUser())) {
 
-			if ((group.isCompany() || group.isControlPanel() ||
-				 group.isGuest()) &&
-				!_isActive(site.getActive())) {
+			ServiceContext serviceContext = _getServiceContext();
 
-				throw new RequiredGroupException.MustNotDeactivateSystemGroup(
-					site.getExternalReferenceCode());
+			ServiceContextThreadLocal.pushServiceContext(serviceContext);
+
+			try {
+				Group updatedGroup = _groupService.updateGroup(
+					group.getGroupId(),
+					_getParentGroupId(
+						group, site.getParentSiteExternalReferenceCode()),
+					_getNameMap(site), _getDescriptionMap(site),
+					_getType(site.getMembershipType()),
+					_getTypeSettings(site, group.getTypeSettingsProperties()),
+					_isManualMembership(site.getManualMembership()),
+					_getMembershipRestriction(site.getMembershipRestriction()),
+					_getFriendlyUrlPath(group, site), false,
+					_isActive(site.getActive()), serviceContext);
+
+				LiveUsers.joinGroup(
+					contextCompany.getCompanyId(), updatedGroup.getGroupId(),
+					contextUser.getUserId());
+
+				return updatedGroup;
 			}
-
-			Group updatedGroup = _groupService.updateGroup(
-				group.getGroupId(),
-				_getParentGroupId(
-					group, site.getParentSiteExternalReferenceCode()),
-				_getNameMap(site), _getDescriptionMap(site),
-				_getType(site.getMembershipType()),
-				_getTypeSettings(site, group.getTypeSettingsProperties()),
-				_isManualMembership(site.getManualMembership()),
-				_getMembershipRestriction(site.getMembershipRestriction()),
-				_getFriendlyUrlPath(group, site), false,
-				_isActive(site.getActive()), _getServiceContext());
-
-			LiveUsers.joinGroup(
-				contextCompany.getCompanyId(), updatedGroup.getGroupId(),
-				contextUser.getUserId());
-
-			return updatedGroup;
+			finally {
+				ServiceContextThreadLocal.popServiceContext();
+			}
 		}
 		catch (Exception exception) {
 			PermissionCacheUtil.clearCache(permissionChecker.getUserId());
 
 			throw exception;
-		}
-		finally {
-			ServiceContextThreadLocal.popServiceContext();
 		}
 	}
 
